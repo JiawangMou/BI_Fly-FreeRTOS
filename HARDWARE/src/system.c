@@ -23,8 +23,8 @@ void systemInit(void)
 	u8 cnt = 0;
 	
 	nvicInit();			/*中断配置初始化*/
-//	extiInit();			/*外部中断初始化*/	
-	delay_init(180);		/*delay初始化*/
+	extiInit();			/*外部中断初始化*/	
+	delay_init(180);	/*delay初始化*/
 	ledInit();			/*led初始化*/
 //	ledseqInit();		/*led灯序列初始化*/
 //	
