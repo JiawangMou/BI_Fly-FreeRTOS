@@ -16,6 +16,7 @@
 
 TaskHandle_t startTaskHandle;
 static void startTask(void *arg);
+void ledTask(void *param);
 
 int main()
 {
@@ -44,12 +45,14 @@ void startTask(void *arg)
 
 //    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);					/*创建电源管理任务*/
 
-      xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
+//    xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 
 //    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);		/*创建姿态任务*/
 
 //    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
-
+//以下为测试代码
+    xTaskCreate(ledTask, "LEDTASK", 150, NULL, 5, NULL);
+    xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 //    printf("Free heap: %d bytes\n", xPortGetFreeHeapSize());			/*打印剩余堆栈大小*/
 
     vTaskDelete(startTaskHandle);										/*删除开始任务*/
@@ -72,6 +75,15 @@ void vApplicationIdleHook( void )
     __WFI();	/*进入低功耗模式*/
 }
 
+void ledTask(void *param)
+{	
+    u32 lastWakeTime = getSysTickCnt();
+    while(1)
+    {
+        vTaskDelayUntil(&lastWakeTime, 1000);		/*1ms周期延时*/
+        GPIO_ToggleBits(GPIOC, GPIO_Pin_6);
+    }
+}
 
 
 

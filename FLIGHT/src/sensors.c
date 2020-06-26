@@ -122,21 +122,22 @@ static void sensorsInterruptInit(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 	/*Ê¹ÄÜMPU6500ÖÐ¶Ï*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource4);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource7);
 
-	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line7;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	portDISABLE_INTERRUPTS();
 	EXTI_Init(&EXTI_InitStructure);
-	EXTI_ClearITPendingBit(EXTI_Line4);
+	EXTI_ClearITPendingBit(EXTI_Line7);
 	portENABLE_INTERRUPTS();
 }
 
@@ -154,11 +155,11 @@ void sensorsDeviceInit(void)
 	if (temp == 0x38 || temp == 0x39)
 	{
 		isMPUPresent=true;
-		printf("MPU9250 I2C connection [OK].\n");
+		//printf("MPU9250 I2C connection [OK].\n");
 	}
 	else
 	{
-		printf("MPU9250 I2C connection [FAIL].\n");
+		//printf("MPU9250 I2C connection [FAIL].\n");
 	}
 	
 	mpu6500SetSleepEnabled(false);	// »½ÐÑMPU6500
@@ -571,7 +572,7 @@ void sensorsAcquire(sensorData_t *sensors, const u32 tick)
 	sensorsReadBaro(&sensors->baro);
 }
 
-void __attribute__((used)) EXTI4_Callback(void)
+void __attribute__((used)) EXTI7_Callback(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);

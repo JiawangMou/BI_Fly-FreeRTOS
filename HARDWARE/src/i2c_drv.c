@@ -98,26 +98,26 @@ static void i2cdrvDmaIsrHandler(I2cDrv* i2c);
  */
 static const I2cDef sensorsBusDef =
 {
-	.i2cPort            = I2C1,
-	.i2cPerif           = RCC_APB1Periph_I2C1,
-	.i2cEVIRQn          = I2C1_EV_IRQn,
-	.i2cERIRQn          = I2C1_ER_IRQn,
+	.i2cPort            = FMPI2C1,
+	.i2cPerif           = RCC_APB1Periph_FMPI2C1,
+	.i2cEVIRQn          = FMPI2C1_EV_IRQn,
+	.i2cERIRQn          = FMPI2C1_ER_IRQn,
 	.i2cClockSpeed      = I2C_SENSORS_CLOCK_SPEED,
-	.gpioSCLPerif       = RCC_AHB1Periph_GPIOB,
-	.gpioSCLPort        = GPIOB,
-	.gpioSCLPin         = GPIO_Pin_8,
-	.gpioSCLPinSource   = GPIO_PinSource8,
-	.gpioSDAPerif       = RCC_AHB1Periph_GPIOB,
-	.gpioSDAPort        = GPIOB,
-	.gpioSDAPin         = GPIO_Pin_9,
-	.gpioSDAPinSource   = GPIO_PinSource9,
-	.gpioAF             = GPIO_AF_I2C1,
+	.gpioSCLPerif       = RCC_AHB1Periph_GPIOD,
+	.gpioSCLPort        = GPIOD,
+	.gpioSCLPin         = GPIO_Pin_12,
+	.gpioSCLPinSource   = GPIO_PinSource12,
+	.gpioSDAPerif       = RCC_AHB1Periph_GPIOD,
+	.gpioSDAPort        = GPIOD,
+	.gpioSDAPin         = GPIO_Pin_13,
+	.gpioSDAPinSource   = GPIO_PinSource13,
+	.gpioAF             = GPIO_AF_FMPI2C,
 	.dmaPerif           = RCC_AHB1Periph_DMA1,
-	.dmaChannel         = DMA_Channel_1,
-	.dmaRxStream        = DMA1_Stream0,
-	.dmaRxIRQ           = DMA1_Stream0_IRQn,
-	.dmaRxTCFlag        = DMA_FLAG_TCIF0,
-	.dmaRxTEFlag        = DMA_FLAG_TEIF0,
+	.dmaChannel         = DMA_Channel_2,
+	.dmaRxStream        = DMA1_Stream2,
+	.dmaRxIRQ           = DMA1_Stream2_IRQn,
+	.dmaRxTCFlag        = DMA_FLAG_TCIF2,
+	.dmaRxTEFlag        = DMA_FLAG_TEIF2,
 };
 
 /**
@@ -133,8 +133,8 @@ static const I2cDef deckBusDef =
 	.i2cPort            = I2C3,
 	.i2cPerif           = RCC_APB1Periph_I2C3,
 	.i2cEVIRQn          = I2C3_EV_IRQn,
-	.i2cERIRQn          = I2C3_ER_IRQn,
 	.i2cClockSpeed      = I2C_DECK_CLOCK_SPEED,
+	.i2cERIRQn          = I2C3_ER_IRQn,
 	.gpioSCLPerif       = RCC_AHB1Periph_GPIOA,
 	.gpioSCLPort        = GPIOA,
 	.gpioSCLPin         = GPIO_Pin_8,
@@ -213,7 +213,7 @@ static void i2cdrvDmaSetupBus(I2cDrv* i2c)
 
 	RCC_AHB1PeriphClockCmd(i2c->def->dmaPerif, ENABLE);
 
-	// RX DMA Channel Config
+	// RX DMA Channel Config   在这里给DMAStruct结构体赋初值，在发送时初始化对应的寄存器
 	i2c->DMAStruct.DMA_Channel = i2c->def->dmaChannel;
 	i2c->DMAStruct.DMA_PeripheralBaseAddr = (uint32_t)&i2c->def->i2cPort->DR;
 	i2c->DMAStruct.DMA_Memory0BaseAddr = 0;
@@ -245,7 +245,7 @@ static void i2cdrvInitBus(I2cDrv* i2c)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	// Enable GPIOA clock
+	// Enable GPIOD clock
 	RCC_AHB1PeriphClockCmd(i2c->def->gpioSDAPerif, ENABLE);
 	RCC_AHB1PeriphClockCmd(i2c->def->gpioSCLPerif, ENABLE);
 	// Enable I2C_SENSORS clock

@@ -75,6 +75,30 @@ typedef struct
 	uint32_t            dmaRxTEFlag;
 
 } I2cDef;
+typedef struct
+{
+	FMPI2C_TypeDef*     fmpi2cPort;
+	uint32_t            fmpi2cPerif;
+	uint32_t            fmpi2cEVIRQn;
+	uint32_t            fmpi2cERIRQn;
+	uint32_t            fmpi2cClockSpeed;
+	uint32_t            gpioSCLPerif;
+	GPIO_TypeDef*       gpioSCLPort;
+	uint32_t            gpioSCLPin;
+	uint32_t            gpioSCLPinSource;
+	uint32_t            gpioSDAPerif;
+	GPIO_TypeDef*       gpioSDAPort;
+	uint32_t            gpioSDAPin;
+	uint32_t            gpioSDAPinSource;
+	uint32_t            gpioAF;
+	uint32_t            dmaPerif;
+	uint32_t            dmaChannel;
+	DMA_Stream_TypeDef* dmaRxStream;
+	uint32_t            dmaRxIRQ;
+	uint32_t            dmaRxTCFlag;
+	uint32_t            dmaRxTEFlag;
+
+} FMPI2cDef;
 
 typedef struct
 {
