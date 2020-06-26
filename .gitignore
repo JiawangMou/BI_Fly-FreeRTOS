@@ -76,3 +76,4 @@ JLinkSettings.ini
 *.plg
 *.scvd
 /.vscode/
+/BI_Fly-FreeRTOS.si4project/
