@@ -1786,8 +1786,7 @@ void RCC_TIMCLKPresConfig(uint32_t RCC_TIMCLKPrescaler)
   * @param  NewState: new state of the specified peripheral clock.
   *          This parameter can be: ENABLE or DISABLE.
   * @retval None
-  */
-void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState)
+  */void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState)
 {
   /* Check the parameters */
   assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));

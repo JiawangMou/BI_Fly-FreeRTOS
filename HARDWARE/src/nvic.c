@@ -104,6 +104,7 @@ __asm void HardFault_Handler(void)
     MRSEQ R0, MSP
     MRSNE R0, PSP
     B printHardFault
+	
 }
 
 void  printHardFault(u32* hardfaultArgs)

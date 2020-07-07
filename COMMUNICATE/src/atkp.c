@@ -524,7 +524,7 @@ static void atkpReceiveAnl(atkp_t *anlPacket)
 	{
 		pmSyslinkUpdate(anlPacket);
 	}
-	else if(anlPacket->msgID == DOWN_REMOTER)/*遥控器*/	
+	else if(anlPacket->msgID == DOWN_REMOTER)/*遥控器*/
 	{
 		remoterCtrlProcess(anlPacket);
 	}

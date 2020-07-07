@@ -79,14 +79,14 @@ void ledInit(void)
 //    ledClearAll();
 
 //以下为测试代码
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);  
+    GPIO_Init(GPIOB, &GPIO_InitStructure);  
 
-	GPIO_SetBits(GPIOC, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_3);
 //end
     isInit = true;
 

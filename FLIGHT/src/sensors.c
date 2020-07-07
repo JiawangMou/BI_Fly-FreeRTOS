@@ -122,34 +122,37 @@ static void sensorsInterruptInit(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 	/*使能MPU6500中断*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(GPIOE, &GPIO_InitStructure);
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource7);
+	
+	
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource11);
 
-	EXTI_InitStructure.EXTI_Line = EXTI_Line7;
+	
+	EXTI_InitStructure.EXTI_Line = EXTI_Line11;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	portDISABLE_INTERRUPTS();
 	EXTI_Init(&EXTI_InitStructure);
-	EXTI_ClearITPendingBit(EXTI_Line7);
+	EXTI_ClearITPendingBit(EXTI_Line11);
 	portENABLE_INTERRUPTS();
 }
 
 /* 传感器器件初始化 */
 void sensorsDeviceInit(void)
 {
-	i2cdevInit(I2C1_DEV);
-	mpu6500Init(I2C1_DEV);	
+	i2cdevInit(I2C3_DEV);
+	mpu6500Init(I2C3_DEV);	
 	
 	vTaskDelay(10);
 	mpu6500Reset();	// 复位MPU6500
-	vTaskDelay(20);	// 延时等待寄存器复位
+	vTaskDelay(50);	// 延时等待寄存器复位
 	
 	u8 temp = mpu6500GetDeviceID();
 	if (temp == 0x38 || temp == 0x39)
@@ -184,7 +187,7 @@ void sensorsDeviceInit(void)
 
 
 #ifdef SENSORS_ENABLE_MAG_AK8963
-	ak8963Init(I2C1_DEV);	//ak8963磁力计初始化
+	ak8963Init(I2C3_DEV);	//ak8963磁力计初始化
 	if (ak8963TestConnection() == true)
 	{
 		isMagPresent = true;
@@ -197,13 +200,13 @@ void sensorsDeviceInit(void)
 	}
 #endif
 
-	if (bmp280Init(I2C1_DEV) == true)//BMP280初始化
+	if (bmp280Init(I2C3_DEV) == true)//BMP280初始化
 	{
 		isBaroPresent = true;
 		baroType = BMP280;
 		vTaskDelay(100);
 	}
-	else if (SPL06Init(I2C1_DEV) == true)//SPL06初始化
+	else if (SPL06Init(I2C3_DEV) == true)//SPL06初始化
 	{
 		isBaroPresent = true;
 		baroType = SPL06;
@@ -533,7 +536,7 @@ void sensorsTask(void *param)
 				(isMagPresent ? SENSORS_MAG_BUFF_LEN : 0) +
 				(isBaroPresent ? SENSORS_BARO_BUFF_LEN : 0));
 
-			i2cdevRead(I2C1_DEV, MPU6500_ADDRESS_AD0_HIGH, MPU6500_RA_ACCEL_XOUT_H, dataLen, buffer);
+			i2cdevRead(I2C3_DEV, MPU6500_ADDRESS_AD0_HIGH, MPU6500_RA_ACCEL_XOUT_H, dataLen, buffer);
 			
 			/*处理原始数据，并放入数据队列中*/
 			processAccGyroMeasurements(&(buffer[0]));
@@ -572,10 +575,10 @@ void sensorsAcquire(sensorData_t *sensors, const u32 tick)
 	sensorsReadBaro(&sensors->baro);
 }
 
-void __attribute__((used)) EXTI7_Callback(void)
+void __attribute__((used)) EXTI11_Callback(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);
+//	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);
 
 	if (xHigherPriorityTaskWoken)
 	{

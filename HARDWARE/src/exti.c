@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include "sys.h"
 #include "exti.h"
+/*FreeRTOS相关头文件*/
+#include "FreeRTOS.h"
 
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -22,14 +24,18 @@ static bool isInit;
 void extiInit()
 {
 	static NVIC_InitTypeDef NVIC_InitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	EXTI_InitTypeDef EXTI_InitStructure;
 
 	if (isInit)	return;
 	
 
-	RCC_AHB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
-
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
+	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
 //	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
@@ -47,18 +53,37 @@ void extiInit()
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
 //	NVIC_Init(&NVIC_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
+	// NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+	// NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
+	// NVIC_Init(&NVIC_InitStructure);
 
 //	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
 //	NVIC_Init(&NVIC_InitStructure);
 
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
-//	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-//	NVIC_Init(&NVIC_InitStructure);
+//MPU9250的中断 EXTI1  PB1
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+	NVIC_Init(&NVIC_InitStructure);
 
+//测试代码
+	/*使能MPU6500中断*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource1);
+
+	EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	portDISABLE_INTERRUPTS();
+	EXTI_Init(&EXTI_InitStructure);
+	EXTI_ClearITPendingBit(EXTI_Line1);
+	portENABLE_INTERRUPTS();
 	isInit = true;
 }
 
