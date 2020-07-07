@@ -32,7 +32,7 @@ void extiInit()
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
 	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 	
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -61,28 +61,28 @@ void extiInit()
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
 //	NVIC_Init(&NVIC_InitStructure);
 
-//MPU9250的中断 EXTI1  PB1
+//MPU9250的中断 EXTI11  PD11
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
 	NVIC_Init(&NVIC_InitStructure);
 
 //测试代码
 	/*使能MPU6500中断*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource1);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource11);
 
-	EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line11;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	portDISABLE_INTERRUPTS();
 	EXTI_Init(&EXTI_InitStructure);
-	EXTI_ClearITPendingBit(EXTI_Line1);
+	EXTI_ClearITPendingBit(EXTI_Line11);
 	portENABLE_INTERRUPTS();
 	isInit = true;
 }

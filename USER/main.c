@@ -44,7 +44,7 @@ void startTask(void *arg)
 //    xTaskCreate(configParamTask, "CONFIG_TASK", 150, NULL, 1, NULL);	/*创建参数配置任务*/
 
 //    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);				/*创建电源管理任务*/
-//	xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
+	xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 
 //    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
 
@@ -65,11 +65,11 @@ void vApplicationIdleHook( void )
 
     portTickType tickCount = getSysTickCnt();
 
-//    if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
-//    {
-//        tickWatchdogReset = tickCount;
-//        watchdogReset();
-//    }
+    if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
+    {
+        tickWatchdogReset = tickCount;
+        watchdogReset();
+    }
 
 //    __WFI();	/*进入低功耗模式*/
 }
@@ -84,16 +84,6 @@ void ledTask(void *param)
     }
 }
 
-void __attribute__((used)) EXTI1_Callback(void)
-{
-	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-//	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);
-
-//	if (xHigherPriorityTaskWoken)
-//	{
-		portYIELD();
-//	}
-}
 
 
 
