@@ -20,12 +20,15 @@ static bool systemTest(void);
 /*底层硬件初始化*/
 void systemInit(void)
 {
-	u8 cnt = 0;
+//	u8 cnt = 0;
 	
 	nvicInit();			/*中断配置初始化*/
 	extiInit();			/*外部中断初始化*/	
 	delay_init(180);	/*delay初始化*/
 	ledInit();			/*led初始化*/
+	uartslkInit();
+	radiolinkInit();
+	atkpInit();
 //	ledseqInit();		/*led灯序列初始化*/
 //	
 //	commInit();			/*通信初始化  STM32 & NRF51822 */
