@@ -29,7 +29,7 @@
 #define CCR_ENABLE_SET ((u32)0x00000001)
 
 static bool isInit = false;
-static bool connectState = true;
+static bool connectState = false;
 
 static xSemaphoreHandle waitUntilSendDone;
 static xSemaphoreHandle uartBusy;
@@ -39,47 +39,7 @@ static xQueueHandle usbDataDelivery;
 static u8* outDataIsr;
 static u8 dataIndexIsr;
 static u8 dataSizeIsr;
-// static bool isUartDmaInitialized;
-// static u32 initialDMACount;
-// static u32 remainingDMACount;
-// static bool dmaIsPaused;
-// static DMA_InitTypeDef DMA_InitStructure;
 
-// static void usbPauseDma(void);
-// static void usbResumeDma(void);
-
-/*配置串口DMA*/
-// void usbDmaInit(void)
-// {
-//     NVIC_InitTypeDef NVIC_InitStructure;
-
-//     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
-
-//     /* USART TX DMA 通道配置*/
-//     DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&USB_TYPE->DR;
-//     DMA_InitStructure.DMA_Memory0BaseAddr = (u32)dmaBuffer;
-//     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-//     DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-//     DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-//     DMA_InitStructure.DMA_BufferSize = 0;
-//     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-//     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-//     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-//     DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-//     DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-//     DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-//     DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-//     DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
-//     DMA_InitStructure.DMA_Channel = USB_DMA_CH;
-
-//     NVIC_InitStructure.NVIC_IRQChannel = USB_DMA_IRQ;
-//     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
-//     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//     NVIC_Init(&NVIC_InitStructure);
-
-//     isUartDmaInitialized = true;
-// }
 
 void usbInit(void) /*串口初始化*/
 {
@@ -226,7 +186,4 @@ bool getusbConnectState()
 {
     return connectState;
 }
-// void __attribute__((used)) DMA1_Stream3_IRQHandler(void)
-// {
-//     usbDmaIsr();
-// }
+
