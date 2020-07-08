@@ -29,7 +29,7 @@ static u32 sysTickCnt=0;
 
 void nvicInit(void)
 {
-	NVIC_SetVectorTable(FIRMWARE_START_ADDR,0);
+	//NVIC_SetVectorTable(FIRMWARE_START_ADDR,0);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
@@ -104,6 +104,7 @@ __asm void HardFault_Handler(void)
     MRSEQ R0, MSP
     MRSNE R0, PSP
     B printHardFault
+	
 }
 
 void  printHardFault(u32* hardfaultArgs)

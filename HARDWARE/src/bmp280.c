@@ -66,7 +66,8 @@ bool bmp280Init(I2C_Dev *i2cPort)
 	i2cdevReadByte(I2Cx, devAddr, BMP280_CHIP_ID, &bmp280ID);	/* ∂¡»°bmp280 ID*/
 	
 	if(bmp280ID == BMP280_DEFAULT_CHIP_ID)
-		printf("BMP280 ID IS: 0x%X\n",bmp280ID);
+		//printf("BMP280 ID IS: 0x%X\n",bmp280ID);
+	;
     else 
         return false;
 
