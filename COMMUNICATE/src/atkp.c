@@ -14,7 +14,7 @@
 #include "sensors.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
-#include "usbd_usr.h"
+#include "uart_3.h"
 #include "usblink.h"
 #include <stdbool.h>
 #include <stdint.h>

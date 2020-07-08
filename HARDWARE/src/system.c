@@ -29,6 +29,7 @@ void systemInit(void)
 	uartslkInit();
 	radiolinkInit();
 	atkpInit();
+	usblinkInit();
 //	ledseqInit();		/*led灯序列初始化*/
 //	
 //	commInit();			/*通信初始化  STM32 & NRF51822 */
