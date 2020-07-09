@@ -172,8 +172,8 @@ void sensorsDeviceInit(void)
 	mpu6500SetTempSensorEnabled(true);	// 使能温度传感器	
 	mpu6500SetIntEnabled(false);		// 关闭中断	
 	mpu6500SetI2CBypassEnabled(true);	// 旁路模式，磁力计和气压连接到主IIC	
-	mpu6500SetFullScaleGyroRange(SENSORS_GYRO_FS_CFG);	// 设置陀螺量程	
 	mpu6500SetFullScaleAccelRange(SENSORS_ACCEL_FS_CFG);// 设置加速计量程	
+	mpu6500SetFullScaleGyroRange(SENSORS_GYRO_FS_CFG);	// 设置陀螺量程	
 	mpu6500SetAccelDLPF(MPU6500_ACCEL_DLPF_BW_41);		// 设置加速计数字低通滤波
 
 	mpu6500SetRate(0);// 设置采样速率: 1000 / (1 + 0) = 1000Hz

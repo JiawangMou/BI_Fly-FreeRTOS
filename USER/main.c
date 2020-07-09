@@ -61,15 +61,15 @@ void startTask(void *arg)
 
 void vApplicationIdleHook( void )
 {
-    static u32 tickWatchdogReset = 0;
+    // static u32 tickWatchdogReset = 0;
 
-    portTickType tickCount = getSysTickCnt();
+    // portTickType tickCount = getSysTickCnt();
 
-    if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
-    {
-        tickWatchdogReset = tickCount;
-        watchdogReset();
-    }
+    // if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
+    // {
+    //     tickWatchdogReset = tickCount;
+    //     watchdogReset();
+    // }
 
 //    __WFI();	/*进入低功耗模式*/
 }

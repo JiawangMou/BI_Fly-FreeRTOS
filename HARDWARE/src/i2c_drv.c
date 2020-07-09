@@ -128,34 +128,34 @@ I2cDrv sensorsBus =
 	.def                = &sensorsBusDef,
 };
 
-static const I2cDef deckBusDef =
-{
-	.i2cPort            = I2C3,
-	.i2cPerif           = RCC_APB1Periph_I2C3,
-	.i2cEVIRQn          = I2C3_EV_IRQn,
-	.i2cERIRQn          = I2C3_ER_IRQn,
-	.i2cClockSpeed      = I2C_DECK_CLOCK_SPEED,
-	.gpioSCLPerif       = RCC_AHB1Periph_GPIOA,
-	.gpioSCLPort        = GPIOA,
-	.gpioSCLPin         = GPIO_Pin_8,
-	.gpioSCLPinSource   = GPIO_PinSource8,
-	.gpioSDAPerif       = RCC_AHB1Periph_GPIOB,
-	.gpioSDAPort        = GPIOB,
-	.gpioSDAPin         = GPIO_Pin_4,
-	.gpioSDAPinSource   = GPIO_PinSource4,
-	.gpioAF             = GPIO_AF_I2C3,
-	.dmaPerif           = RCC_AHB1Periph_DMA1,
-	.dmaChannel         = DMA_Channel_3,
-	.dmaRxStream        = DMA1_Stream2,
-	.dmaRxIRQ           = DMA1_Stream2_IRQn,
-	.dmaRxTCFlag        = DMA_FLAG_TCIF2,
-	.dmaRxTEFlag        = DMA_FLAG_TEIF2,
-};
+// static const I2cDef deckBusDef =
+// {
+// 	.i2cPort            = I2C3,
+// 	.i2cPerif           = RCC_APB1Periph_I2C3,
+// 	.i2cEVIRQn          = I2C3_EV_IRQn,
+// 	.i2cERIRQn          = I2C3_ER_IRQn,
+// 	.i2cClockSpeed      = I2C_DECK_CLOCK_SPEED,
+// 	.gpioSCLPerif       = RCC_AHB1Periph_GPIOA,
+// 	.gpioSCLPort        = GPIOA,
+// 	.gpioSCLPin         = GPIO_Pin_8,
+// 	.gpioSCLPinSource   = GPIO_PinSource8,
+// 	.gpioSDAPerif       = RCC_AHB1Periph_GPIOB,
+// 	.gpioSDAPort        = GPIOB,
+// 	.gpioSDAPin         = GPIO_Pin_4,
+// 	.gpioSDAPinSource   = GPIO_PinSource4,
+// 	.gpioAF             = GPIO_AF_I2C3,
+// 	.dmaPerif           = RCC_AHB1Periph_DMA1,
+// 	.dmaChannel         = DMA_Channel_3,
+// 	.dmaRxStream        = DMA1_Stream2,
+// 	.dmaRxIRQ           = DMA1_Stream2_IRQn,
+// 	.dmaRxTCFlag        = DMA_FLAG_TCIF2,
+// 	.dmaRxTEFlag        = DMA_FLAG_TEIF2,
+// };
 
-I2cDrv deckBus =
-{
-	.def                = &deckBusDef,
-};
+// I2cDrv deckBus =
+// {
+// 	.def                = &deckBusDef,
+// };
 
 
 /**

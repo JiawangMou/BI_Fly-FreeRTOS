@@ -57,7 +57,7 @@ void systemInit(void)
 //		}
 //	}
 
-	watchdogInit(WATCHDOG_RESET_MS);	/*看门狗初始化*/
+//	watchdogInit(WATCHDOG_RESET_MS);	/*看门狗初始化*/
 	
 }
 static bool systemTest(void)
