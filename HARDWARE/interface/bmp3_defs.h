@@ -57,6 +57,8 @@ extern "C" {
 #include <stddef.h>
 #endif
 
+#include "i2cdev.h"
+
 /*************************** Common macros   *****************************/
 
 #if !defined(UINT8_C) && !defined(INT8_C)
@@ -108,7 +110,7 @@ extern "C" {
 /********************************************************/
 /**\name Macro definitions */
 /**\name I2C addresses */
-#define _PRIM                      UINT8_C(0x76)
+#define BMP3_I2C_ADDR_PRIM                      UINT8_C(0x76)
 #define BMP3_I2C_ADDR_SEC                       UINT8_C(0x77)
 
 /**\name BMP3 chip identifier */
@@ -429,13 +431,13 @@ enum bmp3_intf {
  * @brief Bus communication function pointer which should be mapped to
  * the platform specific read functions of the user
  */
-typedef int8_t (*bmp3_read_fptr_t)(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);
+typedef bool (*bmp3_read_fptr_t)(I2C_Dev *i2c_dev,uint8_t dev_id, uint8_t reg_addr, uint16_t len, uint8_t *data);
 
 /*!
  * @brief Bus communication function pointer which should be mapped to
  * the platform specific write functions of the user
  */
-typedef int8_t (*bmp3_write_fptr_t)(uint8_t dev_id, uint8_t reg_addr, const uint8_t *data, uint16_t len);
+typedef bool (*bmp3_write_fptr_t)(I2C_Dev *i2c_dev, uint8_t dev_id, uint8_t reg_addr, uint16_t len , const uint8_t *data);
 
 typedef void (*bmp3_delay_fptr_t)(uint32_t period);
 
@@ -784,6 +786,7 @@ struct bmp3_uncomp_data
  */
 struct bmp3_dev
 {
+    I2C_Dev *i2c_dev;
     /*! Chip Id */
     uint8_t chip_id;
 

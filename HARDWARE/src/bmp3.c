@@ -39,6 +39,8 @@
 /*! @file bmp3.c
  * @brief Sensor driver for BMP3 sensor */
 #include "bmp3.h"
+#include "delay.h"
+
 
 /***************** Internal macros ******************************/
 /*! Power control settings */
@@ -83,6 +85,107 @@
 
 /*! FIFO configuration change header frame */
 #define FIFO_CONFIG_CHANGE     UINT8_C(0x48)
+
+struct bmp3_adv_settings BMP388_ADV_SETTINGS = 
+{
+    /*! i2c watch dog enable */
+    //uint8_t i2c_wdt_en;
+	.i2c_wdt_en = 0,
+    /*! i2c watch dog select */
+    //uint8_t i2c_wdt_sel;	
+    .i2c_wdt_sel = BMP3_I2C_WDT_SHORT_1_25_MS,
+};
+
+struct bmp3_int_ctrl_settings BMP388_INT_CTRL_SETTING = 
+{
+    /*! Output mode */
+    //uint8_t output_mode;
+    .output_mode = BMP3_INT_PIN_PUSH_PULL,
+    /*! Active high/low */
+    //uint8_t level;
+    .level = BMP3_INT_PIN_ACTIVE_HIGH,
+    /*! Latched or Non-latched */
+    //uint8_t latch;
+    .latch = BMP3_INT_PIN_NON_LATCH,
+    /*! Data ready interrupt */
+    //uint8_t drdy_en;
+    .drdy_en = 0,
+};
+
+const struct bmp3_odr_filter_settings BMP388_ODR_FILTER_SETTINGS = 
+{
+    /*! Pressure oversampling */
+    .press_os = BMP3_OVERSAMPLING_8X,
+
+    /*! Temperature oversampling */
+    .temp_os = BMP3_OVERSAMPLING_2X,
+
+    /*! IIR filter */
+    .iir_filter = BMP3_IIR_FILTER_COEFF_1,
+
+    /*! Output data rate */
+    .odr = BMP3_ODR_50_HZ, 
+};
+
+struct bmp3_settings BMP388_SETTINGS = 
+{
+    /*! Power mode which user wants to set */
+    .op_mode = BMP3_NORMAL_MODE,
+
+    /*! Enable/Disable pressure sensor */
+    .press_en  = ENABLE,
+
+    /*! Enable/Disable temperature sensor */
+    .temp_en = ENABLE,
+
+    /*! ODR and filter configuration */
+	.odr_filter = BMP388_ODR_FILTER_SETTINGS,
+
+    /*! Interrupt configuration */
+    //struct bmp3_int_ctrl_settings int_settings;
+    .int_settings = BMP388_INT_CTRL_SETTING,
+    /*! Advance settings */
+    //struct bmp3_adv_settings adv_settings;
+    .adv_settings = BMP388_ADV_SETTINGS,
+};
+
+struct bmp3_dev BMP388_DEV = 
+{
+    .i2c_dev = I2C3_DEV,
+    /*! Chip Id */
+    .chip_id = BMP3_CHIP_ID,
+
+    /*! Device Id */
+    .dev_id = BMP3_I2C_ADDR_PRIM,
+
+    /*! SPI/I2C interface */
+    .intf = BMP3_I2C_INTF,
+
+    /*! Decide SPI or I2C read mechanism */
+    .dummy_byte = 0,
+
+    /*! Read function pointer */
+   	.read = i2cdevRead,
+
+    /*! Write function pointer */
+    .write = i2cdevWrite,
+
+    /*! Delay function pointer */
+    .delay_ms = delay_xms,
+
+    /*! Trim data */
+//  struct bmp3_calib_data calib_data;
+
+    /*! Sensor Settings */
+    .settings  = BMP388_SETTINGS,
+
+    /*! Sensor and interrupt status flags */
+//   struct bmp3_status status;
+
+    /*! FIFO data and settings structure */
+//  struct bmp3_fifo *fifo;
+};
+
 
 /***************** Static function declarations ******************************/
 
@@ -784,7 +887,7 @@ int8_t bmp3_get_regs(uint8_t reg_addr, uint8_t *reg_data, uint16_t len, const st
             reg_addr = reg_addr | 0x80;
 
             /* Read the data from the register */
-            rslt = dev->read(dev->dev_id, reg_addr, temp_buff, temp_len);
+            rslt = dev->read(dev->i2c_dev,dev->dev_id, reg_addr, temp_len, temp_buff);
             for (i = 0; i < len; i++)
             {
                 reg_data[i] = temp_buff[i + dev->dummy_byte];
@@ -793,7 +896,7 @@ int8_t bmp3_get_regs(uint8_t reg_addr, uint8_t *reg_data, uint16_t len, const st
         else
         {
             /* Read the data using I2C */
-            rslt = dev->read(dev->dev_id, reg_addr, reg_data, len);
+            rslt = dev->read(dev->i2c_dev,dev->dev_id, reg_addr, len , reg_data);
         }
 
         /* Check for communication error */
@@ -849,7 +952,7 @@ int8_t bmp3_set_regs(uint8_t *reg_addr, const uint8_t *reg_data, uint8_t len, co
                 temp_len = len;
             }
 
-            rslt = dev->write(dev->dev_id, reg_addr[0], temp_buff, temp_len);
+            rslt = dev->write(dev->i2c_dev, dev->dev_id, reg_addr[0], temp_buff, temp_len);
 
             /* Check for communication error */
             if (rslt != BMP3_OK)

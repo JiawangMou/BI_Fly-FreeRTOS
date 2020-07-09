@@ -549,6 +549,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\vl53l1x.c</FilePath>
             </File>
+            <File>
+              <FileName>bmp3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\bmp3.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

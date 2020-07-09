@@ -135,7 +135,7 @@ bool i2cdevWriteBits(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint8
 /**
  * IIC写入外设多个字节
  */
-bool i2cdevWrite(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint16_t len, uint8_t *data)
+bool i2cdevWrite(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint16_t len, const uint8_t *data)
 {
 	I2cMessage message;
 

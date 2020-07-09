@@ -7,7 +7,8 @@
 #include "mpu6500.h"
 #include "sensors.h"
 #include "ak8963.h"
-#include "bmp280.h"
+#include "bmp3_defs.h"
+#include "bmp3.h"
 #include "filter.h"
 #include "axis.h"
 #include "spl06.h"
@@ -200,7 +201,7 @@ void sensorsDeviceInit(void)
 	}
 #endif
 
-	if (bmp280Init(I2C3_DEV) == true)//BMP280初始化
+	if ( bmp3_init(BMP388_DEV) == true)//BMP388初始化
 	{
 		isBaroPresent = true;
 		baroType = BMP280;

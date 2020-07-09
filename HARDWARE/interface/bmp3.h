@@ -45,6 +45,7 @@
 
 /* Header includes */
 #include "bmp3_defs.h"
+#include "i2cdev.h"
 
 /*! CPP guard */
 #ifdef __cplusplus
