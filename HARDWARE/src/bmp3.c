@@ -86,70 +86,66 @@
 /*! FIFO configuration change header frame */
 #define FIFO_CONFIG_CHANGE     UINT8_C(0x48)
 
-struct bmp3_adv_settings BMP388_ADV_SETTINGS = 
-{
-    /*! i2c watch dog enable */
-    //uint8_t i2c_wdt_en;
-	.i2c_wdt_en = 0,
-    /*! i2c watch dog select */
-    //uint8_t i2c_wdt_sel;	
-    .i2c_wdt_sel = BMP3_I2C_WDT_SHORT_1_25_MS,
-};
+#define BMP388_ADV_SETTINGS  {						\
+    /*! i2c watch dog enable */						\
+    /*uint8_t i2c_wdt_en;*/							\
+	.i2c_wdt_en = 0,								\
+    /*! i2c watch dog select */						\
+    /*uint8_t i2c_wdt_sel;*/						\
+    .i2c_wdt_sel = BMP3_I2C_WDT_SHORT_1_25_MS,		\
+}
 
-struct bmp3_int_ctrl_settings BMP388_INT_CTRL_SETTING = 
-{
-    /*! Output mode */
-    //uint8_t output_mode;
-    .output_mode = BMP3_INT_PIN_PUSH_PULL,
-    /*! Active high/low */
-    //uint8_t level;
-    .level = BMP3_INT_PIN_ACTIVE_HIGH,
-    /*! Latched or Non-latched */
-    //uint8_t latch;
-    .latch = BMP3_INT_PIN_NON_LATCH,
-    /*! Data ready interrupt */
-    //uint8_t drdy_en;
-    .drdy_en = 0,
-};
+#define BMP388_INT_CTRL_SETTING {					\
+    /*! Output mode */								\
+    /*uint8_t output_mode;*/						\
+    .output_mode = BMP3_INT_PIN_PUSH_PULL,			\
+    /*! Active high/low */							\
+    /*uint8_t level;*/								\
+    .level = BMP3_INT_PIN_ACTIVE_HIGH,				\
+    /*! Latched or Non-latched */					\
+    /*uint8_t latch;	*/							\
+    .latch = BMP3_INT_PIN_NON_LATCH,				\
+    /*! Data ready interrupt */						\
+    /*uint8_t drdy_en;*/							\
+    .drdy_en = 1,									\
+}													
 
-const struct bmp3_odr_filter_settings BMP388_ODR_FILTER_SETTINGS = 
-{
-    /*! Pressure oversampling */
-    .press_os = BMP3_OVERSAMPLING_8X,
+#define BMP388_ODR_FILTER_SETTINGS {   				\
+    /*! Pressure oversampling */					\
+    .press_os = BMP3_OVERSAMPLING_8X,				\
+													\
+    /*! Temperature oversampling */					\
+    .temp_os = BMP3_NO_OVERSAMPLING,				\
+													\
+    /*! IIR filter */								\
+    .iir_filter = BMP3_IIR_FILTER_COEFF_1,			\
+													\
+    /*! Output data rate */							\
+    .odr = BMP3_ODR_50_HZ, 							\
+}													
 
-    /*! Temperature oversampling */
-    .temp_os = BMP3_OVERSAMPLING_2X,
+#define BMP388_SETTINGS   {       				\
+    /*! Power mode which user wants to set */   \
+    .op_mode = BMP3_NORMAL_MODE,                \
+                                                \
+    /*! Enable/Disable pressure sensor */       \
+    .press_en  = 1,                        \
+                                                \
+    /*! Enable/Disable temperature sensor */    \
+    .temp_en = 1,                          \
+                                                \
+    /*! ODR and filter configuration */         \
+	.odr_filter = BMP388_ODR_FILTER_SETTINGS,   \
+                                                \
+    /*! Interrupt configuration */              \
+    /*struct bmp3_int_ctrl_settings int_settings;*/ \
+    .int_settings = BMP388_INT_CTRL_SETTING,    \
+    /*! Advance settings */                     \
+    /*struct bmp3_adv_settings adv_settings;*/  \
+    .adv_settings = BMP388_ADV_SETTINGS,        \
+}												
 
-    /*! IIR filter */
-    .iir_filter = BMP3_IIR_FILTER_COEFF_1,
-
-    /*! Output data rate */
-    .odr = BMP3_ODR_50_HZ, 
-};
-
-struct bmp3_settings BMP388_SETTINGS = 
-{
-    /*! Power mode which user wants to set */
-    .op_mode = BMP3_NORMAL_MODE,
-
-    /*! Enable/Disable pressure sensor */
-    .press_en  = ENABLE,
-
-    /*! Enable/Disable temperature sensor */
-    .temp_en = ENABLE,
-
-    /*! ODR and filter configuration */
-	.odr_filter = BMP388_ODR_FILTER_SETTINGS,
-
-    /*! Interrupt configuration */
-    //struct bmp3_int_ctrl_settings int_settings;
-    .int_settings = BMP388_INT_CTRL_SETTING,
-    /*! Advance settings */
-    //struct bmp3_adv_settings adv_settings;
-    .adv_settings = BMP388_ADV_SETTINGS,
-};
-
-struct bmp3_dev BMP388_DEV = 
+struct bmp3_dev bmpbus = 
 {
     .i2c_dev = I2C3_DEV,
     /*! Chip Id */
@@ -876,8 +872,8 @@ int8_t bmp3_get_regs(uint8_t reg_addr, uint8_t *reg_data, uint16_t len, const st
     uint8_t temp_buff[len + dev->dummy_byte];
 
     /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
 
+    rslt = null_ptr_check(dev);
     /* Proceed if null check is fine */
     if (rslt == BMP3_OK)
     {
@@ -917,7 +913,7 @@ int8_t bmp3_set_regs(uint8_t *reg_addr, const uint8_t *reg_data, uint8_t len, co
 {
     int8_t rslt;
     uint8_t temp_buff[len * 2];
-    uint16_t temp_len;
+    uint8_t temp_len;
     uint8_t reg_addr_cnt;
 
     /* Check for null pointer in the device structure*/
@@ -952,7 +948,7 @@ int8_t bmp3_set_regs(uint8_t *reg_addr, const uint8_t *reg_data, uint8_t len, co
                 temp_len = len;
             }
 
-            rslt = dev->write(dev->i2c_dev, dev->dev_id, reg_addr[0], temp_buff, temp_len);
+            rslt = dev->write(dev->i2c_dev, dev->dev_id, reg_addr[0], temp_len, temp_buff);
 
             /* Check for communication error */
             if (rslt != BMP3_OK)
@@ -1437,7 +1433,7 @@ int8_t bmp3_get_op_mode(uint8_t *op_mode, const struct bmp3_dev *dev)
  * sensor, compensates the data and store it in the bmp3_data structure
  * instance passed by the user.
  */
-int8_t bmp3_get_sensor_data(uint8_t sensor_comp, struct bmp3_data *comp_data, struct bmp3_dev *dev)
+int8_t bmp3_get_sensor_data(uint8_t sensor_comp,  struct bmp3_data  *comp_data, struct bmp3_dev *dev)
 {
     int8_t rslt;
 

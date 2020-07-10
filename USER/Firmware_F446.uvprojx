@@ -450,11 +450,6 @@
               <FilePath>..\HARDWARE\src\ak8963.c</FilePath>
             </File>
             <File>
-              <FileName>bmp280.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\src\bmp280.c</FilePath>
-            </File>
-            <File>
               <FileName>module_detect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\module_detect.c</FilePath>

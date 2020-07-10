@@ -232,7 +232,7 @@ extern "C" {
 #define BMP3_ODR_0_001_HZ                       UINT8_C(0x11)
 
 /**\name API success code */
-#define BMP3_OK                                 INT8_C(0)
+#define BMP3_OK                                 INT8_C(1)
 
 /**\name API error codes */
 #define BMP3_E_NULL_PTR                         INT8_C(-1)
@@ -437,7 +437,7 @@ typedef bool (*bmp3_read_fptr_t)(I2C_Dev *i2c_dev,uint8_t dev_id, uint8_t reg_ad
  * @brief Bus communication function pointer which should be mapped to
  * the platform specific write functions of the user
  */
-typedef bool (*bmp3_write_fptr_t)(I2C_Dev *i2c_dev, uint8_t dev_id, uint8_t reg_addr, uint16_t len , const uint8_t *data);
+typedef bool (*bmp3_write_fptr_t)(I2C_Dev *i2c_dev, uint8_t dev_id, uint8_t reg_addr, uint16_t len , uint8_t *data);
 
 typedef void (*bmp3_delay_fptr_t)(uint32_t period);
 

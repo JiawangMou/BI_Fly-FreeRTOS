@@ -52,6 +52,9 @@
 extern "C" {
 #endif
 
+extern struct bmp3_dev bmpbus;
+#define BMP388_DEV &bmpbus
+
 /**
  * \ingroup bmp3
  * \defgroup bmp3ApiInit Initialization
@@ -269,8 +272,8 @@ int8_t bmp3_get_op_mode(uint8_t *op_mode, const struct bmp3_dev *dev);
  * @retval Postive Warning
  * @retval Negative Error
  */
-int8_t bmp3_get_sensor_data(uint8_t sensor_comp, struct bmp3_data *data, struct bmp3_dev *dev);
 
+int8_t bmp3_get_sensor_data(uint8_t sensor_comp, struct bmp3_data *data, struct bmp3_dev *dev);
 /**
  * \ingroup bmp3
  * \defgroup bmp3ApiRegs Registers
