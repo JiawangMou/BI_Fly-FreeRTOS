@@ -577,7 +577,7 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
 
 void atkpTxTask(void* param)
 {
-    //    sendMsgACK();
+    sendMsgACK();
     while (1) {
         atkpSendPeriod();
         vTaskDelay(10);
