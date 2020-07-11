@@ -386,10 +386,10 @@ static void atkpSendPeriod(void)
         sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
             0, getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
-    if (!(count_ms % PERIOD_RCDATA)) {
-        sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll,
-            rcdata.pitch, 0, 0, 0, 0, 0, 0);
-    }
+    // if (!(count_ms % PERIOD_RCDATA)) {
+    //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll,
+    //         rcdata.pitch, 0, 0, 0, 0, 0, 0);
+    // }
     if (!(count_ms % PERIOD_POWER)) {
         float bat = pmGetBatteryVoltage();
         sendPower(bat * 100, 500);
