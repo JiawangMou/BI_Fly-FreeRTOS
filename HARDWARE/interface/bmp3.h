@@ -487,6 +487,16 @@ int8_t bmp3_set_fifo_watermark(const struct bmp3_dev *dev);
  */
 int8_t bmp3_get_status(struct bmp3_dev *dev);
 
+//气压转换为海拔高度函数
+float PressureToAltitude(float* pressure/*, float* groundPressure, float* grousndTemp*/);
+/*限幅平均滤波法*/
+void pressureFilter(float* in, float* out);
+
+int8_t compensate_data(uint8_t sensor_comp,
+                              const struct bmp3_uncomp_data *uncomp_data,
+                              struct bmp3_data *comp_data,
+                              struct bmp3_calib_data *calib_data);
+
 #ifdef __cplusplus
 }
 #endif /* End of CPP guard */

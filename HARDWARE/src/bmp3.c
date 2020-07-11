@@ -38,8 +38,10 @@
 
 /*! @file bmp3.c
  * @brief Sensor driver for BMP3 sensor */
+#include <math.h>
 #include "bmp3.h"
 #include "delay.h"
+
 
 
 /***************** Internal macros ******************************/
@@ -121,7 +123,7 @@
     .iir_filter = BMP3_IIR_FILTER_COEFF_1,			\
 													\
     /*! Output data rate */							\
-    .odr = BMP3_ODR_50_HZ, 							\
+    .odr = BMP3_ODR_100_HZ, 							\
 }													
 
 #define BMP388_SETTINGS   {       				\
@@ -241,7 +243,7 @@ static void parse_sensor_data(const uint8_t *reg_data, struct bmp3_uncomp_data *
  * @return Result of API execution status
  * @retval zero -> Success / +ve value -> Warning / -ve value -> Error
  */
-static int8_t compensate_data(uint8_t sensor_comp,
+int8_t compensate_data(uint8_t sensor_comp,
                               const struct bmp3_uncomp_data *uncomp_data,
                               struct bmp3_data *comp_data,
                               struct bmp3_calib_data *calib_data);
@@ -990,19 +992,19 @@ int8_t bmp3_set_sensor_settings(uint32_t desired_settings, struct bmp3_dev *dev)
             rslt = set_pwr_ctrl_settings(desired_settings, dev);
         }
 
-        if (are_settings_changed(ODR_FILTER, desired_settings) && (!rslt))
+        if (are_settings_changed(ODR_FILTER, desired_settings) && rslt)
         {
             /* Set the over sampling, odr and filter settings*/
             rslt = set_odr_filter_settings(desired_settings, dev);
         }
 
-        if (are_settings_changed(INT_CTRL, desired_settings) && (!rslt))
+        if (are_settings_changed(INT_CTRL, desired_settings) && rslt)
         {
             /* Set the interrupt control settings */
             rslt = set_int_ctrl_settings(desired_settings, dev);
         }
 
-        if (are_settings_changed(ADV_SETT, desired_settings) && (!rslt))
+        if (are_settings_changed(ADV_SETT, desired_settings) && rslt)
         {
             /* Set the advance settings */
             rslt = set_advance_settings(desired_settings, dev);
@@ -1020,7 +1022,7 @@ int8_t bmp3_set_sensor_settings(uint32_t desired_settings, struct bmp3_dev *dev)
 int8_t bmp3_get_sensor_settings(struct bmp3_dev *dev)
 {
     int8_t rslt;
-    uint8_t settings_data[BMP3_GEN_SETT_LEN];
+    uint8_t settings_data[BMP3_GEN_SETT_LEN] = {0};
 
     /* Check for null pointer in the device structure*/
     rslt = null_ptr_check(dev);
@@ -2291,7 +2293,7 @@ static void parse_sensor_data(const uint8_t *reg_data, struct bmp3_uncomp_data *
  * @brief This internal API is used to compensate the pressure or temperature
  * or both the data according to the component selected by the user.
  */
-static int8_t compensate_data(uint8_t sensor_comp,
+int8_t compensate_data(uint8_t sensor_comp,
                               const struct bmp3_uncomp_data *uncomp_data,
                               struct bmp3_data *comp_data,
                               struct bmp3_calib_data *calib_data)
@@ -2806,4 +2808,51 @@ static int8_t get_err_status(struct bmp3_dev *dev)
     }
 
     return rslt;
+}
+
+float PressureToAltitude(float* pressure/*, float* groundPressure, float* groundTemp*/)
+{	
+    if(*pressure > 0)
+    {
+		return 44330.f * ( 1.0f - powf(( *pressure / 101325.7f), 0.190295f));
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+#define FILTER_NUM	5
+#define FILTER_A	10.0f
+/*限幅平均滤波法*/
+//先对采集到数据减去上一次采样的数据，如果有突变就剔除掉，最后对所有的filter_NUM buffer中的数据求一次平均，作为最后的输出
+void pressureFilter(float* in, float* out)
+{	
+	static u8 i=0;
+	static float filter_buf[FILTER_NUM]={0.0};
+	double filter_sum=0.0;
+	u8 cnt=0;	
+	float deta;		
+	
+	if(filter_buf[i] == 0.0f)
+	{
+		filter_buf[i]=*in;
+		*out=*in;
+		if(++i>=FILTER_NUM)	i=0;
+	} else 
+	{
+		if(i) deta=*in-filter_buf[i-1];
+		else deta=*in-filter_buf[FILTER_NUM-1];
+		
+		if(fabs(deta)<FILTER_A)
+		{
+			filter_buf[i]=*in;
+			if(++i>=FILTER_NUM)	i=0;
+		}
+		for(cnt=0;cnt<FILTER_NUM;cnt++)
+		{
+			filter_sum+=filter_buf[cnt];
+		}
+		*out=filter_sum /FILTER_NUM;
+	}
 }

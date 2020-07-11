@@ -29,7 +29,7 @@ void ak8963Init(I2C_Dev *i2cPort)
 		return;
 
 	I2Cx = i2cPort;
-	devAddr = AK8963_ADDRESS_00;
+	devAddr = AK8963_DEFAULT_ADDRESS;
 }
 
 /** Verify the I2C connection.
