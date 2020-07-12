@@ -38,8 +38,7 @@
 #define PWM1  		2
 #define PWM2  		3
 #define PWM3  		4
-#define PWM4  		5
-#define PWMR  		6
+#define PWMR  		5
 
 #define MOTORS_TEST_RATIO         (u16)(0.2*(1<<16))	//20%
 #define MOTORS_TEST_ON_TIME_MS    50
