@@ -144,10 +144,10 @@ void  printHardFault(u32* hardfaultArgs)
 	printf("DFSR = %x\n", (*((volatile unsigned int *)(0xE000ED30))));
 	printf("AFSR = %x\n", (*((volatile unsigned int *)(0xE000ED3C))));
 
-	motorsSetRatio(MOTOR_M1, 0);
-	motorsSetRatio(MOTOR_M2, 0);
-	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	motorsSetRatio(PWMF1, 0);
+	motorsSetRatio(PWMF2, 0);
+	motorsSetRatio(PWM1, 0);
+	motorsSetRatio(PWM2, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);	/*´íÎó¼ì²â*/
@@ -163,10 +163,10 @@ void  printHardFault(u32* hardfaultArgs)
 void  MemManage_Handler(void)
 {
 	/* Go to infinite loop when Memory Manage exception occurs */
-	motorsSetRatio(MOTOR_M1, 0);
-	motorsSetRatio(MOTOR_M2, 0);
-	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	motorsSetRatio(PWMF1, 0);
+	motorsSetRatio(PWMF2, 0);
+	motorsSetRatio(PWM1, 0);
+	motorsSetRatio(PWM2, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
@@ -183,10 +183,10 @@ void  MemManage_Handler(void)
 void  BusFault_Handler(void)
 {
 	/* Go to infinite loop when Bus Fault exception occurs */
-	motorsSetRatio(MOTOR_M1, 0);
-	motorsSetRatio(MOTOR_M2, 0);
-	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	motorsSetRatio(PWMF1, 0);
+	motorsSetRatio(PWMF2, 0);
+	motorsSetRatio(PWM1, 0);
+	motorsSetRatio(PWM2, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
@@ -203,10 +203,10 @@ void  BusFault_Handler(void)
 void  UsageFault_Handler(void)
 {
 	/* Go to infinite loop when Usage Fault exception occurs */
-	motorsSetRatio(MOTOR_M1, 0);
-	motorsSetRatio(MOTOR_M2, 0);
-	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	motorsSetRatio(PWMF1, 0);
+	motorsSetRatio(PWMF2, 0);
+	motorsSetRatio(PWM1, 0);
+	motorsSetRatio(PWM2, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/

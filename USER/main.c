@@ -46,7 +46,7 @@ void startTask(void *arg)
 //    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);				/*创建电源管理任务*/
 	xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 
-//    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
+    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
 
 //    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
 //以下为测试代码

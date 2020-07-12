@@ -601,7 +601,8 @@ static void atkpReceiveAnl(atkp_t *anlPacket)
 		s16 m2_set = ((s16)(*(anlPacket->data+10)<<8)|*(anlPacket->data+11));
 		s16 m3_set = ((s16)(*(anlPacket->data+12)<<8)|*(anlPacket->data+13));
 		s16 m4_set = ((s16)(*(anlPacket->data+14)<<8)|*(anlPacket->data+15));
-		setMotorPWM(enable,m1_set,m2_set,m3_set,m4_set);
+//这一段还没有修改
+//		setMotorPWM(enable,m1_set,m2_set,m3_set,m4_set);
 		attitudePIDwriteToConfigParam();
 		positionPIDwriteToConfigParam();
 		u8 cksum = atkpCheckSum(anlPacket);

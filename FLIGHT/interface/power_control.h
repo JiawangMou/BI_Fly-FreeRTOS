@@ -17,10 +17,13 @@
 
 typedef struct 
 {
-	u32 m1;
-	u32 m2;
-	u32 m3;
-	u32 m4;
+	u32 f1;
+	u32 f2;
+	u32 t1;
+	u32 t2;
+	u32 t3;
+	u32 t4;
+	u32 r1;
 	
 }motorPWM_t;
 
@@ -29,5 +32,5 @@ bool powerControlTest(void);
 void powerControl(control_t *control);
 
 void getMotorPWM(motorPWM_t* get);
-void setMotorPWM(bool enable, u32 m1_set, u32 m2_set, u32 m3_set, u32 m4_set);
+void setMotorPWM(bool enable, u32 f1_set, u32 f2_set, u32 t1_set, u32 t2_set, u32 t3_set, u32 t4_set, u32 r1_set);
 #endif 
