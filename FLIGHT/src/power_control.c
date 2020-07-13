@@ -52,11 +52,11 @@ void powerControl(control_t *control)	/*功率输出控制*/
 	s16 r = control->roll / 2.0f;
 	s16 p = control->pitch / 2.0f;
 //控制分配	改！
-	motorPWM.f1 = limitThrust(control->thrust - r - p + control->yaw);
-	motorPWM.f2 = limitThrust(control->thrust - r + p - control->yaw);
-	motorPWM.s1 = limitThrust(control->thrust + r + p + control->yaw);
-	motorPWM.s2 = limitThrust(control->thrust + r - p - control->yaw);	
-	motorPWM.s3 = limitThrust(control->thrust + r - p - control->yaw);	
+	motorPWM.f1 = limitThrust(control->thrust - r );
+	motorPWM.f2 = limitThrust(control->thrust + r );
+	motorPWM.s1 = limitThrust( p + control->yaw);
+	motorPWM.s2 = limitThrust( p - control->yaw);	
+
 
 
 	if (motorSetEnable)
@@ -67,7 +67,7 @@ void powerControl(control_t *control)	/*功率输出控制*/
 	motorsSetRatio(PWMF2, motorPWM.f2);
 	motorsSetRatio(PWM1,  motorPWM.s1);
 	motorsSetRatio(PWM2,  motorPWM.s2);
-	motorsSetRatio(PWM3,  motorPWM.s3);
+//	motorsSetRatio(PWM3,  motorPWM.s3);
 
 //	motorsSetRatio(PWMR, motorPWM.r1);
 }

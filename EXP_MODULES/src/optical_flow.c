@@ -30,8 +30,8 @@
  * 版本V1.3 增加光流数据结构体opFlow_t，用于存放光流各项数据，方便用户调试。
 ********************************************************************************/
 
-#define NCS_PIN					PAout(8)
-#define OPTICAL_POWER_ENABLE	PBout(0)
+#define NCS_PIN					PCout(4)
+//#define OPTICAL_POWER_ENABLE	PBout(0)
 
 #define RESOLUTION			(0.2131946f)/*1m高度下 1个像素对应的位移，单位cm*/
 #define OULIER_LIMIT 		(100)		/*光流像素输出限幅*/
@@ -398,17 +398,13 @@ void opticalFlowInit(void)
 		GPIO_InitTypeDef GPIO_InitStructure;
 
 		//初始化CS引脚	
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//使能时钟
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);//使能时钟
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);//使能时钟
 		
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;	
-		GPIO_Init(GPIOA, &GPIO_InitStructure);		
-
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);		
+		GPIO_Init(GPIOC, &GPIO_InitStructure);		
 	}
 	else 
 	{
@@ -416,7 +412,7 @@ void opticalFlowInit(void)
 		opFlow.isOpFlowOk = true;				
 	}
 	
-	opticalFlowPowerControl(true);	/*打开电源*/
+//	opticalFlowPowerControl(true);	/*打开电源*/
 	vTaskDelay(50);
 	
 	NCS_PIN = 1;
