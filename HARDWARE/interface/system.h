@@ -31,6 +31,7 @@
 #include "stabilizer.h"
 #include "watchdog.h"
 #include "pm.h"
+#include "uart_syslink.h"
 
 /*À©Õ¹Ä£¿éÇý¶¯*/
 #include "module_detect.h"

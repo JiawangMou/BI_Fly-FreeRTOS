@@ -23,7 +23,9 @@ static bool isInit;
 /* Interruption initialisation */
 void extiInit()
 {
-	static NVIC_InitTypeDef NVIC_InitStructure;
+//	static NVIC_InitTypeDef NVIC_InitStructure;
+//	GPIO_InitTypeDef GPIO_InitStructure;
+//	EXTI_InitTypeDef EXTI_InitStructure;
 
 	if (isInit)	return;
 	
@@ -69,6 +71,23 @@ void extiInit()
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
 	NVIC_Init(&NVIC_InitStructure);
 
+//测试代码
+//	/*使能MPU6500中断*/
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+//	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource1);
+
+//	EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+//	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+//	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+//	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+//	portDISABLE_INTERRUPTS();
+//	EXTI_Init(&EXTI_InitStructure);
+//	EXTI_ClearITPendingBit(EXTI_Line1);
+//	portENABLE_INTERRUPTS();
 	isInit = true;
 }
 

@@ -6,8 +6,7 @@
 #include "config_param.h"
 #include "ledseq.h"
 #include "pm.h"
-#include "usbd_cdc_vcp.h"
-#include "usbd_usr.h"
+#include "uart_3.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -50,7 +49,7 @@ void usblinkInit()
 {
 	if(isInit) return;
 	
-	usbd_cdc_vcp_Init();
+	usbInit();
 	/*创建发送队列，USBLINK_TX_QUEUE_SIZE个消息*/
 	txQueue = xQueueCreate(USBLINK_TX_QUEUE_SIZE, sizeof(atkp_t));
 	ASSERT(txQueue);
@@ -94,8 +93,8 @@ void usblinkTxTask(void *param)
 		}
 		dataLen = p.dataLen + 5;
 		sendBuffer[dataLen - 1] = cksum;
-		usbsendData(sendBuffer, dataLen);
-		ledseqRun(DATA_TX_LED, seq_linkup);
+		usbSendData(sendBuffer, dataLen);
+		// ledseqRun(DATA_TX_LED, seq_linkup);
 	}
 }
 
@@ -149,7 +148,7 @@ void usblinkRxTask(void *param)
 				case waitForChksum1:
 					if (cksum == c)	/*所有校验正确*/
 					{
-						ledseqRun(DATA_RX_LED, seq_linkup);
+						// ledseqRun(DATA_RX_LED, seq_linkup);
 						atkpReceivePacketBlocking(&rxPacket);
 					} 
 					else	/*校验错误*/
