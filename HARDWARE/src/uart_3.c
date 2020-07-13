@@ -29,7 +29,7 @@
 #define CCR_ENABLE_SET ((u32)0x00000001)
 
 static bool isInit = false;
-static bool connectState = false;
+static bool connectState = true;
 
 static xSemaphoreHandle waitUntilSendDone;
 static xSemaphoreHandle uartBusy;
@@ -39,7 +39,6 @@ static xQueueHandle usbDataDelivery;
 static u8* outDataIsr;
 static u8 dataIndexIsr;
 static u8 dataSizeIsr;
-
 
 void usbInit(void) /*串口初始化*/
 {
@@ -186,4 +185,3 @@ bool getusbConnectState()
 {
     return connectState;
 }
-

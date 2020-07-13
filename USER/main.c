@@ -36,8 +36,8 @@ void startTask(void* arg)
 
     xTaskCreate(radiolinkTask, "RADIOLINK", 150, NULL, 5, NULL); /*创建无线连接任务*/
 
-//    xTaskCreate(usblinkRxTask, "USBLINK_RX", 150, NULL, 4, NULL); /*创建usb接收任务*/
-//    xTaskCreate(usblinkTxTask, "USBLINK_TX", 150, NULL, 3, NULL); /*创建usb发送任务*/
+   xTaskCreate(usblinkRxTask, "USBLINK_RX", 150, NULL, 4, NULL); /*创建usb接收任务*/
+   xTaskCreate(usblinkTxTask, "USBLINK_TX", 150, NULL, 3, NULL); /*创建usb发送任务*/
 
     xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 3, NULL); /*创建atkp发送任务任务*/
     xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL); /*创建atkp解析任务*/
@@ -47,7 +47,7 @@ void startTask(void* arg)
 //    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);				/*创建电源管理任务*/
 	xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 
-    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
+   xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
 
 //    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
 //以下为测试代码
@@ -78,7 +78,7 @@ void ledTask(void *param)
     u32 lastWakeTime = getSysTickCnt();
     while(1)
     {
-        vTaskDelayUntil(&lastWakeTime, 1000);		/*1ms周期延时*/
+        vTaskDelayUntil(&lastWakeTime, 1000);		/*1s周期延时*/
         GPIO_ToggleBits(GPIOB, GPIO_Pin_3);
     }
 }
