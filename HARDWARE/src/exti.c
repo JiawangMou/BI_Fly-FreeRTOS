@@ -23,7 +23,7 @@ static bool isInit;
 /* Interruption initialisation */
 void extiInit()
 {
-//	static NVIC_InitTypeDef NVIC_InitStructure;
+	static NVIC_InitTypeDef NVIC_InitStructure;
 //	GPIO_InitTypeDef GPIO_InitStructure;
 //	EXTI_InitTypeDef EXTI_InitStructure;
 

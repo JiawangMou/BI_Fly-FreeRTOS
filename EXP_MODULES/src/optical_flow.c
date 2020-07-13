@@ -88,10 +88,10 @@ static void InitRegisters(void);
 //光流电源控制
 void opticalFlowPowerControl(bool state)
 {
-	if(state == true)
-		OPTICAL_POWER_ENABLE = true;
-	else
-		OPTICAL_POWER_ENABLE = false;
+//	if(state == true)
+//		OPTICAL_POWER_ENABLE = true;
+//	else
+//		OPTICAL_POWER_ENABLE = false;
 }
 
 static void registerWrite(uint8_t reg, uint8_t value)

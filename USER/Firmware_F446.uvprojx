@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F446MEYx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x20000) IROM(0x08000000,0x80000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -549,6 +549,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\bmp3.c</FilePath>
             </File>
+            <File>
+              <FileName>uart_3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\uart_3.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -808,91 +813,6 @@
               <FileName>heap_4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FreeRTOS\portable\MemMang\heap_4.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>USB_OTG</GroupName>
-          <Files>
-            <File>
-              <FileName>usb_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_OTG_Driver\src\usb_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_dcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_OTG_Driver\src\usb_dcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_dcd_int.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_OTG_Driver\src\usb_dcd_int.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>USB_DEVICE</GroupName>
-          <Files>
-            <File>
-              <FileName>usbd_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_Device_Library\Core\src\usbd_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_ioreq.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_req.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_Device_Library\Core\src\usbd_req.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_cdc_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\STM32_USB_Device_Library\Class\cdc\src\usbd_cdc_core.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>USB_APP</GroupName>
-          <Files>
-            <File>
-              <FileName>usb_bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\USB_APP\src\usb_bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_cdc_vcp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\USB_APP\src\usbd_cdc_vcp.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_desc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\USB_APP\src\usbd_desc.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_usr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USB\USB_APP\src\usbd_usr.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_cdc_vcp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\USB\USB_APP\interface\usbd_cdc_vcp.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\USB\USB_APP\interface\usbd_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usb_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\USB\USB_APP\interface\usb_conf.h</FilePath>
             </File>
           </Files>
         </Group>
