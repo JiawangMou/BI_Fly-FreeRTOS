@@ -114,7 +114,7 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 		if(cnt++ > 1500)
 		{
 			cnt = 0;
-			configParamGiveSemaphore();
+			// configParamGiveSemaphore();
 		}
 	}else
 	{

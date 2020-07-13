@@ -68,7 +68,7 @@ static void calBaseAcc(float* acc)	/*计算静态加速度*/
 			
 			isGravityCalibrated = true;
 			
-			ledseqRun(SYS_LED, seq_calibrated);	/*校准通过指示灯*/
+			// ledseqRun(SYS_LED, seq_calibrated);	/*校准通过指示灯*/
 		}
 		
 		for(u8 i=0; i<3; i++)		
