@@ -102,7 +102,7 @@ void imuComputeRotationMatrix(void)
     rMat[2][1] = 2.0f * (q2q3 - -q0q1);
     rMat[2][2] = 1.0f - 2.0f * q1q1 - 2.0f * q2q2;
 }
-
+//IMU 融合算法 改！ 无磁力计数据融合
 void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互补滤波*/
 {
 	float normalise;

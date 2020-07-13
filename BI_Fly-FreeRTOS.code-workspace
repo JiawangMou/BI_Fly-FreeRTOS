@@ -4,5 +4,12 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"memory": "c",
+			"string": "c",
+			"xmemory": "c",
+			"xstring": "c"
+		}
+	}
 }

@@ -21,8 +21,8 @@
 #define I2CDEV_NO_MEM_ADDR  0xFF
 
 typedef I2cDrv    I2C_Dev;
-#define I2C1_DEV  &sensorsBus
-#define I2C3_DEV  &deckBus
+#define I2C3_DEV  &sensorsBus
+//#define I2C3_DEV  &deckBus
 
 /**
  * Read bytes from an I2C peripheral
@@ -101,7 +101,7 @@ bool i2cdevReadBits(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint8_
  *
  * @return TRUE if write was successful, otherwise FALSE.
  */
-bool i2cdevWrite(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint16_t len, uint8_t *data);
+bool i2cdevWrite(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress, uint16_t len,uint8_t *data);
 
 /**
  * Write bytes to an I2C peripheral with 16bit internal reg/mem address.

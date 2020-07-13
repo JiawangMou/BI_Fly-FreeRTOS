@@ -44,14 +44,14 @@ void assertFail(char *exp, char *file, int line)
 	storeAssertSnapshotData(file, line);
 	printf("Assert failed %s:%d\n", file, line);
 
-	motorsSetRatio(MOTOR_M1, 0);
-	motorsSetRatio(MOTOR_M2, 0);
-	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	motorsSetRatio(PWMF1, 0);
+	motorsSetRatio(PWMF2, 0);
+	motorsSetRatio(PWM1, 0);
+	motorsSetRatio(PWM2, 0);
 
-	ledClearAll();
-	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
-	ledSet(ERR_LED2, 1);
+	// ledClearAll();
+	// ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
+	// ledSet(ERR_LED2, 1);
 
 	while (1);
 }

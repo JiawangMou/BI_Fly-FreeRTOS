@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include "sys.h"
 #include "exti.h"
+/*FreeRTOS相关头文件*/
+#include "FreeRTOS.h"
 
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -26,10 +28,13 @@ void extiInit()
 	if (isInit)	return;
 	
 
-	RCC_AHB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
-
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
+	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
 //	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
@@ -47,17 +52,22 @@ void extiInit()
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
 //	NVIC_Init(&NVIC_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
+	// NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+	// NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
+	// NVIC_Init(&NVIC_InitStructure);
 
 //	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
 //	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
 //	NVIC_Init(&NVIC_InitStructure);
 
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
-//	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-//	NVIC_Init(&NVIC_InitStructure);
+//MPU9250的中断 EXTI11  PD11
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+	NVIC_Init(&NVIC_InitStructure);
+//BMP388的中断 EXTI6  PC6
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+	NVIC_Init(&NVIC_InitStructure);
 
 	isInit = true;
 }

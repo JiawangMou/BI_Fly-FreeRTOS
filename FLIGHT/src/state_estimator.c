@@ -157,7 +157,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 	}	
 	
 	
-	Axis3f accelBF;
+	Axis3f accelBF; //BF:body frame ?
 	
 	accelBF.x = sensorData->acc.x * GRAVITY_CMSS - estimator.accBias[X];
 	accelBF.y = sensorData->acc.y * GRAVITY_CMSS - estimator.accBias[Y];

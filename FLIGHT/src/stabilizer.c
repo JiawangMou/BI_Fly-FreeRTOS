@@ -122,7 +122,7 @@ void stabilizerTask(void* param)
 	u32 tick = 0;
 	u32 lastWakeTime = getSysTickCnt();
 	
-	ledseqRun(SYS_LED, seq_alive);
+//	ledseqRun(SYS_LED, seq_alive);
 	
 	while(!sensorsAreCalibrated())
 	{

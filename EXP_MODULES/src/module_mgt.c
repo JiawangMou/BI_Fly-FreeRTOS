@@ -70,19 +70,20 @@ static void expModuleDetect(xTimerHandle xTimer)
 		cnt = 0;
 		moduleID = id;	/*¸üÐÂÄ£¿éID*/
 		
-		wifiPowerControl(false);
-		ledringPowerControl(false);
+//		wifiPowerControl(false);
+//		ledringPowerControl(false);
 		opticalFlowPowerControl(false);
 		
-		if(id == LED_RING)
-		{
-			ledring12Init();
-		}
-		else if(id == WIFI_CAMERA)
-		{
-			wifiModuleInit();
-		}		
-		else if(id == OPTICAL_FLOW)
+		// if(id == LED_RING)
+		// {
+		// 	ledring12Init();
+		// }
+		// else if(id == WIFI_CAMERA)
+		// {
+		// 	wifiModuleInit();
+		// }		
+		// else if(id == OPTICAL_FLOW)
+		if(id == OPTICAL_FLOW)
 		{
 			opticalFlowInit();
 		}

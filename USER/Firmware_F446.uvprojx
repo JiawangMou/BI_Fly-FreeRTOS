@@ -15,8 +15,8 @@
         <TargetCommonOption>
           <Device>STM32F446MEYx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.14.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x20000) IROM(0x08000000,0x80000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\OBJ\</OutputDirectory>
-          <OutputName>Firmware_F411</OutputName>
+          <OutputName>Firmware_F446</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -450,11 +450,6 @@
               <FilePath>..\HARDWARE\src\ak8963.c</FilePath>
             </File>
             <File>
-              <FileName>bmp280.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\src\bmp280.c</FilePath>
-            </File>
-            <File>
               <FileName>module_detect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\module_detect.c</FilePath>
@@ -548,6 +543,11 @@
               <FileName>vl53l1x.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\vl53l1x.c</FilePath>
+            </File>
+            <File>
+              <FileName>bmp3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\bmp3.c</FilePath>
             </File>
           </Files>
         </Group>

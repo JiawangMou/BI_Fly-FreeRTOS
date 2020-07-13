@@ -51,20 +51,25 @@ void powerControl(control_t *control)	/*功率输出控制*/
 {
 	s16 r = control->roll / 2.0f;
 	s16 p = control->pitch / 2.0f;
-	
-	motorPWM.m1 = limitThrust(control->thrust - r - p + control->yaw);
-	motorPWM.m2 = limitThrust(control->thrust - r + p - control->yaw);
-	motorPWM.m3 = limitThrust(control->thrust + r + p + control->yaw);
-	motorPWM.m4 = limitThrust(control->thrust + r - p - control->yaw);		
+//控制分配	改！
+	motorPWM.f1 = limitThrust(control->thrust - r );
+	motorPWM.f2 = limitThrust(control->thrust + r );
+	motorPWM.s1 = limitThrust( p + control->yaw);
+	motorPWM.s2 = limitThrust( p - control->yaw);	
+
+
 
 	if (motorSetEnable)
 	{
 		motorPWM = motorPWMSet;
 	}
-	motorsSetRatio(MOTOR_M1, motorPWM.m1);	/*控制电机输出百分比*/
-	motorsSetRatio(MOTOR_M2, motorPWM.m2);
-	motorsSetRatio(MOTOR_M3, motorPWM.m3);
-	motorsSetRatio(MOTOR_M4, motorPWM.m4);
+	motorsSetRatio(PWMF1, motorPWM.f1);	/*控制电机输出百分比*/
+	motorsSetRatio(PWMF2, motorPWM.f2);
+	motorsSetRatio(PWM1,  motorPWM.s1);
+	motorsSetRatio(PWM2,  motorPWM.s2);
+//	motorsSetRatio(PWM3,  motorPWM.s3);
+
+//	motorsSetRatio(PWMR, motorPWM.r1);
 }
 
 void getMotorPWM(motorPWM_t* get)
@@ -72,11 +77,14 @@ void getMotorPWM(motorPWM_t* get)
 	*get = motorPWM;
 }
 
-void setMotorPWM(bool enable, u32 m1_set, u32 m2_set, u32 m3_set, u32 m4_set)
+void setMotorPWM(bool enable, u32 f1_set, u32 f2_set, u32 s1_set, u32 s2_set, u32 s3_set,u32 r1_set)
 {
 	motorSetEnable = enable;
-	motorPWMSet.m1 = m1_set;
-	motorPWMSet.m2 = m2_set;
-	motorPWMSet.m3 = m3_set;	
-	motorPWMSet.m4 = m4_set;
+	motorPWMSet.f1 = f1_set;
+	motorPWMSet.f2 = f2_set;
+	motorPWMSet.s1 = s1_set;	
+	motorPWMSet.s2 = s2_set;
+	motorPWMSet.s3 = s3_set;	
+	motorPWMSet.r1 = r1_set;
 }
+

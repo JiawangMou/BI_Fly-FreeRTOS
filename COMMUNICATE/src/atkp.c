@@ -399,14 +399,17 @@ static void atkpSendPeriod(void)
 	}
 	if(!(count_ms % PERIOD_MOTOR))
 	{
-		u16 m1,m2,m3,m4;
+		u16 f1,f2,s1,s2,s3,r1;
 		motorPWM_t motorPWM;
 		getMotorPWM(&motorPWM);
-		m1 = (float)motorPWM.m1/65535*1000;
-		m2 = (float)motorPWM.m2/65535*1000;
-		m3 = (float)motorPWM.m3/65535*1000;
-		m4 = (float)motorPWM.m4/65535*1000;
-		sendMotorPWM(m1,m2,m3,m4,0,0,0,0);
+		f1 = (float)motorPWM.f1/65535*1000;
+		f2 = (float)motorPWM.f2/65535*1000;
+		s1 = (float)motorPWM.s1/65535*1000;
+		s2 = (float)motorPWM.s2/65535*1000;
+		s3 = (float)motorPWM.s3/65535*1000;
+		r1 = (float)motorPWM.r1/65535*1000;
+		
+		sendMotorPWM(f1,f2,s1,s2,s3,r1,0,0);
 	}
 	if(!(count_ms % PERIOD_SENSOR2))
 	{
@@ -524,7 +527,7 @@ static void atkpReceiveAnl(atkp_t *anlPacket)
 	{
 		pmSyslinkUpdate(anlPacket);
 	}
-	else if(anlPacket->msgID == DOWN_REMOTER)/*遥控器*/	
+	else if(anlPacket->msgID == DOWN_REMOTER)/*遥控器*/
 	{
 		remoterCtrlProcess(anlPacket);
 	}
@@ -601,7 +604,8 @@ static void atkpReceiveAnl(atkp_t *anlPacket)
 		s16 m2_set = ((s16)(*(anlPacket->data+10)<<8)|*(anlPacket->data+11));
 		s16 m3_set = ((s16)(*(anlPacket->data+12)<<8)|*(anlPacket->data+13));
 		s16 m4_set = ((s16)(*(anlPacket->data+14)<<8)|*(anlPacket->data+15));
-		setMotorPWM(enable,m1_set,m2_set,m3_set,m4_set);
+//这一段还没有修改
+//		setMotorPWM(enable,m1_set,m2_set,m3_set,m4_set);
 		attitudePIDwriteToConfigParam();
 		positionPIDwriteToConfigParam();
 		u8 cksum = atkpCheckSum(anlPacket);

@@ -34,15 +34,15 @@ void vl53IICInit(void)
 	/*使能VL53时钟*/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	/*SCL PB5   SDA PB4*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//上拉
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	GPIO_SetBits(GPIOB,GPIO_Pin_5);//PB5输出高
-	GPIO_SetBits(GPIOB,GPIO_Pin_4);//PB4输出高
+	GPIO_SetBits(GPIOB,GPIO_Pin_8);//PB8输出高
+	GPIO_SetBits(GPIOB,GPIO_Pin_9);//PB9输出高
 }
 //产生VL53起始信号
 static void vl53IICStart(void)

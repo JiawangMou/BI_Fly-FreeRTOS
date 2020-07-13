@@ -16,6 +16,7 @@
 
 TaskHandle_t startTaskHandle;
 static void startTask(void *arg);
+void ledTask(void *param);
 
 int main()
 {
@@ -37,18 +38,19 @@ void startTask(void *arg)
 //    xTaskCreate(usblinkRxTask, "USBLINK_RX", 150, NULL, 4, NULL);		/*创建usb接收任务*/
 //    xTaskCreate(usblinkTxTask, "USBLINK_TX", 150, NULL, 3, NULL);		/*创建usb发送任务*/
 
-//    xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 3, NULL);				/*创建atkp发送任务任务*/
-//    xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL);		/*创建atkp解析任务*/
+//    xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 3, NULL);			/*创建atkp发送任务任务*/
+//    xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL);	/*创建atkp解析任务*/
 
 //    xTaskCreate(configParamTask, "CONFIG_TASK", 150, NULL, 1, NULL);	/*创建参数配置任务*/
 
-//    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);					/*创建电源管理任务*/
+//    xTaskCreate(pmTask, "PWRMGNT", 150, NULL, 2, NULL);				/*创建电源管理任务*/
+	xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
 
-      xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);			/*创建传感器处理任务*/
-
-//    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);		/*创建姿态任务*/
+    xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);	/*创建姿态任务*/
 
 //    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
+//以下为测试代码
+    xTaskCreate(ledTask, "LEDTASK", 150, NULL, 5, NULL);
 
 //    printf("Free heap: %d bytes\n", xPortGetFreeHeapSize());			/*打印剩余堆栈大小*/
 
@@ -59,20 +61,28 @@ void startTask(void *arg)
 
 void vApplicationIdleHook( void )
 {
-    static u32 tickWatchdogReset = 0;
+    // static u32 tickWatchdogReset = 0;
 
-    portTickType tickCount = getSysTickCnt();
+    // portTickType tickCount = getSysTickCnt();
 
-    if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
-    {
-        tickWatchdogReset = tickCount;
-        watchdogReset();
-    }
+    // if (tickCount - tickWatchdogReset > WATCHDOG_RESET_MS)
+    // {
+    //     tickWatchdogReset = tickCount;
+    //     watchdogReset();
+    // }
 
-    __WFI();	/*进入低功耗模式*/
+//    __WFI();	/*进入低功耗模式*/
 }
 
-
+void ledTask(void *param)
+{	
+    u32 lastWakeTime = getSysTickCnt();
+    while(1)
+    {
+        vTaskDelayUntil(&lastWakeTime, 1000);		/*1ms周期延时*/
+        GPIO_ToggleBits(GPIOB, GPIO_Pin_3);
+    }
+}
 
 
 

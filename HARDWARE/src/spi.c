@@ -48,9 +48,9 @@
 #define SPI_RX_DMA_CHANNEL      DMA_Channel_0
 #define SPI_RX_DMA_FLAG_TCIF    DMA_FLAG_TCIF3
 
-#define SPI_SCK_PIN           	GPIO_Pin_13
-#define SPI_SCK_GPIO_PORT 		GPIOB
-#define SPI_SCK_GPIO_CLK		RCC_AHB1Periph_GPIOB
+#define SPI_SCK_PIN           	GPIO_Pin_9
+#define SPI_SCK_GPIO_PORT 		GPIOA
+#define SPI_SCK_GPIO_CLK		RCC_AHB1Periph_GPIOA
 #define SPI_SCK_SOURCE			GPIO_PinSource13
 #define SPI_SCK_AF				GPIO_AF_SPI2
 
@@ -60,10 +60,10 @@
 #define SPI_MISO_SOURCE			GPIO_PinSource14
 #define SPI_MISO_AF				GPIO_AF_SPI2
 
-#define SPI_MOSI_PIN			GPIO_Pin_15
-#define SPI_MOSI_GPIO_PORT		GPIOB
-#define SPI_MOSI_GPIO_CLK		RCC_AHB1Periph_GPIOB
-#define SPI_MOSI_SOURCE			GPIO_PinSource15
+#define SPI_MOSI_PIN			GPIO_Pin_3
+#define SPI_MOSI_GPIO_PORT		GPIOC
+#define SPI_MOSI_GPIO_CLK		RCC_AHB1Periph_GPIOC
+#define SPI_MOSI_SOURCE			GPIO_PinSource3
 #define SPI_MOSI_AF				GPIO_AF_SPI2
 
 #define DUMMY_BYTE         		0xA5
