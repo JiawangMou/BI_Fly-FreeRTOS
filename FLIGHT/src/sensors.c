@@ -553,7 +553,7 @@ void sensorsAcquire(sensorData_t *sensors, const u32 tick)
 void __attribute__((used)) EXTI11_Callback(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-//	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);
+	xSemaphoreGiveFromISR(sensorsDataReady, &xHigherPriorityTaskWoken);
 
 	if (xHigherPriorityTaskWoken)
 	{

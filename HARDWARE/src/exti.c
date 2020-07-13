@@ -33,7 +33,7 @@ void extiInit()
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
 	
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -66,10 +66,10 @@ void extiInit()
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
 	NVIC_Init(&NVIC_InitStructure);
-//BMP388的中断 EXTI6  PC6
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
+////BMP388的中断 EXTI6  PC6
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+//	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+//	NVIC_Init(&NVIC_InitStructure);
 
 //测试代码
 //	/*使能MPU6500中断*/
