@@ -59,6 +59,12 @@ typedef struct
     int16_t yawDeciDegrees;
 } boardAlignment_t;
 
+typedef struct 
+{
+	u16 s1;
+	u16 s2;
+	u16 s3;	
+}Servo_initpos;
 
 typedef struct	
 {
@@ -71,8 +77,10 @@ typedef struct
 	float trimP;			/*pitch微调*/
 	float trimR;			/*roll微调*/
 	u16 thrustBase;			/*油门基础值*/
+	Servo_initpos servo_initpos;	/*舵机初始值*/
 	u8 cksum;				/*校验*/
 } configParam_t;
+
 
 
 extern configParam_t configParam;
@@ -84,6 +92,8 @@ bool configParamTest(void);
 void configParamGiveSemaphore(void);
 void resetConfigParamPID(void);
 void saveConfigAndNotify(void);
+void changeServoinitpos_configParamDefault(u16 s1,u16 s2,u16 s3);
+u16 getservoinitpos_configParam(u8 pwm_id);
 
 #endif /*__CONFIG_PARAM_H */
 

@@ -26,20 +26,19 @@ void systemInit(void)
     delay_init(180); /*delay初始化*/
     ledInit(); /*led初始化*/
     uartslkInit();
-    radiolinkInit();
     atkpInit();
     usblinkInit();
-    //    pmInit();
+    //  pmInit();
     //	ledseqInit();		/*led灯序列初始化*/
     //
-    //	commInit();			/*通信初始化  STM32 & NRF51822 */
+    commInit();			/*通信初始化  STM32 & NRF51822 */
     //	atkpInit();			/*传输协议初始化*/
     //	consoleInit();		/*打印初始化*/
     //	printf("<--------------------->\n");
     //
-    //	configParamInit();	/*初始化配置参数*/
+    configParamInit();	/*初始化配置参数*/
     //	pmInit();			/*电源管理初始化*/
-    //	stabilizerInit();	/*电机 传感器 PID初始化*/
+    stabilizerInit();	/*电机 传感器 PID初始化*/
     //	expModuleDriverInit();/*扩展模块驱动初始化*/
 
     //	if(systemTest() == true)

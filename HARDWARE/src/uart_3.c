@@ -181,7 +181,7 @@ void __attribute__((used)) USART3_IRQHandler(void)
     usbIsr();
 }
 
-bool getusbConnectState()
+bool getusbConnectState(void)
 {
     return connectState;
 }

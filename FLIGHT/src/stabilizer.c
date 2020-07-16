@@ -167,7 +167,7 @@ void stabilizerTask(void* param)
 
         //控制电机输出（500Hz）
         if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
-            powerControl(&control);
+            motorControl(&control);
         }
 
         tick++;

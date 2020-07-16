@@ -112,6 +112,7 @@ typedef enum
 	DOWN_RADIO		= 0x40,
 	
 	DOWN_REMOTER	= 0x50,
+	SERVO_INITPOS_CHANGED = 0x51,
 }downmsgID_e;
 
 
