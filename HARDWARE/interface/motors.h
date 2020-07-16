@@ -18,36 +18,37 @@
  * All rights reserved
 ********************************************************************************/
 
-
 /*拍打电机--- 180M主频下,2分频  8位精度输出约为351K PWM */
 /*舵机  --- 180M主频下,180分频  3333预装载 输出300HZ PWM */
-#define TIM_CLOCK_HZ 				180000000
-#define MOTORS_PWM_BITS           	8
-#define MOTORS_PWM_PERIOD         	((1<<MOTORS_PWM_BITS) - 1)
-#define MOTORS_PWM_PRESCALE       	2
+#define TIM_CLOCK_HZ 180000000
+#define MOTORS_PWM_BITS 8
+#define MOTORS_PWM_PERIOD ((1 << MOTORS_PWM_BITS) - 1)
+#define MOTORS_PWM_PRESCALE 2
 
-#define SERVOS_PWM_PRESCALE       	180
-#define SERVOS_PWM_PERIOD           3333
+#define SERVOS_PWM_PRESCALE 180
+#define SERVOS_PWM_PERIOD 3333
 
+#define ENABLE_THRUST_BAT_COMPENSATED /*使能电池油门补偿*/
 
-#define ENABLE_THRUST_BAT_COMPENSATED	/*使能电池油门补偿*/
+#define NBR_OF_MOTORS 7
+#define PWMF1 0
+#define PWMF2 1
+#define PWM1 2
+#define PWM2 3
+#define PWM3 4
+#define PWMR 5
 
-#define NBR_OF_MOTORS 	7
-#define PWMF1  		0
-#define PWMF2  		1
-#define PWM1  		2
-#define PWM2  		3
-#define PWM3  		4
-#define PWMR  		5
-
-#define MOTORS_TEST_RATIO         (u16)(0.2*(1<<16))	//20%
-#define MOTORS_TEST_ON_TIME_MS    50
+#define MOTORS_TEST_RATIO (u16)(0.2 * (1 << 16)) //20%
+#define MOTORS_TEST_ON_TIME_MS 50
 #define MOTORS_TEST_DELAY_TIME_MS 150
 
+#define SERVO_MAXPWM 2100 //2.1ms
+#define SERVO_MINPWM 900  //0.9ms
+#define SERVO_RANGE (SERVO_MAXPWM - SERVO_MINPWM)
 
-void motorsInit(void);		/*电机初始化*/
-bool motorsTest(void);		/*电机测试*/
-void motorsSetRatio(u32 id, u16 ithrust);	/*设置电机占空比*/
+void motorsInit(void);                    /*电机初始化*/
+bool motorsTest(void);                    /*电机测试*/
+void motorsSetRatio(u32 id, u16 ithrust); /*设置电机占空比*/
+void servoSetPWM(u8 id, u16 value);
 
 #endif /* __MOTORS_H */
-

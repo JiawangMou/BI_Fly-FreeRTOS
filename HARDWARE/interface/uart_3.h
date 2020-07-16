@@ -43,6 +43,6 @@ int usbPutchar(int ch); /*发送一个字符到串口*/
 void usbIsr(void); /*串口中断服务函数*/
 // void usbDmaIsr(void); /*DMA中断服务函数*/
 // void usbTxenFlowctrlIsr(void);
-bool getusbConnectState();
+bool getusbConnectState(void);
 
 #endif /* __UART_3_H */

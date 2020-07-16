@@ -46,10 +46,10 @@
 ********************************************************************************/
 
 //数据拆分宏定义
-#define BYTE0(dwTemp) (*((u8*)(&dwTemp)))
-#define BYTE1(dwTemp) (*((u8*)(&dwTemp) + 1))
-#define BYTE2(dwTemp) (*((u8*)(&dwTemp) + 2))
-#define BYTE3(dwTemp) (*((u8*)(&dwTemp) + 3))
+#define BYTE0(dwTemp) (*((u8 *)(&dwTemp)))
+#define BYTE1(dwTemp) (*((u8 *)(&dwTemp) + 1))
+#define BYTE2(dwTemp) (*((u8 *)(&dwTemp) + 2))
+#define BYTE3(dwTemp) (*((u8 *)(&dwTemp) + 3))
 
 //数据返回周期时间（单位ms）
 #define PERIOD_STATUS 30
@@ -84,11 +84,12 @@ extern PidObject pidRateRoll;
 extern PidObject pidRatePitch;
 extern PidObject pidRateYaw;
 
-static void atkpSendPacket(atkp_t* p)
+static void atkpSendPacket(atkp_t *p)
 {
     radiolinkSendPacket(p);
 
-    if (getusbConnectState()) {
+    if (getusbConnectState())
+    {
         usblinkSendPacket(p);
     }
 }
@@ -359,13 +360,15 @@ static void atkpSendPeriod(void)
 {
     static u16 count_ms = 1;
 
-    if (!(count_ms % PERIOD_STATUS)) {
+    if (!(count_ms % PERIOD_STATUS))
+    {
         attitude_t attitude;
         getAttitudeData(&attitude);
         int baroData = getBaroData();
         sendStatus(attitude.roll, attitude.pitch, attitude.yaw, baroData, 0, flyable);
     }
-    if (!(count_ms % PERIOD_SENSOR)) {
+    if (!(count_ms % PERIOD_SENSOR))
+    {
         Axis3i16 acc;
         Axis3i16 gyro;
         Axis3i16 mag;
@@ -380,17 +383,20 @@ static void atkpSendPeriod(void)
         getStateData(&acc, &vel, &pos);
         sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
         sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
-            0, getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+                     0, getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
-    if (!(count_ms % PERIOD_RCDATA)) {
+    if (!(count_ms % PERIOD_RCDATA))
+    {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll,
-            rcdata.pitch, 0, 0, 0, 0, 0, 0);
+                   rcdata.pitch, 0, 0, 0, 0, 0, 0);
     }
-    if (!(count_ms % PERIOD_POWER)) {
+    if (!(count_ms % PERIOD_POWER))
+    {
         float bat = pmGetBatteryVoltage();
         sendPower(bat * 100, 500);
     }
-    if (!(count_ms % PERIOD_MOTOR)) {
+    if (!(count_ms % PERIOD_MOTOR))
+    {
         u16 f1, f2, s1, s2, s3, r1;
         motorPWM_t motorPWM;
         getMotorPWM(&motorPWM);
@@ -403,7 +409,8 @@ static void atkpSendPeriod(void)
 
         sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
     }
-    if (!(count_ms % PERIOD_SENSOR2)) {
+    if (!(count_ms % PERIOD_SENSOR2))
+    {
         int baro = getBaroData() * 100.f;
         sendSenser2(baro, 0);
     }
@@ -411,23 +418,26 @@ static void atkpSendPeriod(void)
         count_ms = 1;
 }
 
-static u8 atkpCheckSum(atkp_t* packet)
+static u8 atkpCheckSum(atkp_t *packet)
 {
     u8 sum;
     sum = DOWN_BYTE1;
     sum += DOWN_BYTE2;
     sum += packet->msgID;
     sum += packet->dataLen;
-    for (int i = 0; i < packet->dataLen; i++) {
+    for (int i = 0; i < packet->dataLen; i++)
+    {
         sum += packet->data[i];
     }
     return sum;
 }
 
-static void atkpReceiveAnl(atkp_t* anlPacket)
+static void atkpReceiveAnl(atkp_t *anlPacket)
 {
-    if (anlPacket->msgID == DOWN_COMMAND) {
-        switch (anlPacket->data[0]) {
+    if (anlPacket->msgID == DOWN_COMMAND)
+    {
+        switch (anlPacket->data[0])
+        {
         case D_COMMAND_ACC_CALIB:
             break;
 
@@ -460,51 +470,59 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         case D_COMMAND_FLIGHT_ULOCK:
             flyable = true;
         }
-    } else if (anlPacket->msgID == DOWN_ACK) {
+    }
+    else if (anlPacket->msgID == DOWN_ACK)
+    {
         if (anlPacket->data[0] == D_ACK_READ_PID) /*读取PID参数*/
         {
             sendPid(1, pidRateRoll.kp, pidRateRoll.ki, pidRateRoll.kd,
-                pidRatePitch.kp, pidRatePitch.ki, pidRatePitch.kd,
-                pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd);
+                    pidRatePitch.kp, pidRatePitch.ki, pidRatePitch.kd,
+                    pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd);
             sendPid(2, pidAngleRoll.kp, pidAngleRoll.ki, pidAngleRoll.kd,
-                pidAnglePitch.kp, pidAnglePitch.ki, pidAnglePitch.kd,
-                pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd);
+                    pidAnglePitch.kp, pidAnglePitch.ki, pidAnglePitch.kd,
+                    pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd);
             sendPid(3, pidVZ.kp, pidVZ.ki, pidVZ.kd,
-                pidZ.kp, pidZ.ki, pidZ.kd,
-                pidVX.kp, pidVX.ki, pidVX.kd);
+                    pidZ.kp, pidZ.ki, pidZ.kd,
+                    pidVX.kp, pidVX.ki, pidVX.kd);
             sendPid(4, pidX.kp, pidX.ki, pidX.kd,
-                0, 0, 0,
-                0, 0, 0);
+                    0, 0, 0,
+                    0, 0, 0);
         }
         if (anlPacket->data[0] == D_ACK_RESET_PARAM) /*恢复默认参数*/
         {
             resetConfigParamPID();
 
-            attitudeControlInit(RATE_PID_DT, ANGEL_PID_DT); /*初始化姿态PID*/
+            attitudeControlInit(RATE_PID_DT, ANGEL_PID_DT);        /*初始化姿态PID*/
             positionControlInit(VELOCITY_PID_DT, POSITION_PID_DT); /*初始化位置PID*/
 
             sendPid(1, pidRateRoll.kp, pidRateRoll.ki, pidRateRoll.kd,
-                pidRatePitch.kp, pidRatePitch.ki, pidRatePitch.kd,
-                pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd);
+                    pidRatePitch.kp, pidRatePitch.ki, pidRatePitch.kd,
+                    pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd);
             sendPid(2, pidAngleRoll.kp, pidAngleRoll.ki, pidAngleRoll.kd,
-                pidAnglePitch.kp, pidAnglePitch.ki, pidAnglePitch.kd,
-                pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd);
+                    pidAnglePitch.kp, pidAnglePitch.ki, pidAnglePitch.kd,
+                    pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd);
             sendPid(3, pidVZ.kp, pidVZ.ki, pidVZ.kd,
-                pidZ.kp, pidZ.ki, pidZ.kd,
-                pidVX.kp, pidVX.ki, pidVX.kd);
+                    pidZ.kp, pidZ.ki, pidZ.kd,
+                    pidVX.kp, pidVX.ki, pidVX.kd);
             sendPid(4, pidX.kp, pidX.ki, pidX.kd,
-                0, 0, 0,
-                0, 0, 0);
+                    0, 0, 0,
+                    0, 0, 0);
         }
-    } else if (anlPacket->msgID == DOWN_RCDATA) {
-        rcdata = *((joystickFlyui16_t*)anlPacket->data);
-    } else if (anlPacket->msgID == DOWN_POWER) /*nrf51822*/
+    }
+    else if (anlPacket->msgID == DOWN_RCDATA)
+    {
+        rcdata = *((joystickFlyui16_t *)anlPacket->data);
+    }
+    else if (anlPacket->msgID == DOWN_POWER) /*nrf51822*/
     {
         pmSyslinkUpdate(anlPacket);
-    } else if (anlPacket->msgID == DOWN_REMOTER) /*遥控器*/
+    }
+    else if (anlPacket->msgID == DOWN_REMOTER) /*遥控器*/
     {
         remoterCtrlProcess(anlPacket);
-    } else if (anlPacket->msgID == DOWN_PID1) {
+    }
+    else if (anlPacket->msgID == DOWN_PID1)
+    {
         pidRateRoll.kp = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
         pidRateRoll.ki = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
         pidRateRoll.kd = 0.1 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
@@ -516,7 +534,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         pidRateYaw.kd = 0.1 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
-    } else if (anlPacket->msgID == DOWN_PID2) {
+    }
+    else if (anlPacket->msgID == DOWN_PID2)
+    {
         pidAngleRoll.kp = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
         pidAngleRoll.ki = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
         pidAngleRoll.kd = 0.1 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
@@ -528,7 +548,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         pidAngleYaw.kd = 0.1 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
-    } else if (anlPacket->msgID == DOWN_PID3) {
+    }
+    else if (anlPacket->msgID == DOWN_PID3)
+    {
         pidVZ.kp = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
         pidVZ.ki = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
         pidVZ.kd = 0.1 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
@@ -545,7 +567,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
 
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
-    } else if (anlPacket->msgID == DOWN_PID4) {
+    }
+    else if (anlPacket->msgID == DOWN_PID4)
+    {
         pidX.kp = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
         pidX.ki = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
         pidX.kd = 0.1 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
@@ -554,42 +578,68 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
 
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
-    } else if (anlPacket->msgID == DOWN_PID5) {
-        u8 cksum = atkpCheckSum(anlPacket);
-        sendCheck(anlPacket->msgID, cksum);
-    } else if (anlPacket->msgID == DOWN_PID6) {
-        //		s16 temp1  = ((s16)(*(anlPacket->data+0)<<8)|*(anlPacket->data+1));
-        //		s16 temp2  = ((s16)(*(anlPacket->data+2)<<8)|*(anlPacket->data+3));
-        //		s16 temp3  = ((s16)(*(anlPacket->data+4)<<8)|*(anlPacket->data+5));
-        s16 enable = ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
-        s16 m1_set = ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
-        s16 m2_set = ((s16)(*(anlPacket->data + 10) << 8) | *(anlPacket->data + 11));
-        s16 m3_set = ((s16)(*(anlPacket->data + 12) << 8) | *(anlPacket->data + 13));
-        s16 m4_set = ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
-        //这一段还没有修改
-        //		setMotorPWM(enable,m1_set,m2_set,m3_set,m4_set);
-        attitudePIDwriteToConfigParam();
-        positionPIDwriteToConfigParam();
+    }
+    else if (anlPacket->msgID == DOWN_PID5)
+    {
+        pidSetOutputLimit(&pidRateRoll, ((float)((*(anlPacket->data+0)<<8)|*(anlPacket->data+1))));
+        pidSetOutputLimit(&pidRatePitch, ((float)((*(anlPacket->data+2)<<8)|*(anlPacket->data+3))));
+        pidSetOutputLimit(&pidRateYaw, ((float)((*(anlPacket->data+4)<<8)|*(anlPacket->data+5))));
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
     }
+    else if (anlPacket->msgID == DOWN_PID6)
+    {
+        pidSetOutputLimit(&pidAngleRoll,    ((float)((*(anlPacket->data+0)<<8)|*(anlPacket->data+1))));
+        pidSetOutputLimit(&pidAnglePitch,   ((float)((*(anlPacket->data+2)<<8)|*(anlPacket->data+3))));
+        pidSetOutputLimit(&pidAngleYaw,     ((float)((*(anlPacket->data+4)<<8)|*(anlPacket->data+5))));
+        u8 cksum = atkpCheckSum(anlPacket);
+        sendCheck(anlPacket->msgID, cksum);
+    }
+    else if (anlPacket->msgID == SERVO_INITPOS_CHANGED)
+    {
+        u8 flag = *(anlPacket->data + 0);
+        //		s16 temp1  = ((s16)(*(anlPacket->data+0)<<8)|*(anlPacket->data+1));
+        //		s16 temp2  = ((s16)(*(anlPacket->data+2)<<8)|*(anlPacket->data+3));
+        //		s16 temp3  = ((s16)(*(anlPacket->data+4)<<8)|*(anlPacket->data+5));
+        u16 enable = ((u16)(*(anlPacket->data + 1) << 8) | *(anlPacket->data + 2));
+        u16 f1_set = ((u16)(*(anlPacket->data + 3) << 8) | *(anlPacket->data + 4));
+        u16 f2_set = ((u16)(*(anlPacket->data + 5) << 8) | *(anlPacket->data + 6));
+        u16 s1_set = ((u16)(*(anlPacket->data + 7) << 8) | *(anlPacket->data + 8));
+        u16 s2_set = ((u16)(*(anlPacket->data + 9) << 8) | *(anlPacket->data + 10));
+        u16 s3_set = 0;
+        u16 r1_set = 0;
+        setMotorPWM(enable, f1_set, f2_set, s1_set, s2_set, s3_set, r1_set);
+        attitudePIDwriteToConfigParam();
+        positionPIDwriteToConfigParam();
+        if (flag)
+        {
+            configParamGiveSemaphore();             //将修改的configparamdefault写入flash
+            flag = 0;
+        }
+
+        u8 cksum = atkpCheckSum(anlPacket);
+        sendCheck(anlPacket->msgID, cksum);
+    }
+    
 }
 
-void atkpTxTask(void* param)
+void atkpTxTask(void *param)
 {
     u32 lastWakeTime = getSysTickCnt();
     sendMsgACK();
-    while (1) {
+    while (1)
+    {
         atkpSendPeriod();
         // vTaskDelay(10);
         vTaskDelayUntil(&lastWakeTime, 1);
     }
 }
 
-void atkpRxAnlTask(void* param)
+void atkpRxAnlTask(void *param)
 {
     atkp_t p;
-    while (1) {
+    while (1)
+    {
         xQueueReceive(rxQueue, &p, portMAX_DELAY);
         atkpReceiveAnl(&p);
     }
@@ -604,7 +654,7 @@ void atkpInit(void)
     isInit = true;
 }
 
-bool atkpReceivePacketBlocking(atkp_t* p)
+bool atkpReceivePacketBlocking(atkp_t *p)
 {
     ASSERT(p);
     ASSERT(p->dataLen <= ATKP_MAX_DATA_SIZE);
