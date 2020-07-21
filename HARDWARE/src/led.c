@@ -84,9 +84,9 @@ void ledInit(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);  
-
+    GPIO_Init(GPIOB, &GPIO_InitStructure);  	
 	GPIO_ResetBits(GPIOB, GPIO_Pin_3);
+	
 //end
     isInit = true;
 

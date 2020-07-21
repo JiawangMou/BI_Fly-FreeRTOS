@@ -151,6 +151,11 @@ typedef struct
 	float temperature;
 	float asl;
 } baro_t;
+typedef struct
+{
+	Axis3i16 offset;
+	Axis3u16 radius;
+} mag_calib;
 
 typedef struct
 {
@@ -160,6 +165,7 @@ typedef struct
 	baro_t baro;
 	point_t position;
 	zRange_t zrange;
+	mag_calib mag_calibration;
 } sensorData_t;
 
 typedef struct

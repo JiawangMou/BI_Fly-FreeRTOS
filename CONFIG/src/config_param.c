@@ -42,18 +42,21 @@ static configParam_t configParamDefault =
 					.kp = 8.0,
 					.ki = 0.0,
 					.kd = 0.0,
+					.outputLimit = 0,
 				},
 			.pitch =
 				{
 					.kp = 8.0,
 					.ki = 0.0,
 					.kd = 0.0,
+					.outputLimit = 0,
 				},
 			.yaw =
 				{
 					.kp = 20.0,
 					.ki = 0.0,
 					.kd = 1.5,
+					.outputLimit = 0,
 				},
 		},
 		.pidRate = /*角速度PID*/
@@ -63,18 +66,21 @@ static configParam_t configParamDefault =
 					.kp = 300.0,
 					.ki = 0.0,
 					.kd = 6.5,
+					.outputLimit = 0,
 				},
 			.pitch =
 				{
 					.kp = 300.0,
 					.ki = 0.0,
 					.kd = 6.5,
+					.outputLimit = 0,
 				},
 			.yaw =
 				{
 					.kp = 200.0,
 					.ki = 18.5,
 					.kd = 0.0,
+					.outputLimit = 0,
 				},
 		},
 		.pidPos = /*位置PID*/
@@ -120,9 +126,9 @@ static configParam_t configParamDefault =
 
 		.servo_initpos =
 			{
-				.s1 = 1520,
-				.s2 = 1520,
-				.s3 = 1520,
+				.s_left = 1520,
+				.s_right = 1520,
+				.s_middle = 1520,
 			},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
@@ -236,22 +242,27 @@ void saveConfigAndNotify(void)
 	}
 }
 
-void changeServoinitpos_configParamDefault(u16 s1, u16 s2, u16 s3)
+void changeServoinitpos_configParam(u16 s1, u16 s2, u16 s3)
 {
-	configParamDefault.servo_initpos.s1 = s1;
-	configParamDefault.servo_initpos.s2 = s2;
-	configParamDefault.servo_initpos.s3 = s3;
+	configParam.servo_initpos.s_left = s1;
+	configParam.servo_initpos.s_right = s2;
+	configParam.servo_initpos.s_middle = s3;
 }
 
 u16 getservoinitpos_configParam(u8 pwm_id)
 {
+	u16 value = 0;
 	switch (pwm_id)
 	{
-	case PWM1:
-		return configParam.servo_initpos.s1;
-	case PWM2:
-		return configParam.servo_initpos.s2;
-	case PWM3:
-		return configParam.servo_initpos.s3;
+	case PWM_LEFT:
+		value = configParam.servo_initpos.s_left;
+		break;
+	case PWM_RIGHT:
+		value = configParam.servo_initpos.s_right;
+		break;
+	case PWM_MIDDLE:
+		value = configParam.servo_initpos.s_middle;
+		break;
 	}
+	return value;
 }

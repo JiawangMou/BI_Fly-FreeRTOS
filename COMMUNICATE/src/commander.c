@@ -89,7 +89,7 @@ static void ctrlDataUpdate(void)
 	if ((tickNow - remoteCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
 	{
 		nowCache = &remoteCache;	/* 遥控缓存数据 */
-		commanderLevelRPY();
+		commanderLevelRPY();		/*超时，但是重连，没有断开连接还是有数据能接受到，所以清空之前得低通滤波器*/
 	}else 
 	if ((tickNow - wifiCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
 	{

@@ -39,4 +39,7 @@ bool sensorsReadAcc(Axis3f *acc);
 bool sensorsReadMag(Axis3f *mag);
 bool sensorsReadBaro(baro_t *baro);
 
+/*磁力计标定数据获取*/
+void setMagCalibData(Axis3i16 offset, Axis3u16 radius);
+
 #endif //__SENSORS_H

@@ -1005,7 +1005,7 @@ void TIM_OCStructInit(TIM_OCInitTypeDef* TIM_OCInitStruct)
   *            @arg TIM_OCMode_Timing
   *            @arg TIM_OCMode_Active
   *            @arg TIM_OCMode_Toggle
-  *            @arg TIM_OCMode_PWM1
+  *            @arg TIM_OCMode_PWM_LEFT
   *            @arg TIM_OCMode_PWM2
   *            @arg TIM_ForcedAction_Active
   *            @arg TIM_ForcedAction_InActive

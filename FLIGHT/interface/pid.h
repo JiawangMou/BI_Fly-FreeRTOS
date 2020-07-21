@@ -18,7 +18,7 @@
  * 修改说明:
  * 版本V1.3 增加PID结构体的输出一项(out)。
 ********************************************************************************/
-#define DEFAULT_PID_INTEGRATION_LIMIT 		500.0 //默认pid的积分限幅
+#define DEFAULT_PID_INTEGRATION_LIMIT 		6000.0 //默认pid的积分限幅
 #define DEFAULT_PID_OUTPUT_LIMIT      		0.0	  //默认pid输出限幅，0为不限幅
 
 typedef struct
@@ -54,5 +54,5 @@ void pidSetKp(PidObject* pid, const float kp);		/*pid Kp设置*/
 void pidSetKi(PidObject* pid, const float ki);		/*pid Ki设置*/
 void pidSetKd(PidObject* pid, const float kd);		/*pid Kd设置*/
 void pidSetDt(PidObject* pid, const float dt);		/*pid dt设置*/
-
+void pidReset_test(PidObject* pid);
 #endif /* __PID_H */

@@ -33,6 +33,17 @@ typedef union
 
 typedef union 
 {
+	struct
+	{
+		uint16_t x;
+		uint16_t y;
+		uint16_t z;
+	};
+	uint16_t axis[3];
+} Axis3u16;
+
+typedef union 
+{
 	struct 
 	{
 		int32_t x;

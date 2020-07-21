@@ -179,6 +179,7 @@ void getAttitudeData(attitude_t* get)
     get->pitch = -state.attitude.pitch;
     get->roll = state.attitude.roll;
     get->yaw = -state.attitude.yaw;
+    get->timestamp = state.attitude.timestamp;
 }
 
 float getBaroData(void)

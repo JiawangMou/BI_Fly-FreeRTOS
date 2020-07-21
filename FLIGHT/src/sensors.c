@@ -31,6 +31,7 @@
  * All rights reserved
 ********************************************************************************/
 
+
 #define SENSORS_GYRO_FS_CFG       MPU6500_GYRO_FS_2000
 #define SENSORS_DEG_PER_LSB_CFG   MPU6500_DEG_PER_LSB_2000
 
@@ -38,7 +39,7 @@
 #define SENSORS_G_PER_LSB_CFG     MPU6500_G_PER_LSB_16
 
 #define SENSORS_NBR_OF_BIAS_SAMPLES		1024	/* 计算方差的采样样本个数 */
-#define GYRO_VARIANCE_BASE				4000	/* 陀螺仪零偏方差阈值 */
+#define GYRO_VARIANCE_BASE				300		/* 陀螺仪零偏方差阈值 */
 #define SENSORS_ACC_SCALE_SAMPLES  		200		/* 加速计采样个数 */
 
 // MPU9250主机模式读取数据 缓冲区长度
@@ -72,7 +73,7 @@ static Axis3i16 magRaw;
 
 /*低通滤波参数*/
 #define GYRO_LPF_CUTOFF_FREQ  80
-#define ACCEL_LPF_CUTOFF_FREQ 30
+#define ACCEL_LPF_CUTOFF_FREQ 20
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 
@@ -263,9 +264,9 @@ static void sensorsCalculateVarianceAndMean(BiasObj* bias, Axis3f* varOut, Axis3
 		sumsq[2] += bias->buffer[i].z * bias->buffer[i].z;
 	}
 
-	varOut->x = (sumsq[0] - ((int64_t)sum[0] * sum[0]) / SENSORS_NBR_OF_BIAS_SAMPLES);
-	varOut->y = (sumsq[1] - ((int64_t)sum[1] * sum[1]) / SENSORS_NBR_OF_BIAS_SAMPLES);
-	varOut->z = (sumsq[2] - ((int64_t)sum[2] * sum[2]) / SENSORS_NBR_OF_BIAS_SAMPLES);
+	varOut->x = (sumsq[0] - ((int64_t)sum[0] * sum[0]) / SENSORS_NBR_OF_BIAS_SAMPLES) / SENSORS_NBR_OF_BIAS_SAMPLES;
+	varOut->y = (sumsq[1] - ((int64_t)sum[1] * sum[1]) / SENSORS_NBR_OF_BIAS_SAMPLES) / SENSORS_NBR_OF_BIAS_SAMPLES;
+	varOut->z = (sumsq[2] - ((int64_t)sum[2] * sum[2]) / SENSORS_NBR_OF_BIAS_SAMPLES) / SENSORS_NBR_OF_BIAS_SAMPLES;
 
 	meanOut->x = (float)sum[0] / SENSORS_NBR_OF_BIAS_SAMPLES;
 	meanOut->y = (float)sum[1] / SENSORS_NBR_OF_BIAS_SAMPLES;
@@ -411,7 +412,7 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
 /*处理气压计数据*/
 void processBarometerMeasurements(const u8 *buffer)
 {
-	static float temp;
+//	static float temp;
     static float pressure;
 	struct bmp3_uncomp_data uncomp_data = { 0 };
 	struct bmp3_data comp_data = { 0 };
@@ -486,9 +487,12 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 
 	applyAxis3fLpf(accLpf, &sensors.acc);
 }
+
+
 /*传感器任务*/
 void sensorsTask(void *param)
 {
+	float accraw_num[3] = {0, 0 ,0};
 	sensorsInit();	/*传感器初始化*/
 	vTaskDelay(150);
 //MPU9250设置为IIC主机模式
@@ -506,9 +510,10 @@ void sensorsTask(void *param)
 			//读MPU9250 陀螺仪+加速度计+磁力计+气压计的数据
 			i2cdevRead(I2C3_DEV, MPU6500_ADDRESS_AD0_HIGH, MPU6500_RA_ACCEL_XOUT_H, dataLen, buffer);
 			
+
+
 			/*处理原始数据，并放入数据队列中*/
 			processAccGyroMeasurements(&(buffer[0]));
-
 			if (isMagPresent)
 			{
 				processMagnetometerMeasurements(&(buffer[SENSORS_MPU6500_BUFF_LEN]));
@@ -607,5 +612,9 @@ bool getIsBaroPresent(void)
 	return isBaroPresent;
 }
 
-
+void setMagCalibData(Axis3i16 offset, Axis3u16 radius)
+{
+	sensors.mag_calibration.offset = offset;
+	sensors.mag_calibration.radius = radius;
+}
 

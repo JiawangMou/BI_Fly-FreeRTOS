@@ -16,8 +16,8 @@
  * All rights reserved
 ********************************************************************************/
 
-//#define BOOTLOADER_SIZE		(16*1024)	
-#define BOOTLOADER_SIZE		0	
+#define BOOTLOADER_SIZE		(16*1024)	
+//#define BOOTLOADER_SIZE		0	
 #define CONFIG_PARAM_SIZE	(16*1024)
 
 #define CONFIG_PARAM_ADDR 	(FLASH_BASE + BOOTLOADER_SIZE)	/*16K bootloader*/

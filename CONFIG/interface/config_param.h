@@ -21,6 +21,7 @@ typedef struct
 	float kp;
 	float ki;
 	float kd;
+	float outputLimit;
 } pidInit_t;
 
 typedef struct
@@ -61,9 +62,9 @@ typedef struct
 
 typedef struct 
 {
-	u16 s1;
-	u16 s2;
-	u16 s3;	
+	u16 s_left;
+	u16 s_right;
+	u16 s_middle;	
 }Servo_initpos;
 
 typedef struct	
@@ -92,7 +93,7 @@ bool configParamTest(void);
 void configParamGiveSemaphore(void);
 void resetConfigParamPID(void);
 void saveConfigAndNotify(void);
-void changeServoinitpos_configParamDefault(u16 s1,u16 s2,u16 s3);
+void changeServoinitpos_configParam(u16 s1,u16 s2,u16 s3);
 u16 getservoinitpos_configParam(u8 pwm_id);
 
 #endif /*__CONFIG_PARAM_H */

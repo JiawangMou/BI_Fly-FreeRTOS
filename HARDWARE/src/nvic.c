@@ -29,7 +29,7 @@ static u32 sysTickCnt=0;
 
 void nvicInit(void)
 {
-	//NVIC_SetVectorTable(FIRMWARE_START_ADDR,0);
+	NVIC_SetVectorTable(FIRMWARE_START_ADDR,0);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
@@ -146,8 +146,8 @@ void  printHardFault(u32* hardfaultArgs)
 
 	motorsSetRatio(PWMF1, 0);
 	motorsSetRatio(PWMF2, 0);
-	motorsSetRatio(PWM1, 0);
-	motorsSetRatio(PWM2, 0);
+	motorsSetRatio(PWM_LEFT, 0);
+	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);	/*´íÎó¼ì²â*/
@@ -165,8 +165,8 @@ void  MemManage_Handler(void)
 	/* Go to infinite loop when Memory Manage exception occurs */
 	motorsSetRatio(PWMF1, 0);
 	motorsSetRatio(PWMF2, 0);
-	motorsSetRatio(PWM1, 0);
-	motorsSetRatio(PWM2, 0);
+	motorsSetRatio(PWM_LEFT, 0);
+	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
@@ -185,8 +185,8 @@ void  BusFault_Handler(void)
 	/* Go to infinite loop when Bus Fault exception occurs */
 	motorsSetRatio(PWMF1, 0);
 	motorsSetRatio(PWMF2, 0);
-	motorsSetRatio(PWM1, 0);
-	motorsSetRatio(PWM2, 0);
+	motorsSetRatio(PWM_LEFT, 0);
+	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
@@ -205,8 +205,8 @@ void  UsageFault_Handler(void)
 	/* Go to infinite loop when Usage Fault exception occurs */
 	motorsSetRatio(PWMF1, 0);
 	motorsSetRatio(PWMF2, 0);
-	motorsSetRatio(PWM1, 0);
-	motorsSetRatio(PWM2, 0);
+	motorsSetRatio(PWM_LEFT, 0);
+	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
 	ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/

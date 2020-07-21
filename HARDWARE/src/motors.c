@@ -19,7 +19,7 @@
 
 static bool isInit = false;
 u32 motor_ratios[] = {0, 0, 0, 0};
-static const u32 MOTORS[] = {PWMF1, PWMF2, PWM1, PWM2};
+static const u32 MOTORS[] = {PWMF1, PWMF2, PWM_LEFT, PWM_RIGHT};
 
 static u16 ratioToCCRx(u16 val)
 {
@@ -38,9 +38,9 @@ void motorsInit(void) /*电机初始化*/
 	TIM_DeInit(TIM4); //重新初始化TIM4为默认状态
 	TIM_DeInit(TIM3); //重新初始化TIM3为默认状态
 
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM3);	 //PC8 复用为TIM3 DCH3	PWM1
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);	 //PA6 复用为TIM3 CH1	PWM2
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);	 //PB1 复用为TIM3 CH4	PWM3
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM3);	 //PC8 复用为TIM3 CH3	PWM_LEFT
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);	 //PA6 复用为TIM3 CH1	PWM_RIght
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);	 //PB1 复用为TIM3 CH4	PWM_MIDDLE
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM3);	 //PC7 复用为TIM3 CH2	PWMR
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_TIM4); //PD12复用为TIM4 CH1	PWMF1
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource13, GPIO_AF_TIM4); //PD13复用为TIM4 CH2	PWMF2
@@ -52,7 +52,7 @@ void motorsInit(void) /*电机初始化*/
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;		   //上拉
 	GPIO_Init(GPIOC, &GPIO_InitStructure);				   //初始化PC7 8
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5; //PA6
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6; //PA6
 	GPIO_Init(GPIOA, &GPIO_InitStructure);	  //初始化PA6
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1; //PB1
@@ -82,12 +82,12 @@ void motorsInit(void) /*电机初始化*/
 	TIM_OC2Init(TIM4, &TIM_OCInitStructure); //初始化TIM4 CH2输出比较
 	TIM_OC2Init(TIM3, &TIM_OCInitStructure); //初始化TIM3 CH2输出比较
 
-	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM1); //舵机中位值
-	TIM_OC3Init(TIM3, &TIM_OCInitStructure);						   //初始化TIM3 CH3输出比较	PWM1
-	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM2); //舵机中位值
-	TIM_OC1Init(TIM3, &TIM_OCInitStructure);						   //初始化TIM3 CH1输出比较	PWM2
-	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM3); //舵机中位值
-	TIM_OC4Init(TIM3, &TIM_OCInitStructure);						   //初始化TIM3 CH4输出比较	PWM3
+	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_LEFT);	 //舵机中位值
+	TIM_OC3Init(TIM3, &TIM_OCInitStructure);								 //初始化TIM3 CH3输出比较	PWM_LEFT
+	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_RIGHT);	 //舵机中位值
+	TIM_OC1Init(TIM3, &TIM_OCInitStructure);								 //初始化TIM3 CH1输出比较	PWM_RIGHT
+	TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_MIDDLE); //舵机中位值
+	TIM_OC4Init(TIM3, &TIM_OCInitStructure);								 //初始化TIM3 CH4输出比较	PWM_MIDDLE
 
 	TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR2上的预装载寄存器
 	TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
@@ -151,15 +151,15 @@ void motorsSetRatio(u32 id, u16 ithrust)
 		case 1: /*PWMF2*/
 			TIM_SetCompare1(TIM4, ratioToCCRx(ratio));
 			break;
-		// case 2: /*PWM1*/
-		// 	TIM_SetCompare3(TIM3, ratioToCCRx(ratio));
-		// 	break;
-		// case 3: /*PWM2*/
-		// 	TIM_SetCompare1(TIM3, ratioToCCRx(ratio));
-		// 	break;
-		// case 4: /*PWM3*/
-		// 	TIM_SetCompare4(TIM3, ratioToCCRx(ratio));
-		// 	break;
+			// case 2: /*PWM_LEFT*/
+			// 	TIM_SetCompare3(TIM3, ratioToCCRx(ratio));
+			// 	break;
+			// case 3: /*PWM_RIGHT*/
+			// 	TIM_SetCompare1(TIM3, ratioToCCRx(ratio));
+			// 	break;
+			// case 4: /*PWM_MIDDLE
+			// 	TIM_SetCompare4(TIM3, ratioToCCRx(ratio));
+			// 	break;
 		case 5: /*PWMR*/
 			TIM_SetCompare2(TIM3, ratioToCCRx(ratio));
 			break;
@@ -173,16 +173,27 @@ void servoSetPWM(u8 id, u16 value)
 {
 	switch (id)
 	{
-	case PWM1:
+	case PWM_LEFT:
 		TIM_SetCompare3(TIM3, (uint32_t)value);
 		break;
-	case PWM2:
+	case PWM_RIGHT:
 		TIM_SetCompare1(TIM3, (uint32_t)value);
 		break;
-	case PWM3:
+	case PWM_MIDDLE:
 		TIM_SetCompare4(TIM3, (uint32_t)value);
 		break;
 	}
 }
 
+u32 servoPWMLimit(u16 value)
+{
+	u16 _temp = 0;
+	if (value > SERVO_MAXPWM)
+		_temp = SERVO_MAXPWM;
+	else if (value < SERVO_MINPWM)
+		_temp = SERVO_MINPWM;
+	else
+		_temp = value;
 
+	return (u32)_temp;
+}

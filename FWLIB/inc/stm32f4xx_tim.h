@@ -242,7 +242,7 @@ typedef struct
 #define TIM_OCMode_Inactive                ((uint16_t)0x0020)
 #define TIM_OCMode_Toggle                  ((uint16_t)0x0030)
 #define TIM_OCMode_PWM1                    ((uint16_t)0x0060)
-#define TIM_OCMode_PWM2                    ((uint16_t)0x0070)
+#define TIM_OCMode_PWM2                   ((uint16_t)0x0070)
 #define IS_TIM_OC_MODE(MODE) (((MODE) == TIM_OCMode_Timing) || \
                               ((MODE) == TIM_OCMode_Active) || \
                               ((MODE) == TIM_OCMode_Inactive) || \

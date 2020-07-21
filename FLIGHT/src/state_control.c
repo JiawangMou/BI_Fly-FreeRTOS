@@ -104,10 +104,11 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 	if (control->thrust < 5.f)
 	{			
 		control->roll = 0;
-		control->pitch = 0;
-		control->yaw = 0;
-		
-		attitudeResetAllPID();	/*复位姿态PID*/	
+		// control->pitch = 0;
+		// control->yaw = 0;
+
+		attitudeResetAllPID_TEST(); 
+		//attitudeResetAllPID();	/*复位姿态PID*/	
 		positionResetAllPID();	/*复位位置PID*/
 		attitudeDesired.yaw = state->attitude.yaw;		/*复位计算的期望yaw值*/
 		

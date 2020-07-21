@@ -19,7 +19,7 @@
  * 修改说明:
  * 版本V1.3 互补滤波代码移植于inav-1.9.0
 ********************************************************************************/
-
+#define ACC_1G_NUM 2048
 #define ACCZ_SAMPLE		350
 
 float Kp = 0.4f;		/*比例增益*/
@@ -102,21 +102,38 @@ void imuComputeRotationMatrix(void)
     rMat[2][1] = 2.0f * (q2q3 - -q0q1);
     rMat[2][2] = 1.0f - 2.0f * q1q1 - 2.0f * q2q2;
 }
+
+static bool imuIsAccelerometerHealthy(Axis3f *accAverage)
+{
+    float accMagnitudeSq = 0;
+    for (int axis = 0; axis < 3; axis++) {
+        const float a = accAverage->axis[axis];
+        accMagnitudeSq += a * a;
+    }
+
+//    accMagnitudeSq = accMagnitudeSq / sq(ACC_1G_NUM);
+
+    // Accept accel readings only in range 0.9g - 1.1g
+    return (0.81f < accMagnitudeSq) && (accMagnitudeSq < 1.21f);
+}
+
 //IMU 融合算法 改！ 无磁力计数据融合
 void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互补滤波*/
 {
 	float normalise;
-	float ex, ey, ez;
+	float ex = 0, ey = 0, ez = 0;
 	float halfT = 0.5f * dt;
 	float accBuf[3] = {0.f};
+	bool useAcc = 0;
 	Axis3f tempacc = acc;
 	
 	gyro.x = gyro.x * DEG2RAD;	/* 度转弧度 */
 	gyro.y = gyro.y * DEG2RAD;
 	gyro.z = gyro.z * DEG2RAD;
 
+	useAcc = imuIsAccelerometerHealthy(&acc);
 	/* 加速度计输出有效时,利用加速度计补偿陀螺仪*/
-	if((acc.x != 0.0f) || (acc.y != 0.0f) || (acc.z != 0.0f))
+	if(((acc.x != 0.0f) || (acc.y != 0.0f) || (acc.z != 0.0f)) && useAcc)
 	{
 		/*单位化加速计测量值*/
 		normalise = invSqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
@@ -128,17 +145,18 @@ void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互
 		ex = (acc.y * rMat[2][2] - acc.z * rMat[2][1]);
 		ey = (acc.z * rMat[2][0] - acc.x * rMat[2][2]);
 		ez = (acc.x * rMat[2][1] - acc.y * rMat[2][0]);
-		
-		/*误差累计，与积分常数相乘*/
-		exInt += Ki * ex * dt ;  
-		eyInt += Ki * ey * dt ;
-		ezInt += Ki * ez * dt ;
-		
-		/*用叉积误差来做PI修正陀螺零偏，即抵消陀螺读数中的偏移量*/
-		gyro.x += Kp * ex + exInt;
-		gyro.y += Kp * ey + eyInt;
-		gyro.z += Kp * ez + ezInt;
+
 	}
+			
+	/*误差累计，与积分常数相乘*/
+	exInt += Ki * ex * dt ;  
+	eyInt += Ki * ey * dt ;
+	ezInt += Ki * ez * dt ;
+	
+	/*用叉积误差来做PI修正陀螺零偏，即抵消陀螺读数中的偏移量*/
+	gyro.x += Kp * ex + exInt;
+	gyro.y += Kp * ey + eyInt;
+	gyro.z += Kp * ez + ezInt;
 	/* 一阶近似算法，四元数运动学方程的离散化形式和积分 */
 	float q0Last = q0;
 	float q1Last = q1;
@@ -162,7 +180,7 @@ void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互
 	state->attitude.pitch = -asinf(rMat[2][0]) * RAD2DEG; 
 	state->attitude.roll = atan2f(rMat[2][1], rMat[2][2]) * RAD2DEG;
 	state->attitude.yaw = atan2f(rMat[1][0], rMat[0][0]) * RAD2DEG;
-	
+	state->attitude.timestamp = getSysTickCnt();
 	if (!isGravityCalibrated)	/*未校准*/
 	{		
 //		accBuf[0] = tempacc.x* rMat[0][0] + tempacc.y * rMat[0][1] + tempacc.z * rMat[0][2];	/*accx*/

@@ -33,5 +33,6 @@ void attitudeControllerResetRollAttitudePID(void);
 void attitudeControllerResetPitchAttitudePID(void);
 void attitudeResetAllPID(void);
 void attitudePIDwriteToConfigParam(void);
+void attitudeResetAllPID_TEST(void); /*只复位积分的量*/
 
 #endif /* __ATTITUDE_PID_H */

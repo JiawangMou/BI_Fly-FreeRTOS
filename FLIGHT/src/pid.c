@@ -27,7 +27,7 @@ void pidInit(PidObject* pid, const float desired, const pidInit_t pidParam, cons
 	pid->ki = pidParam.ki;
 	pid->kd = pidParam.kd;
 	pid->iLimit = DEFAULT_PID_INTEGRATION_LIMIT;
-	pid->outputLimit = DEFAULT_PID_OUTPUT_LIMIT;
+	pid->outputLimit = pidParam.outputLimit;
 	pid->dt = dt;
 }
 
@@ -123,4 +123,8 @@ void pidReset(PidObject* pid)
 	pid->prevError = 0;
 	pid->integ     = 0;
 	pid->deriv     = 0;
+}
+void pidReset_test(PidObject* pid)
+{
+	pid->integ     = 0;
 }

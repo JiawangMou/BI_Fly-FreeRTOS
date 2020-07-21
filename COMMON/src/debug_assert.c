@@ -46,8 +46,8 @@ void assertFail(char *exp, char *file, int line)
 
 	motorsSetRatio(PWMF1, 0);
 	motorsSetRatio(PWMF2, 0);
-	motorsSetRatio(PWM1, 0);
-	motorsSetRatio(PWM2, 0);
+	motorsSetRatio(PWM_LEFT, 0);
+	motorsSetRatio(PWM_RIGHT, 0);
 
 	// ledClearAll();
 	// ledSet(ERR_LED1, 1);/*´íÎó¼ì²â*/
