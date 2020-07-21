@@ -14,6 +14,7 @@
 #include "sensors.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
+#include "sensfusion6.h"
 #include "uart_3.h"
 #include "usblink.h"
 #include <stdbool.h>
@@ -131,7 +132,7 @@ static void sendStatus(float roll, float pitch, float yaw, s32 alt, u8 fly_model
     atkpSendPacket(&p);
 }
 
-static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16 m_x, s16 m_y, s16 m_z)
+static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16 m_x, s16 m_y, s16 m_z,u8 accuse)
 {
     u8 _cnt = 0;
     atkp_t p;
@@ -139,13 +140,13 @@ static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16
 
     p.msgID = UP_SENSER;
 
-    _temp = a_x;
+    _temp = a_x * 2000;
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
-    _temp = a_y;
+    _temp = a_y * 2000;
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
-    _temp = a_z;
+    _temp = a_z * 2000;
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
 
@@ -168,9 +169,9 @@ static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16
     _temp = m_z;
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
-    _temp = 0;
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+
+
+    p.data[_cnt++] = accuse;
 
     p.dataLen = _cnt;
     atkpSendPacket(&p);
@@ -428,8 +429,10 @@ static void atkpSendPeriod(void)
         Axis3i16 acc;
         Axis3i16 gyro;
         Axis3i16 mag;
+        Acc_Send acc_send;
         getSensorRawData(&acc, &gyro, &mag);
-        sendSenser(acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, mag.x, mag.y, mag.z);
+        getAcc_SendData(&acc_send);
+        sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x, gyro.y, gyro.z, mag.x, mag.y, mag.z,acc_send.useAcc);
     }
     if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
     {

@@ -37,7 +37,7 @@ static float rMat[3][3];/*旋转矩阵*/
 static float maxError = 0.f;		/*最大误差*/
 bool isGravityCalibrated = false;	/*是否校校准完成*/
 static float baseAcc[3] = {0.f,0.f,1.0f};	/*静态加速度*/
-
+static Acc_Send acc_send;
 
 static float invSqrt(float x);	/*快速开平方求倒*/
 
@@ -124,16 +124,19 @@ void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互
 	float ex = 0, ey = 0, ez = 0;
 	float halfT = 0.5f * dt;
 	float accBuf[3] = {0.f};
-	bool useAcc = 0;
 	Axis3f tempacc = acc;
 	
 	gyro.x = gyro.x * DEG2RAD;	/* 度转弧度 */
 	gyro.y = gyro.y * DEG2RAD;
 	gyro.z = gyro.z * DEG2RAD;
 
-	useAcc = imuIsAccelerometerHealthy(&acc);
+	acc_send.acc_beforefusion.x = acc.x;
+	acc_send.acc_beforefusion.y = acc.y;	
+	acc_send.acc_beforefusion.z = acc.z;
+	/*判断加速度计数据是否健康*/
+	acc_send.useAcc = imuIsAccelerometerHealthy(&acc);
 	/* 加速度计输出有效时,利用加速度计补偿陀螺仪*/
-	if(((acc.x != 0.0f) || (acc.y != 0.0f) || (acc.z != 0.0f)) && useAcc)
+	if(((acc.x != 0.0f) || (acc.y != 0.0f) || (acc.z != 0.0f)) && acc_send.useAcc)
 	{
 		/*单位化加速计测量值*/
 		normalise = invSqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
@@ -241,4 +244,7 @@ bool getIsCalibrated(void)
 {
 	return isGravityCalibrated;
 }
-
+void getAcc_SendData(Acc_Send *acc)
+{
+	*acc = acc_send;
+}
