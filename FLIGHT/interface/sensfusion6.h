@@ -16,7 +16,7 @@
 ********************************************************************************/
 
 typedef struct{
-    Axis3i16    acc_beforefusion;
+    Axis3f	acc_beforefusion;
     bool    useAcc;
 }Acc_Send;
 

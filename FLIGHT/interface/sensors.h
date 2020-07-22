@@ -23,6 +23,14 @@
 #define SENSOR9_UPDATE_RATE   	RATE_500_HZ
 #define SENSOR9_UPDATE_DT     	(1.0f/SENSOR9_UPDATE_RATE)
 
+// typedef struct _acc_buf{
+//     Axis3f acc;
+//     int count;
+// } Accbuffer;
+// typedef struct _gyro_buf{
+//     Axis3f gyro;
+//     int count;
+// } Gyrobuffer;
 	
 void sensorsTask(void *param);
 void sensorsInit(void);			/*传感器初始化*/

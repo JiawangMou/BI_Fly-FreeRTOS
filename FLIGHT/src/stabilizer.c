@@ -125,12 +125,13 @@ void stabilizerTask(void* param)
         vTaskDelayUntil(&lastWakeTime, MAIN_LOOP_DT); /*1ms周期延时*/
 
         // 获取6轴和气压数据（500Hz）
-        if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
-            sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
-        }
+        // if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
+        //     sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
+        // }
 
         //四元数和欧拉角计算（250Hz）
         if (RATE_DO_EXECUTE(ATTITUDE_ESTIMAT_RATE, tick)) {
+            sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
             imuUpdate(sensorData.acc, sensorData.gyro, &state, ATTITUDE_ESTIMAT_DT);
         }
 

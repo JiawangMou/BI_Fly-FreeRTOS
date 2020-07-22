@@ -132,7 +132,7 @@ static void sendStatus(float roll, float pitch, float yaw, s32 alt, u8 fly_model
     atkpSendPacket(&p);
 }
 
-static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16 m_x, s16 m_y, s16 m_z,u8 accuse)
+static void sendSenser(float a_x, float a_y, float a_z, s16 g_x, s16 g_y, s16 g_z, s16 m_x, s16 m_y, s16 m_z,u8 accuse)
 {
     u8 _cnt = 0;
     atkp_t p;
@@ -140,13 +140,13 @@ static void sendSenser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s16
 
     p.msgID = UP_SENSER;
 
-    _temp = a_x * 2000;
+    _temp = (s16)(a_x * 2000);
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
-    _temp = a_y * 2000;
+    _temp = (s16)(a_y * 2000);
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
-    _temp = a_z * 2000;
+    _temp = (s16)(a_z * 2000);
     p.data[_cnt++] = BYTE1(_temp);
     p.data[_cnt++] = BYTE0(_temp);
 
