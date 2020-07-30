@@ -134,13 +134,16 @@ void motorsSetRatio(u32 id, u16 ithrust)
 #ifdef ENABLE_THRUST_BAT_COMPENSATED
 		if (isExitFlip == true) /*500Hz*/
 		{
-			float thrust = ((float)ithrust / 65536.0f) * 60;
-			float volts = -0.0006239f * thrust * thrust + 0.088f * thrust;
-			float supply_voltage = pmGetBatteryVoltage();
-			float percentage = volts / supply_voltage;
-			percentage = percentage > 1.0f ? 1.0f : percentage;
-			ratio = percentage * UINT16_MAX;
-			motor_ratios[id] = ratio;
+			if(ithrust > 0)
+			{
+				float thrust = ((float)(ithrust - MOTORS_MAXPWM)/ (65536.0f - MOTORS_MAXPWM)) * 40.0f;
+				float volts = 0.063f * thrust + 1.68f;
+				float supply_voltage = pmGetBatteryVoltage();
+				float percentage = volts / supply_voltage;
+				percentage = percentage > 1.0f ? 1.0f : percentage;
+				ratio = percentage * UINT16_MAX;
+				motor_ratios[id] = ratio;
+			}
 		}
 #endif
 		switch (id)
@@ -185,6 +188,7 @@ void servoSetPWM(u8 id, u16 value)
 	}
 }
 
+#ifdef BI_Fly_1
 u32 servoPWMLimit(u16 value)
 {
 	u16 _temp = 0;
@@ -197,3 +201,21 @@ u32 servoPWMLimit(u16 value)
 
 	return (u32)_temp;
 }
+#endif
+
+#ifdef BI_Fly_2
+u32 servoPWMLimit(u8 id, u16 value)
+{
+	u16 _temp = 0;
+	if (value > getservoinitpos_configParam(id) + SERVO_RANGE)
+		_temp = getservoinitpos_configParam(id) + SERVO_RANGE;
+	else if (value < getservoinitpos_configParam(id) - SERVO_RANGE)
+		_temp = getservoinitpos_configParam(id) - SERVO_RANGE;
+	else
+		_temp = value;
+
+	return (u32)_temp;
+}	
+#endif
+
+

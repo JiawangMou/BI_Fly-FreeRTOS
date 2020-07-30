@@ -92,8 +92,10 @@ static Axis3f gyroBff;
 /*低通滤波参数*/
 #define GYRO_LPF_CUTOFF_FREQ 80
 #define ACCEL_LPF_CUTOFF_FREQ 20
+#define BARO_LPF_CUTOFF_FREQ 20
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
+static lpf2pData BaroLpf;
 
 static bool isMPUPresent = false;
 static bool isMagPresent = false;
@@ -245,6 +247,7 @@ void sensorsDeviceInit(void)
 		lpf2pInit(&gyroLpf[i], 1000, GYRO_LPF_CUTOFF_FREQ);
 		lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
 	}
+	lpf2pInit(&BaroLpf, 1000, BARO_LPF_CUTOFF_FREQ);
 
 #ifdef SENSORS_ENABLE_MAG_AK8963
 	ak8963Init(I2C3_DEV); //ak8963磁力计初始化
@@ -364,6 +367,7 @@ void sensorsInit(void)
 	sensorsBiasObjInit(&gyroBiasRunning);
 	sensorsDeviceInit();	/*传感器器件初始化*/
 	sensorsInterruptInit(); /*传感器中断初始化*/
+
 
 	isInit = true;
 }
@@ -485,7 +489,8 @@ void processBarometerMeasurements(const u8 *buffer)
 			sensors.baro.temperature = (float)comp_data.temperature / 100.0f; /*单位度*/
 
 			pressureFilter(&pressure, &sensors.baro.pressure);
-			sensors.baro.asl = PressureToAltitude(&sensors.baro.pressure); /*转换成海拔*/
+			sensors.baro.asl = PressureToAltitude(&sensors.baro.pressure) * 100; /*转换成海拔，单位：cm*/
+			sensors.baro.asl = lpf2pApply(&BaroLpf, sensors.baro.asl);
 		}
 	}
 }
@@ -560,7 +565,7 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 /*传感器任务*/
 void sensorsTask(void *param)
 {
-	float accraw_num[3] = {0, 0, 0};
+//	float accraw_num[3] = {0, 0, 0};
 	sensorsInit(); /*传感器初始化*/
 	vTaskDelay(150);
 	//MPU9250设置为IIC主机模式

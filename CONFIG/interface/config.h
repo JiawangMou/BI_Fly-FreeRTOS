@@ -31,5 +31,6 @@
 #define MCU_ID_ADDRESS          0x1FFF7A10
 #define MCU_FLASH_SIZE_ADDRESS  0x1FFF7A22
 
+#define BI_Fly_2
 
 #endif /* __CONFIG_H */

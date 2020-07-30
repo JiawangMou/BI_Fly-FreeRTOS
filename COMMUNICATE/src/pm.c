@@ -78,7 +78,7 @@ bool pmTest(void)
 
 static void pmSetBatteryVoltage(float voltage) /*设置电池电压最大最小值*/
 {
-    batteryVoltage = voltage;
+    batteryVoltage = voltage - 0.3;
 
     if (batteryVoltageMax < voltage) {
         batteryVoltageMax = voltage;

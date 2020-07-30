@@ -32,10 +32,12 @@
 #include "watchdog.h"
 #include "pm.h"
 #include "uart_syslink.h"
+#include "vl53lxx.h"
+#include "optical_flow.h"
 
-/*扩展模块驱动*/
-#include "module_detect.h"
-#include "module_mgt.h"
+// /*扩展模块驱动*/
+// #include "module_detect.h"
+// #include "module_mgt.h"
 
 void systemInit(void);
 

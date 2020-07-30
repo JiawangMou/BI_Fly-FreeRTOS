@@ -23,7 +23,7 @@
 	速率环输出设置0.15系数，从而增加PID的可调性。
 ********************************************************************************/
 
-#define THRUST_BASE  		(20000)	/*基础油门值*/
+#define THRUST_BASE  		(30000)	/*基础油门值*/
 
 #define PIDVX_OUTPUT_LIMIT	120.0f	//ROLL限幅	(单位°带0.15的系数)
 #define PIDVY_OUTPUT_LIMIT	120.0f 	//PITCH限幅	(单位°带0.15的系数)

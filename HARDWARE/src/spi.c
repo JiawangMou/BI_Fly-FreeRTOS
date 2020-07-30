@@ -23,7 +23,6 @@
  * All rights reserved
 ********************************************************************************/
 
-#if 1
 
 #define SPI						SPI2
 #define SPI_CLK					RCC_APB1Periph_SPI2
@@ -51,7 +50,7 @@
 #define SPI_SCK_PIN           	GPIO_Pin_9
 #define SPI_SCK_GPIO_PORT 		GPIOA
 #define SPI_SCK_GPIO_CLK		RCC_AHB1Periph_GPIOA
-#define SPI_SCK_SOURCE			GPIO_PinSource13
+#define SPI_SCK_SOURCE			GPIO_PinSource9
 #define SPI_SCK_AF				GPIO_AF_SPI2
 
 #define SPI_MISO_PIN			GPIO_Pin_14
@@ -68,7 +67,6 @@
 
 #define DUMMY_BYTE         		0xA5
 
-#endif
 
 static bool isInit = false;
 
@@ -148,15 +146,16 @@ static void spiDMAInit()
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	DMA_DeInit(DMA1_Stream4);
+	DMA_DeInit(DMA1_Stream3);
 	
 	/* DMA½á¹¹ÌåÅäÖÃ */
 	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable ;
-	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull ;
-	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single ;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-	DMA_InitStructure.DMA_PeripheralBaseAddr =(uint32_t) (&(SPI->DR)) ;
+	DMA_InitStructure.DMA_PeripheralBaseAddr =(uint32_t) (&(SPI->DR));
 	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;

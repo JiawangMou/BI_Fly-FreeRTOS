@@ -6,9 +6,8 @@
 #include "ws2812.h"
 #include "spi.h"
 
-
 /*FreeRTOS相关头文件*/
-#include "FreeRTOS.h"		 
+#include "FreeRTOS.h"
 #include "task.h"
 
 /********************************************************************************	 
@@ -24,12 +23,11 @@
  * All rights reserved
 ********************************************************************************/
 
-
-static u32 sysTickCnt=0;
+static u32 sysTickCnt = 0;
 
 void nvicInit(void)
 {
-	NVIC_SetVectorTable(FIRMWARE_START_ADDR,0);
+	NVIC_SetVectorTable(FIRMWARE_START_ADDR, 0);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
@@ -39,14 +37,15 @@ extern void xPortSysTickHandler(void);
  *SysTick_Handler()
  *滴答定时器中断服务函数
 *********************************************************/
-void  SysTick_Handler(void)
+void SysTick_Handler(void)
 {
-	if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)	/*系统已经运行*/
-    {
-        xPortSysTickHandler();	
-    }else
+	if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) /*系统已经运行*/
 	{
-		sysTickCnt++;	/*调度开启之前计数*/
+		xPortSysTickHandler();
+	}
+	else
+	{
+		sysTickCnt++; /*调度开启之前计数*/
 	}
 }
 /********************************************************
@@ -56,12 +55,11 @@ void  SysTick_Handler(void)
 *********************************************************/
 u32 getSysTickCnt(void)
 {
-	if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)	/*系统已经运行*/
+	if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) /*系统已经运行*/
 		return xTaskGetTickCount();
 	else
 		return sysTickCnt;
 }
-
 
 /**
   * @brief  This function handles SVCall exception.
@@ -77,11 +75,10 @@ u32 getSysTickCnt(void)
 //{
 //}
 
-
 /**
   * @brief  This function handles NMI exception.
   */
-void  NMI_Handler(void)
+void NMI_Handler(void)
 {
 }
 
@@ -98,16 +95,15 @@ __asm void HardFault_Handler(void)
 	// " LDM r0,{r1-r2} \n"
 	// " BX LR; \n");
 	PRESERVE8
-    IMPORT printHardFault
-    TST r14, #4
-    ITE EQ
-    MRSEQ R0, MSP
-    MRSNE R0, PSP
-    B printHardFault
-	
+	IMPORT printHardFault
+	TST r14,#4 
+	ITE EQ
+	MRSEQ R0,MSP
+	MRSNE R0,PSP
+	B printHardFault
 }
 
-void  printHardFault(u32* hardfaultArgs)
+void printHardFault(u32 *hardfaultArgs)
 {
 	unsigned int stacked_r0;
 	unsigned int stacked_r1;
@@ -118,16 +114,15 @@ void  printHardFault(u32* hardfaultArgs)
 	unsigned int stacked_pc;
 	unsigned int stacked_psr;
 
-	stacked_r0 = ((unsigned long) hardfaultArgs[0]);
-	stacked_r1 = ((unsigned long) hardfaultArgs[1]);
-	stacked_r2 = ((unsigned long) hardfaultArgs[2]);
-	stacked_r3 = ((unsigned long) hardfaultArgs[3]);
+	stacked_r0 = ((unsigned long)hardfaultArgs[0]);
+	stacked_r1 = ((unsigned long)hardfaultArgs[1]);
+	stacked_r2 = ((unsigned long)hardfaultArgs[2]);
+	stacked_r3 = ((unsigned long)hardfaultArgs[3]);
 
-	stacked_r12 = ((unsigned long) hardfaultArgs[4]);
-	stacked_lr = ((unsigned long) hardfaultArgs[5]);
-	stacked_pc = ((unsigned long) hardfaultArgs[6]);
-	stacked_psr = ((unsigned long) hardfaultArgs[7]);
-
+	stacked_r12 = ((unsigned long)hardfaultArgs[4]);
+	stacked_lr = ((unsigned long)hardfaultArgs[5]);
+	stacked_pc = ((unsigned long)hardfaultArgs[6]);
+	stacked_psr = ((unsigned long)hardfaultArgs[7]);
 
 	printf("[Hard fault handler]\n");
 	printf("R0 = %x\n", stacked_r0);
@@ -150,17 +145,18 @@ void  printHardFault(u32* hardfaultArgs)
 	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
-	ledSet(ERR_LED1, 1);	/*错误检测*/
+	ledSet(ERR_LED1, 1); /*错误检测*/
 	ledSet(ERR_LED2, 1);
 
 	storeAssertSnapshotData(__FILE__, __LINE__);
 	while (1)
-	{}
+	{
+	}
 }
 /**
  * @brief  This function handles Memory Manage exception.
  */
-void  MemManage_Handler(void)
+void MemManage_Handler(void)
 {
 	/* Go to infinite loop when Memory Manage exception occurs */
 	motorsSetRatio(PWMF1, 0);
@@ -169,18 +165,19 @@ void  MemManage_Handler(void)
 	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
-	ledSet(ERR_LED1, 1);/*错误检测*/
+	ledSet(ERR_LED1, 1); /*错误检测*/
 	ledSet(ERR_LED2, 1);
 
 	storeAssertSnapshotData(__FILE__, __LINE__);
 	while (1)
-	{}
+	{
+	}
 }
 
 /**
  * @brief  This function handles Bus Fault exception.
  */
-void  BusFault_Handler(void)
+void BusFault_Handler(void)
 {
 	/* Go to infinite loop when Bus Fault exception occurs */
 	motorsSetRatio(PWMF1, 0);
@@ -189,18 +186,19 @@ void  BusFault_Handler(void)
 	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
-	ledSet(ERR_LED1, 1);/*错误检测*/
+	ledSet(ERR_LED1, 1); /*错误检测*/
 	ledSet(ERR_LED2, 1);
 
 	storeAssertSnapshotData(__FILE__, __LINE__);
 	while (1)
-	{}
+	{
+	}
 }
 
 /**
  * @brief  This function handles Usage Fault exception.
  */
-void  UsageFault_Handler(void)
+void UsageFault_Handler(void)
 {
 	/* Go to infinite loop when Usage Fault exception occurs */
 	motorsSetRatio(PWMF1, 0);
@@ -209,18 +207,19 @@ void  UsageFault_Handler(void)
 	motorsSetRatio(PWM_RIGHT, 0);
 
 	ledClearAll();
-	ledSet(ERR_LED1, 1);/*错误检测*/
+	ledSet(ERR_LED1, 1); /*错误检测*/
 	ledSet(ERR_LED2, 1);
 
 	storeAssertSnapshotData(__FILE__, __LINE__);
 	while (1)
-	{}
+	{
+	}
 }
 
 /**
  * @brief  This function handles Debug Monitor exception.
  */
-void  DebugMon_Handler(void)
+void DebugMon_Handler(void)
 {
 }
 
@@ -230,34 +229,22 @@ static enum expModuleID lastModuleID = NO_MODULE;
 *光流模块和灯环模块共用DMA1_Stream4, 这里需要分开处理一下
 *************************************************************/
 
-void  DMA1_Stream4_IRQHandler(void)
+void DMA1_Stream4_IRQHandler(void)
 {
-	if(getModuleID() == LED_RING)
-	{
-		lastModuleID = LED_RING;
-		ws2812DmaIsr();
-	}		
-	else if(getModuleID() == OPTICAL_FLOW)
-	{
-		lastModuleID = OPTICAL_FLOW;
+	// if (getModuleID() == OPTICAL_FLOW)
+	// {
+	// 	lastModuleID = OPTICAL_FLOW;
 		spiTxDmaIsr();
-	}
-	else if(getModuleID() == NO_MODULE)
-	{
-		if(lastModuleID == LED_RING)
-		{	
-			ws2812DmaIsr();		
-			DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, DISABLE);			
-			DMA_Cmd(DMA1_Stream4,DISABLE);						
-		}		
-		else if(lastModuleID == OPTICAL_FLOW)
-		{
-			spiTxDmaIsr();
-			DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, DISABLE);
-			DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, DISABLE);
-			DMA_Cmd(DMA1_Stream3,DISABLE);
-			DMA_Cmd(DMA1_Stream4,DISABLE);			
-		}				
-	}
+	// }
+	// else if (getModuleID() == NO_MODULE)
+	// {
+	// 	if (lastModuleID == OPTICAL_FLOW)
+	// 	{
+	// 		spiTxDmaIsr();
+	// 		DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, DISABLE);
+	// 		DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, DISABLE);
+	// 		DMA_Cmd(DMA1_Stream3, DISABLE);
+	// 		DMA_Cmd(DMA1_Stream4, DISABLE);
+	// 	}
+	// }
 }
-

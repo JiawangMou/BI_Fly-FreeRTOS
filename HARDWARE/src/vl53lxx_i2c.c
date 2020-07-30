@@ -33,7 +33,7 @@ void vl53IICInit(void)
 	
 	/*Ê¹ÄÜVL53Ê±ÖÓ*/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	/*SCL PB5   SDA PB4*/
+	/*SCL PB8   SDA PB9*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;

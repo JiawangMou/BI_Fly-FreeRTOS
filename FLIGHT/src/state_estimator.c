@@ -48,7 +48,7 @@ static float startBaroAsl = 0.f;	/*起飞点海拔*/
 /*估测系统*/
 static estimator_t estimator = 
 {
-	.vAccDeadband = 4.0f,
+	.vAccDeadband = 8.0f,
 	.accBias[0] =  0.0f,
 	.accBias[1] =  0.0f,
 	.accBias[2] =  0.0f,
@@ -90,7 +90,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
 	float relateHight = sensorData->baro.asl - startBaroAsl;	/*气压相对高度*/
 	
-	if(getModuleID()==OPTICAL_FLOW && isEnableVl53lxx==true)	/*光流模块可用,且使用激光*/
+	if(isEnableVl53lxx == true)	/*光流模块可用,且使用激光*/
 	{
 		vl53lxxReadRange(&sensorData->zrange);	/*读取激光数据*/
 	
@@ -123,9 +123,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 		
 		startBaroAsl = sensorData->baro.asl;
 		
-		if(getModuleID() == OPTICAL_FLOW)
+		if(getopFlowState())
 		{
-			if(sensorData->zrange.distance < VL53L0X_MAX_RANGE)
+			if(sensorData->zrange.distance < VL53L1X_MAX_RANGE)
 			{
 				startBaroAsl -= sensorData->zrange.distance;
 				fusedHeight = sensorData->zrange.distance;
@@ -143,9 +143,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 		fusedHeightLpf = 0.f;
 		startBaroAsl = sensorData->baro.asl;
 		
-		if(getModuleID() == OPTICAL_FLOW)
+		if(getopFlowState())
 		{
-			if(sensorData->zrange.distance < VL53L0X_MAX_RANGE)
+			if(sensorData->zrange.distance < VL53L1X_MAX_RANGE)
 			{
 				startBaroAsl -= sensorData->zrange.distance;
 				fusedHeight = sensorData->zrange.distance;
@@ -188,14 +188,14 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 	}		
 
 	
-	float errPosZ = fusedHeight - estimator.pos[Z];
+	float errPosZ = fusedHeightLpf - estimator.pos[Z];
 	
 	/* 位置预估: Z-axis */
 	inavFilterPredict(Z, dt, estimator.acc[Z]);
 	/* 位置校正: Z-axis */
 	inavFilterCorrectPos(Z, dt, errPosZ, weight);	
 
-	if(getModuleID() == OPTICAL_FLOW)	/*光流模块可用*/
+	if( getOpDataState() && getopFlowState() ) 	/*光流模块可用*//*光流模块状态*/
 	{		
 		float opflowDt = dt;
 		

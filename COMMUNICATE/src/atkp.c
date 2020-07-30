@@ -420,9 +420,10 @@ static void atkpSendPeriod(void)
     if (!(count_ms % PERIOD_STATUS))
     {
         attitude_t attitude;
+        Axis3f acc, vel, pos;
         getAttitudeData(&attitude);
-        int baroData = getBaroData();
-        sendStatus(attitude.roll, attitude.pitch, attitude.yaw, baroData, 0, flyable, attitude.timestamp);
+        getStateData(&acc, &vel, &pos);
+        sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
     }
     if (!(count_ms % PERIOD_SENSOR))
     {
@@ -442,7 +443,7 @@ static void atkpSendPeriod(void)
         getStateData(&acc, &vel, &pos);
         sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
         sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
-                     0, getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+                     getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
     if (!(count_ms % PERIOD_RCDATA))
     {

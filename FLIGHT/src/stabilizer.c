@@ -72,7 +72,6 @@ void setFastAdjustPosParam(u16 velTimes, u16 absTimes, float height)
     if (velTimes != 0 && velModeTimes == 0) {
         baroLast = sensorData.baro.asl;
         baroVelLpf = 0.f;
-
         velModeTimes = velTimes;
     }
     if (absTimes != 0 && absModeTimes == 0) {
@@ -97,7 +96,7 @@ static void fastAdjustPosZ(void)
         setpoint.velocity.z = -1.0f * baroVelLpf;
 
         if (velModeTimes == 0) {
-            if (getModuleID() == OPTICAL_FLOW)
+            if (getVl53l1xstate())
                 setHeight = getFusedHeight();
             else
                 setHeight = state.position.z;

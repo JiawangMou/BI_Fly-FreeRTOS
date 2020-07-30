@@ -63,7 +63,12 @@ u16 limitServo(u8 id, float value)
 	ratio = value / INT16_MAX;
 	PWM_Value = ratio * SERVO_RANGE;
 	PWM_Value += getservoinitpos_configParam(id);
+#ifdef BI_Fly_1
 	PWM_Value = servoPWMLimit(PWM_Value);
+#endif
+#ifdef BI_Fly_2
+	PWM_Value = servoPWMLimit(id,PWM_Value);
+#endif
 	return PWM_Value;
 }
 void motorControl(control_t *control) /*功率输出控制*/
@@ -73,8 +78,8 @@ void motorControl(control_t *control) /*功率输出控制*/
 	s16 r = control->roll;
 	s16 p = control->pitch;
 	//控制分配	改！
-	motorPWM.f1 = limitThrust(control->thrust + r / 3.0f);
-	motorPWM.f2 = limitThrust(control->thrust - r / 3.0f);
+	motorPWM.f1 = limitThrust(control->thrust - r / 3.0f);
+	motorPWM.f2 = limitThrust(control->thrust + r / 3.0f);
 	motorPWM.s_left = limitServo(PWM_LEFT, p - control->yaw);
 	motorPWM.s_middle = limitServo(PWM_MIDDLE, -p - control->yaw);
 

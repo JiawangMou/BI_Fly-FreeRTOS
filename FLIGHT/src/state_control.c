@@ -95,7 +95,7 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 			rateDesired.pitch = setpoint->attitude.pitch;
 			rateDesired.roll = setpoint->attitude.roll;
 		}
-		
+		rateDesired.yaw = setpoint->attitude.yaw;
 		attitudeRatePID(&sensors->gyro, &rateDesired, control);
 	}
 

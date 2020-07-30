@@ -2822,7 +2822,7 @@ float PressureToAltitude(float* pressure/*, float* groundPressure, float* ground
     }
 }
 
-#define FILTER_NUM	5
+#define FILTER_NUM	200
 #define FILTER_A	10.0f
 /*限幅平均滤波法*/
 //先对采集到数据减去上一次采样的数据，如果有突变就剔除掉，最后对所有的filter_NUM buffer中的数据求一次平均，作为最后的输出
