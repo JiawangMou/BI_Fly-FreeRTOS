@@ -90,7 +90,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
 	float relateHight = sensorData->baro.asl - startBaroAsl;	/*气压相对高度*/
 	
-	if(isEnableVl53lxx == true)	/*光流模块可用,且使用激光*/
+	if(getVl53l1xstate() == true)	/*光流模块可用,且使用激光*/
 	{
 		vl53lxxReadRange(&sensorData->zrange);	/*读取激光数据*/
 	
@@ -123,7 +123,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 		
 		startBaroAsl = sensorData->baro.asl;
 		
-		if(getopFlowState())
+		if(getVl53l1xstate())
 		{
 			if(sensorData->zrange.distance < VL53L1X_MAX_RANGE)
 			{
@@ -143,7 +143,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 		fusedHeightLpf = 0.f;
 		startBaroAsl = sensorData->baro.asl;
 		
-		if(getopFlowState())
+		if(getVl53l1xstate())
 		{
 			if(sensorData->zrange.distance < VL53L1X_MAX_RANGE)
 			{

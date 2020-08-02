@@ -110,7 +110,12 @@ void remoterCtrlProcess(atkp_t* pk)
 
         remoterCtrl.roll = remoterData.roll;
         remoterCtrl.pitch = remoterData.pitch;
+        #ifdef BI_Fly_2
+        remoterCtrl.yaw = -remoterData.yaw;
+        #endif
+        #ifdef BI_Fly_1
         remoterCtrl.yaw = remoterData.yaw;
+        #endif       
         remoterCtrl.thrust = remoterData.thrust * 655.35f;
         remoterCtrl.trimPitch = remoterData.trimPitch;
         remoterCtrl.trimRoll = remoterData.trimRoll;

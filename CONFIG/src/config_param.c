@@ -31,6 +31,7 @@
 
 configParam_t configParam;
 
+#ifdef BI_Fly_1
 static configParam_t configParamDefault =
 	{
 		.version = VERSION, /*软件版本号*/
@@ -46,16 +47,16 @@ static configParam_t configParamDefault =
 				},
 			.pitch =
 				{
-					.kp = 8.0,
+					.kp = 7.5,
 					.ki = 0.0,
 					.kd = 0.0,
 					.outputLimit = 0,
 				},
 			.yaw =
 				{
-					.kp = 20.0,
+					.kp = 0.0,
 					.ki = 0.0,
-					.kd = 1.5,
+					.kd = 0.0,
 					.outputLimit = 0,
 				},
 		},
@@ -63,22 +64,22 @@ static configParam_t configParamDefault =
 		{
 			.roll =
 				{
-					.kp = 300.0,
+					.kp = 80.0,
 					.ki = 0.0,
 					.kd = 6.5,
 					.outputLimit = 0,
 				},
 			.pitch =
 				{
-					.kp = 300.0,
+					.kp = 98.0,
 					.ki = 0.0,
 					.kd = 6.5,
 					.outputLimit = 0,
 				},
 			.yaw =
 				{
-					.kp = 200.0,
-					.ki = 18.5,
+					.kp = 70,
+					.ki = 8.0,
 					.kd = 0.0,
 					.outputLimit = 0,
 				},
@@ -99,8 +100,8 @@ static configParam_t configParamDefault =
 				},
 			.vz =
 				{
-					.kp = 100.0,
-					.ki = 150.0,
+					.kp = 80.0,
+					.ki = 130.0,
 					.kd = 10.0,
 				},
 
@@ -118,7 +119,7 @@ static configParam_t configParamDefault =
 				},
 			.z =
 				{
-					.kp = 6.0,
+					.kp = 4.0,
 					.ki = 0.0,
 					.kd = 4.5,
 				},
@@ -134,6 +135,113 @@ static configParam_t configParamDefault =
 		.trimR = 0.f,		 /*roll微调*/
 		.thrustBase = 34000, /*定高油门基础值*/
 };
+#endif
+
+#ifdef BI_Fly_2
+static configParam_t configParamDefault =
+	{
+		.version = VERSION, /*软件版本号*/
+
+		.pidAngle = /*角度PID*/
+		{
+			.roll =
+				{
+					.kp = 14.0,
+					.ki = 0.0,
+					.kd = 0.0,
+					.outputLimit = 0,
+				},
+			.pitch =
+				{
+					.kp = 13.0,
+					.ki = 0.0,
+					.kd = 0.0,
+					.outputLimit = 0,
+				},
+			.yaw =
+				{
+					.kp = 0.0,
+					.ki = 0.0,
+					.kd = 0.0,
+					.outputLimit = 0,
+				},
+		},
+		.pidRate = /*角速度PID*/
+		{
+			.roll =
+				{
+					.kp = 160.0,
+					.ki = 0.0,
+					.kd = 6.5,
+					.outputLimit = 0,
+				},
+			.pitch =
+				{
+					.kp = 69.0,
+					.ki = 0.0,
+					.kd = 6.5,
+					.outputLimit = 0,
+				},
+			.yaw =
+				{
+					.kp = 5.0,
+					.ki = 0.0,
+					.kd = 0.0,
+					.outputLimit = 0,
+				},
+		},
+		.pidPos = /*位置PID*/
+		{
+			.vx =
+				{
+					.kp = 4.5,
+					.ki = 0.0,
+					.kd = 0.0,
+				},
+			.vy =
+				{
+					.kp = 4.5,
+					.ki = 0.0,
+					.kd = 0.0,
+				},
+			.vz =
+				{
+					.kp = 80.0,
+					.ki = 130.0,
+					.kd = 10.0,
+				},
+
+			.x =
+				{
+					.kp = 4.0,
+					.ki = 0.0,
+					.kd = 0.6,
+				},
+			.y =
+				{
+					.kp = 4.0,
+					.ki = 0.0,
+					.kd = 0.6,
+				},
+			.z =
+				{
+					.kp = 4.0,
+					.ki = 0.0,
+					.kd = 4.5,
+				},
+		},
+
+		.servo_initpos =
+			{
+				.s_left = 1520,
+				.s_right = 1520,
+				.s_middle = 1520,
+			},
+		.trimP = 0.f,		 /*pitch微调*/
+		.trimR = 0.f,		 /*roll微调*/
+		.thrustBase = 34000, /*定高油门基础值*/
+};
+#endif
 
 static u32 lenth = 0;
 static bool isInit = false;
