@@ -257,7 +257,7 @@ void commanderGetSetpoint(setpoint_t *setpoint, state_t *state)
 				errorPosY = 0.f;
 				errorPosZ = 0.f;
 
-				setFastAdjustPosParam(0, 1, 80.f);	/*一键起飞高度80cm*/															
+				setFastAdjustPosParam(0, 1, 180.0f);	/*一键起飞高度180cm*/															
 			}		
 				
 			float climb = ((ctrlValLpf.thrust - 32767.f) / 32767.f);
@@ -292,7 +292,6 @@ void commanderGetSetpoint(setpoint_t *setpoint, state_t *state)
 			else if (isAdjustingPosZ == true)
 			{
 				isAdjustingPosZ = false;
-			
 				setpoint->mode.z = modeAbs;
 				setpoint->position.z = state->position.z + errorPosZ;	/*调整新位置*/									
 			}
