@@ -34,8 +34,9 @@
 //#define OPTICAL_POWER_ENABLE	PBout(0)
 
 // 添加角速度调整因子
-#define DTCOMP_COEFF (900.f)
-#define ANGLECOMP_COEFF (480.f)
+// #define DTCOMP_COEFF (900.f)
+#define DTCOMP_COEFF (700.f)
+#define ANGLECOMP_COEFF (440.f)
 #define RESOLUTION (0.2131946f) /*1m高度下 1个像素对应的位移，单位cm*/
 #define OULIER_LIMIT (100)      /*光流像素输出限幅*/
 #define VEL_LIMIT (150.f)       /*光流速度限幅*/
@@ -272,8 +273,8 @@ void opticalFlowTask(void* param)
 
     while (1) {
         vTaskDelayUntil(&lastWakeTime, 10); /*100Hz 10ms周期延时*/
-        // TODO: if的判断
-        if (opFlow.isOpFlowOk && isInit) {
+        // if的判断,去掉了isOpFlowOk==1的判断，防止进入死循环；
+        if (isInit) {
             readMotion(&currentMotion);
 
             if (currentMotion.minRawData == 0 && currentMotion.maxRawData == 0) {
@@ -287,7 +288,7 @@ void opticalFlowTask(void* param)
                 opFlow.isOpFlowOk = true; /*光流正确*/
             }
             /*连续2帧之间的像素变化，根据实际安装方向调整 (pitch:x)  (roll:y)*/
-            int16_t pixelDx = currentMotion.deltaY;
+            int16_t pixelDx = -currentMotion.deltaY;
             int16_t pixelDy = -currentMotion.deltaX;
 
             if (ABS(pixelDx) < OULIER_LIMIT && ABS(pixelDy) < OULIER_LIMIT) {
@@ -341,9 +342,11 @@ bool getOpFlowData(state_t* state, float dt)
         cnt                = 0;
         opFlow.isDataValid = true;
 
-        float coeff    = RESOLUTION * height;
-        float tanRoll  = tanf(state->attitude.roll * DEG2RAD);
-        float tanPitch = tanf(state->attitude.pitch * DEG2RAD);
+        float coeff = RESOLUTION * height;
+        // float tanRoll  = tanf(state->attitude.roll * DEG2RAD);
+        // float tanPitch = tanf(state->attitude.pitch * DEG2RAD);
+        float tanRoll  = state->attitude.roll * DEG2RAD;
+        float tanPitch = state->attitude.pitch * DEG2RAD;
 
         //添加DT补偿***********************
         float dtCompX = 0.0;
@@ -360,18 +363,26 @@ bool getOpFlowData(state_t* state, float dt)
         // opFlow.pixValid[Y] = (opFlow.pixSum[Y] + opFlow.pixComp[Y]);
 
         //修改后的补偿***********************************
-        opFlow.pixComp[X]  = ANGLECOMP_COEFF * tanPitch; /*像素补偿，负方向*/
-        opFlow.pixComp[Y]  = ANGLECOMP_COEFF * tanRoll;
+        opFlow.pixComp[X] = ANGLECOMP_COEFF * tanPitch; /*像素补偿，负方向*/
+        opFlow.pixComp[Y] = ANGLECOMP_COEFF * tanRoll;
+
+        // opFlow.pixSum[X] -= dtCompX;
+        // opFlow.pixSum[Y] -= dtCompY;
+
         opFlow.pixValid[X] = (opFlow.pixSum[X] + opFlow.pixComp[X] - dtCompX); /*实际输出像素*/
-        opFlow.pixValid[Y] = (opFlow.pixSum[Y] + opFlow.pixComp[Y] - dtCompY);
+        opFlow.pixValid[Y] = (opFlow.pixSum[Y] - opFlow.pixComp[Y] + dtCompY);
+        // // TODO:test
+        opFlow.pixComp[X] = dtCompX; /*像素补偿，负方向*/
+        opFlow.pixComp[Y] = dtCompY;
 
         if (height < 0.05f) /*光流测量范围大于5cm*/
         {
             coeff = 0.0f;
         }
         /*2帧之间位移变化量，单位cm*/
-        opFlow.deltaPos[X]     = coeff * (opFlow.pixValid[X] - opFlow.pixValidLast[X]);
-        opFlow.deltaPos[Y]     = coeff * (opFlow.pixValid[Y] - opFlow.pixValidLast[Y]);
+        opFlow.deltaPos[X] = coeff * (opFlow.pixValid[X] - opFlow.pixValidLast[X]);
+        opFlow.deltaPos[Y] = coeff * (opFlow.pixValid[Y] - opFlow.pixValidLast[Y]);
+
         opFlow.pixValidLast[X] = opFlow.pixValid[X]; /*上一次实际输出像素*/
         opFlow.pixValidLast[Y] = opFlow.pixValid[Y];
         opFlow.deltaVel[X]     = opFlow.deltaPos[X] / dt; /*速度 cm/s*/
