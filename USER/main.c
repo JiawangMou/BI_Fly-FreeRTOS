@@ -106,7 +106,7 @@ void RunTimeStats_task(void *pvParameters)
     u32 lastWakeTime = getSysTickCnt();
 	while(1)
 	{
-        vTaskDelayUntil(&lastWakeTime, 1000);   /*1s周期延时*/
+        vTaskDelayUntil(&lastWakeTime, 2000);   /*1s周期延时*/
         
 		memset(RunTimeInfo,0,400);				//信息缓冲区清零
 		vTaskGetRunTimeStats(RunTimeInfo);		//获取任务运行时间信息

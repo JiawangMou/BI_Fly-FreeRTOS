@@ -29,7 +29,7 @@
 #define CCR_ENABLE_SET ((u32)0x00000001)
 
 static bool isInit = false;
-static bool connectState = true;
+static bool connectState = false;
 
 static xSemaphoreHandle waitUntilSendDone;
 static xSemaphoreHandle uartBusy;

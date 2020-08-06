@@ -52,9 +52,9 @@ extern int consolePutchar(int ch);
 //重定义fputc函数 
 int fputc(int ch, FILE *f)
 { 	
-//	while((USART1->SR&0X40)==0);//循环发送,直到发送完毕   
-//	USART1->DR = (u8) ch;   
-	consolePutchar(ch);	/*打印到上位机*/
+	while((USART3->SR&0X40)==0);//循环发送,直到发送完毕   
+	USART3->DR = (u8) ch;   
+	// consolePutchar(ch);	/*打印到上位机*/
 	return ch;
 }
 #endif
