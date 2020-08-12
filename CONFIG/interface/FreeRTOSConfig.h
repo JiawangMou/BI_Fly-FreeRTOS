@@ -133,6 +133,7 @@
 #define configUSE_IDLE_HOOK						1                       //1，使用空闲钩子；0，不使用
 #define configUSE_TICK_HOOK						0                       //1，使用时间片钩子；0，不使用
 
+#ifndef ENABLE_GET_TASK_STATUS
 /***************************************************************************************************************/
 /*                                FreeRTOS与运行时间和任务状态收集有关的配置选项                               */
 /***************************************************************************************************************/
@@ -140,6 +141,20 @@
 #define configUSE_TRACE_FACILITY				1                       //为1启用可视化跟踪调试
 #define configUSE_STATS_FORMATTING_FUNCTIONS	1                       //与宏configUSE_TRACE_FACILITY同时为1时会编译下面3个函数
                                                                         //prvWriteNameToBuffer(),vTaskList(),
+#else
+/***************************************************************************************************************/
+/*                                FreeRTOS与运行时间和任务状态收集有关的配置选项                               */
+/***************************************************************************************************************/
+#define configGENERATE_RUN_TIME_STATS	        1                       //为1时启用运行时间统计功能
+
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()  ConfigureTimeForRunTimeStats()//定时器3提供时间统计的时基，频率为10K，即周期为100us
+#define portGET_RUN_TIME_COUNTER_VALUE()		FreeRTOSRunTimeTicks	//获取时间统计时间值
+
+#define configUSE_TRACE_FACILITY				1                       //为1启用可视化跟踪调试
+#define configUSE_STATS_FORMATTING_FUNCTIONS	1                       //与宏configUSE_TRACE_FACILITY同时为1时会编译下面3个函数
+                                                                        //prvWriteNameToBuffer(),vTaskList(),
+#endif
+
 /***************************************************************************************************************/
 /*                                FreeRTOS与协程有关的配置选项                                                 */
 /***************************************************************************************************************/

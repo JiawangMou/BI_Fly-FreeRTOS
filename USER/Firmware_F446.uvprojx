@@ -554,6 +554,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\uart_3.c</FilePath>
             </File>
+            <File>
+              <FileName>gettaskstatus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\gettaskstatus.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

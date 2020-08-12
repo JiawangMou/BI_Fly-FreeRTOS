@@ -78,8 +78,8 @@ void motorControl(control_t *control) /*功率输出控制*/
 	s16 r = control->roll;
 	s16 p = control->pitch;
 	//控制分配	改！
-	motorPWM.f1 = limitThrust(control->thrust - r / 2.0f);
-	motorPWM.f2 = limitThrust(control->thrust + r / 2.0f);
+	motorPWM.f1 = limitThrust(control->thrust - r );
+	motorPWM.f2 = limitThrust(control->thrust + r );
 	motorPWM.s_left = limitServo(PWM_LEFT, p - control->yaw);
 	motorPWM.s_middle = limitServo(PWM_MIDDLE, -p - control->yaw);
 

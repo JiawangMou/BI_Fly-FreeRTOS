@@ -19,6 +19,22 @@ extern TaskHandle_t vl53l0xTaskHandle;
 static void startTask(void *arg);
 void ledTask(void *param);
 
+#ifndef ENABLE_GET_TASK_STATUS
+
+#else
+    //任务优先级
+    #define RUNTIMESTATS_TASK_PRIO	4
+    //任务堆栈大小	
+    #define RUNTIMESTATS_STK_SIZE 	128  
+    //任务句柄
+    TaskHandle_t RunTimeStats_Handler;
+    //任务函数
+    void RunTimeStats_task(void *pvParameters);
+
+    char RunTimeInfo[400];		//保存任务运行时间信息
+#endif
+
+
 int main()
 {
     systemInit(); /*底层硬件初始化*/
@@ -55,8 +71,17 @@ void startTask(void *arg)
     //以下为测试代码
     xTaskCreate(ledTask, "LEDTASK", 150, NULL, 5, NULL);
 
-    vTaskDelete(startTaskHandle); /*删除开始任务*/
+#ifndef ENABLE_GET_TASK_STATUS
 
+#else
+    xTaskCreate((TaskFunction_t )RunTimeStats_task,     
+                (const char*    )"RunTimeStats_task",   
+                (uint16_t       )RUNTIMESTATS_STK_SIZE,
+                (void*          )NULL,
+                (UBaseType_t    )RUNTIMESTATS_TASK_PRIO,
+                (TaskHandle_t*  )&RunTimeStats_Handler); 
+#endif
+    vTaskDelete(startTaskHandle); /*删除开始任务*/
     taskEXIT_CRITICAL(); /*退出临界区*/
 }
 
@@ -84,3 +109,22 @@ void ledTask(void *param)
         GPIO_ToggleBits(GPIOB, GPIO_Pin_3);
     }
 }
+
+#ifndef ENABLE_GET_TASK_STATUS
+
+#else
+void RunTimeStats_task(void *pvParameters)
+{
+    u32 lastWakeTime = getSysTickCnt();
+	while(1)
+	{
+        vTaskDelayUntil(&lastWakeTime, 2000);   /*1s周期延时*/
+        
+		memset(RunTimeInfo,0,400);				//信息缓冲区清零
+		vTaskGetRunTimeStats(RunTimeInfo);		//获取任务运行时间信息
+		printf("任务名\t\t\t运行时间\t运行所占百分比\r\n");
+		printf("%s\r\n",RunTimeInfo);
+
+	}
+}
+#endif

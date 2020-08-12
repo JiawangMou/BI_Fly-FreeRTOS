@@ -34,10 +34,11 @@ void pidInit(PidObject* pid, const float desired, const pidInit_t pidParam, cons
 float pidUpdate(PidObject* pid, const float error)
 {
 	float output;
+	float integ_dt = 0;
 
 	pid->error = error;   
-
-	pid->integ += pid->error * pid->dt;
+	integ_dt = pid->error * pid->dt;
+	pid->integ += integ_dt;
 	
 	//»ı·ÖÏŞ·ù
 	if (pid->integ > pid->iLimit)
@@ -61,9 +62,18 @@ float pidUpdate(PidObject* pid, const float error)
 	if (pid->outputLimit != 0)
 	{
 		if (output > pid->outputLimit)
+		{
 			output = pid->outputLimit;
+			if(integ_dt > 0)
+				pid->integ -= integ_dt;
+		}
+
 		else if (output < -pid->outputLimit)
+		{
 			output = -pid->outputLimit;
+			if(integ_dt < 0)
+				pid->integ -= integ_dt;		
+		}
 	}
 	
 	pid->prevError = pid->error;
