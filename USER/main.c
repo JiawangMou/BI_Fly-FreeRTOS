@@ -66,7 +66,7 @@ void startTask(void *arg)
     xTaskCreate(sensorsTask, "SENSORS", 450, NULL, 4, NULL);          /*创建传感器处理任务*/
     xTaskCreate(vl53l1xTask, "VL53L1X", 300, NULL, 4, vl53l0xTaskHandle);          /*创建激光测距模块任务*/
     xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);    /*创建姿态任务*/
-   xTaskCreate(opticalFlowTask, "OPTICAL_FLOW", 300, NULL, 4, NULL); /*创建光流模块任务*/
+	xTaskCreate(opticalFlowTask, "OPTICAL_FLOW", 300, NULL, 4, NULL); /*创建光流模块任务*/
     //    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
     //以下为测试代码
     xTaskCreate(ledTask, "LEDTASK", 150, NULL, 5, NULL);

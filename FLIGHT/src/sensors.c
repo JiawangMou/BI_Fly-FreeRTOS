@@ -548,18 +548,18 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 
 	applyAxis3fLpf(accLpf, &sensors.acc);
 
-	Axis3f gyroTmp;
-	gyroTmp.x = sensors.gyro.x;
-	gyroTmp.y = sensors.gyro.y;
-	gyroTmp.z = sensors.gyro.z;
+	// Axis3f gyroTmp;
+	// gyroTmp.x = sensors.gyro.x;
+	// gyroTmp.y = sensors.gyro.y;
+	// gyroTmp.z = sensors.gyro.z;
 
-	sensors.gyro.x = (sensors.gyro.x + gyroBff.x) * 0.5;
-	sensors.gyro.y = (sensors.gyro.y + gyroBff.y) * 0.5;
-	sensors.gyro.z = (sensors.gyro.z + gyroBff.z) * 0.5;
+	// sensors.gyro.x = (sensors.gyro.x + gyroBff.x) * 0.5f;
+	// sensors.gyro.y = (sensors.gyro.y + gyroBff.y) * 0.5f;
+	// sensors.gyro.z = (sensors.gyro.z + gyroBff.z) * 0.5f;
 
-	gyroBff.x = gyroTmp.x;
-	gyroBff.y = gyroTmp.y;
-	gyroBff.z = gyroTmp.z;
+	// gyroBff.x = gyroTmp.x;
+	// gyroBff.y = gyroTmp.y;
+	// gyroBff.z = gyroTmp.z;
 }
 
 /*传感器任务*/

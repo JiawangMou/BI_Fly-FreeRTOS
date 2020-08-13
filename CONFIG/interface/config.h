@@ -31,8 +31,8 @@
 #define MCU_ID_ADDRESS          0x1FFF7A10
 #define MCU_FLASH_SIZE_ADDRESS  0x1FFF7A22
 
-#define BI_Fly_1
-#define ENABLE_GET_TASK_STATUS
+#define BI_Fly_2
+//#define ENABLE_GET_TASK_STATUS
 
 
 
