@@ -97,7 +97,7 @@ void vApplicationIdleHook(void)
         //     watchdogReset();
     }
 
-    //    __WFI();	/*进入低功耗模式*/
+       __WFI();	/*进入低功耗模式*/
 }
 
 void ledTask(void *param)
