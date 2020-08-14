@@ -207,7 +207,7 @@ static configParam_t configParamDefault =
 			.vz =
 				{
 					.kp = 80.0,
-					.ki = 0.0,
+					.ki = 130.0,
 					.kd = 10.0,
 				},
 
