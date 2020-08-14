@@ -72,7 +72,7 @@ static void velocityController(float* thrust, attitude_t *attitude, setpoint_t *
 	// Thrust
 	float thrustRaw = pidUpdate(&pidVZ, setpoint->velocity.z - state->velocity.z);
 	
-	*thrust = constrainf(thrustRaw + THRUST_BASE, 20000, 65500);	/*油门限幅*/
+	*thrust = constrainf(thrustRaw + THRUST_BASE, 1000, 65500);	/*油门限幅*/
 	
 	thrustLpf += (*thrust - thrustLpf) * 0.003f;
 	

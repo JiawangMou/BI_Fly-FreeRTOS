@@ -189,7 +189,7 @@ void flyerAutoLand(setpoint_t *setpoint,const state_t *state)
 	stateVelLpf += (state->velocity.z -  stateVelLpf) * 0.1f;	/*速率低通*/
 	setpoint->velocity.z = -70.f - stateVelLpf;	/*降落速度 单位cm/s*/
 
-	if(getAltholdThrust() < 20000.f)	/*定高油门值较低*/
+	if(getAltholdThrust() < 30000.f)	/*定高油门值较低*/
 	{
 		lowThrustCnt++;
 		if(lowThrustCnt > 10)
