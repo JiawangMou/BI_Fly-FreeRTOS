@@ -113,7 +113,7 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 		// control->yaw = 0;
 
 		attitudeResetAllPID_TEST(); 
-		//attitudeResetAllPID();	/*复位姿态PID*/	
+		//attitudeResetAllPID();	/*复位姿态PID*/		/*这里取消复位的原因是，让飞行器翅膀不拍动的时候，还能看到舵机的反应，从而确认PID计算结果是否正常，或者是接线是否有问题*/	
 		positionResetAllPID();	/*复位位置PID*/
 		attitudeDesired.yaw = state->attitude.yaw;		/*复位计算的期望yaw值*/
 		

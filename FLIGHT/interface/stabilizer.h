@@ -63,5 +63,6 @@ float getBaroData(void);
 void getSensorData(sensorData_t* get);	
 void getStateData(Axis3f* acc, Axis3f* vel, Axis3f* pos);
 void setFastAdjustPosParam(u16 velTimes, u16 absTimes, float height);/*设置快速调整位置参数*/
+control_t getControlData(void);
 
 #endif /* __STABALIZER_H */

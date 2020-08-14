@@ -207,7 +207,7 @@ static configParam_t configParamDefault =
 			.vz =
 				{
 					.kp = 80.0,
-					.ki = 130.0,
+					.ki = 0.0,
 					.kd = 10.0,
 				},
 
@@ -226,8 +226,8 @@ static configParam_t configParamDefault =
 			.z =
 				{
 					.kp = 4.0,
-					.ki = 0.0,
-					.kd = 4.5,
+					.ki = 1.0,
+					.kd = 1.0,
 				},
 		},
 
@@ -239,7 +239,7 @@ static configParam_t configParamDefault =
 			},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
-		.thrustBase = 34000, /*定高油门基础值*/
+		.thrustBase = 40000, /*定高油门基础值*/
 };
 #endif
 

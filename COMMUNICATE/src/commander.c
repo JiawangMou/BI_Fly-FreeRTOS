@@ -33,7 +33,7 @@
 #define MAX_CLIMB_DOWN		60.f
 
 #define MIN_THRUST  	5000
-#define MAX_THRUST  	60000
+#define MAX_THRUST  	65500
 
 static bool isRCLocked;				/* Ò£¿ØËø¶¨×´Ì¬ */
 static ctrlValCache_t remoteCache;	/* Ò£¿Ø»º´æÊý¾Ý */

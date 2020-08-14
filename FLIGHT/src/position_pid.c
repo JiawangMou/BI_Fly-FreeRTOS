@@ -23,11 +23,11 @@
 	速率环输出设置0.15系数，从而增加PID的可调性。
 ********************************************************************************/
 
-#define THRUST_BASE  		(30000)	/*基础油门值*/
+#define THRUST_BASE  		(40000)	/*基础油门值*/
 
 #define PIDVX_OUTPUT_LIMIT	120.0f	//ROLL限幅	(单位°带0.15的系数)
 #define PIDVY_OUTPUT_LIMIT	120.0f 	//PITCH限幅	(单位°带0.15的系数)
-#define PIDVZ_OUTPUT_LIMIT	(40000)	/*PID VZ限幅*/
+#define PIDVZ_OUTPUT_LIMIT	(65500)	/*PID VZ限幅*/
 
 #define PIDX_OUTPUT_LIMIT	1200.0f	//X轴速度限幅(单位cm/s 带0.1的系数)
 #define PIDY_OUTPUT_LIMIT	1200.0f	//Y轴速度限幅(单位cm/s 带0.1的系数)
@@ -72,7 +72,7 @@ static void velocityController(float* thrust, attitude_t *attitude, setpoint_t *
 	// Thrust
 	float thrustRaw = pidUpdate(&pidVZ, setpoint->velocity.z - state->velocity.z);
 	
-	*thrust = constrainf(thrustRaw + THRUST_BASE, 20000, 60000);	/*油门限幅*/
+	*thrust = constrainf(thrustRaw + THRUST_BASE, 20000, 65500);	/*油门限幅*/
 	
 	thrustLpf += (*thrust - thrustLpf) * 0.003f;
 	
@@ -135,26 +135,32 @@ void positionPIDwriteToConfigParam(void)
 	configParam.pidPos.vx.kp  = pidVX.kp;
 	configParam.pidPos.vx.ki  = pidVX.ki;
 	configParam.pidPos.vx.kd  = pidVX.kd;
+	configParam.pidPos.vx.outputLimit = pidVX.outputLimit;
 	
 	configParam.pidPos.vy.kp  = pidVY.kp;
 	configParam.pidPos.vy.ki  = pidVY.ki;
 	configParam.pidPos.vy.kd  = pidVY.kd;
-	
+	configParam.pidPos.vy.outputLimit = pidVY.outputLimit;
+
 	configParam.pidPos.vz.kp  = pidVZ.kp;
 	configParam.pidPos.vz.ki  = pidVZ.ki;
 	configParam.pidPos.vz.kd  = pidVZ.kd;
+	configParam.pidPos.vz.outputLimit = pidVZ.outputLimit;
 	
 	configParam.pidPos.x.kp  = pidX.kp;
 	configParam.pidPos.x.ki  = pidX.ki;
 	configParam.pidPos.x.kd  = pidX.kd;
+	configParam.pidPos.x.outputLimit = pidX.outputLimit;
 	
 	configParam.pidPos.y.kp  = pidY.kp;
 	configParam.pidPos.y.ki  = pidY.ki;
 	configParam.pidPos.y.kd  = pidY.kd;
+	configParam.pidPos.y.outputLimit = pidY.outputLimit;
 	
 	configParam.pidPos.z.kp  = pidZ.kp;
 	configParam.pidPos.z.ki  = pidZ.ki;
 	configParam.pidPos.z.kd  = pidZ.kd;
+	configParam.pidPos.z.outputLimit = pidZ.outputLimit;
 }
 
 

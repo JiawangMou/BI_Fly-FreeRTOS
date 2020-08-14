@@ -179,8 +179,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     inavFilterPredict(Z, dt, estimator.acc[Z]);
     /* 位置校正: Z-axis */
     inavFilterCorrectPos(Z, dt, errPosZ, weight);
-    // TODO: 完全使用激光的高度数据
-    estimator.pos[Z] = fusedHeightLpf;
 
     if (getOpDataState() && getopFlowState()) /*光流模块可用*/ /*光流模块状态*/
     {
@@ -239,9 +237,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     state->position.x = estimator.pos[X];
     state->position.y = estimator.pos[Y];
     state->position.z = estimator.pos[Z];
-    // state->position.x = opFlow.pixSum[X];
-    // state->position.y = opFlow.pixComp[X];
-    // state->position.z = opFlow.pixValid[X];
 }
 
 /*读取融合高度 单位cm*/
