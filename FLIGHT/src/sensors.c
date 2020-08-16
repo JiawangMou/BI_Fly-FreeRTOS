@@ -575,7 +575,6 @@ void sensorsTask(void *param)
 	{
 		if (xSemaphoreTake(sensorsDataReady, portMAX_DELAY) == pdTRUE)
 		{
-
 			/*确定数据长度*/
 			u8 dataLen = (u8)(SENSORS_MPU6500_BUFF_LEN +
 							  (isMagPresent ? SENSORS_MAG_BUFF_LEN : 0) +

@@ -130,7 +130,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
         fusedHeight    = 0.f;
         fusedHeightLpf = 0.f;
         startBaroAsl   = sensorData->baro.asl;
-
+        pidReset(&pidZ);
         if (getVl53l1xstate()) {
             if (sensorData->zrange.distance < VL53L1X_MAX_RANGE) {
                 startBaroAsl -= sensorData->zrange.distance;
