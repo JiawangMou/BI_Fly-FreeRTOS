@@ -86,5 +86,6 @@ bool getCommanderKeyland(void);
 
 void setCommanderFlightmode(bool set);
 void setCommanderEmerStop(bool set);
+u8 getCommanderBits(void);
 
 #endif /* __COMMANDER_H */

@@ -469,6 +469,8 @@ static void atkpSendPeriod(void)
     // }
     if (!(count_ms % PERIOD_PIDOUT)) {
         Axis3f acc, vel, pos;
+        mode_e z_mode;
+        u8 commander;
         sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP, pidAnglePitch.outI,
             pidAnglePitch.outD);
         sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
@@ -476,7 +478,10 @@ static void atkpSendPeriod(void)
         sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
             pidRateYaw.outD);
         getStateData(&acc, &vel, &pos);
-        sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, 0, 0);
+        z_mode = getZmode();
+        commander = getCommanderBits();
+        u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
+        sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
     }
     if (++count_ms >= 65535)
         count_ms = 1;
