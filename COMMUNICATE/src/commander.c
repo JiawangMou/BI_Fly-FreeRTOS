@@ -243,6 +243,11 @@ void commanderGetSetpoint(setpoint_t *setpoint, state_t *state)
 		if(commander.keyLand)/*Ò»¼ü½µÂä*/
 		{
 			flyerAutoLand(setpoint, state);
+			if(commander.keyFlight)
+			{
+				pidReset(&pidZ);
+				commander.keyFlight = false;
+			}
 		}
 		else if(commander.keyFlight)/*Ò»¼üÆð·É*/ 
 		{	

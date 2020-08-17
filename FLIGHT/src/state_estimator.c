@@ -90,7 +90,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         vl53lxxReadRange(&sensorData->zrange); /*读取激光数据*/
 
-        //		rangeLpf = sensorData->zrange.distance;
         rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f; /*低通 单位cm*/
 
         float quality = sensorData->zrange.quality;
@@ -130,7 +129,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
         fusedHeight    = 0.f;
         fusedHeightLpf = 0.f;
         startBaroAsl   = sensorData->baro.asl;
-        pidReset(&pidZ);
         if (getVl53l1xstate()) {
             if (sensorData->zrange.distance < VL53L1X_MAX_RANGE) {
                 startBaroAsl -= sensorData->zrange.distance;
@@ -140,6 +138,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
         estimator.vel[Z] = 0.f;
         estimator.pos[Z] = fusedHeight;
+
+        pidReset(&pidZ);
+        pidReset(&pidVZ);
     }
 
     Axis3f accelBF; // BF:body frame ?
@@ -176,7 +177,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     float errPosZ = fusedHeightLpf - estimator.pos[Z];
 
     /* 位置预估: Z-axis */
-    inavFilterPredict(Z, dt, estimator.acc[Z]);
+    inavFilterPredict(Z, dt,  accLpf[Z]);
     /* 位置校正: Z-axis */
     inavFilterCorrectPos(Z, dt, errPosZ, weight);
 

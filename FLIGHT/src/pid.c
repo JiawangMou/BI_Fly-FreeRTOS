@@ -129,10 +129,14 @@ void pidSetDt(PidObject* pid, const float dt)
 
 void pidReset(PidObject* pid)
 {
-	pid->error     = 0;
-	pid->prevError = 0;
-	pid->integ     = 0;
-	pid->deriv     = 0;
+    pid->error     = 0;
+    pid->prevError = 0;
+    pid->integ     = 0;
+    pid->deriv     = 0;
+    pid->out       = 0;
+    pid->outP      = 0;
+    pid->outI      = 0;
+    pid->outD      = 0;
 }
 void pidReset_test(PidObject* pid)
 {
