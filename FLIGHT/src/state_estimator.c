@@ -30,9 +30,9 @@
 
 #define GRAVITY_CMSS (980.f) /*重力加速度 单位cm/s/s*/
 #define INAV_ACC_BIAS_ACCEPTANCE_VALUE                                                                                 \
-    (GRAVITY_CMSS * 0.25f) // Max accepted bias correction of 0.25G - unlikely we are going to be that much off anyway
+    (GRAVITY_CMSS * 1.0f) // Max accepted bias correction of 0.25G - unlikely we are going to be that much off anyway
 
-static float wBaro    = 0.35f; /*气压校正权重*/
+static float wBaro    = 0.65f; /*气压校正权重*/
 static float wOpflowP = 1.0f;  /*光流位置校正权重*/
 static float wOpflowV = 2.0f;  /*光流速度校正权重*/
 static float wAccBias = 0.01f; /*加速度校正权重*/
@@ -207,9 +207,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     }
 
     /*加速度偏置校正*/
-    Axis3f accelBiasCorr = { { 0, 0, 0 } };
-
-    accelBiasCorr.z -= errPosZ * sq(wBaro);
+    Axis3f accelBiasCorr = { { 0.0, 0.0, 0.0 } };
+    
+    accelBiasCorr.z = -errPosZ * sq(wBaro);
     float accelBiasCorrMagnitudeSq = sq(accelBiasCorr.x) + sq(accelBiasCorr.y) + sq(accelBiasCorr.z);
     if (accelBiasCorrMagnitudeSq < sq(INAV_ACC_BIAS_ACCEPTANCE_VALUE)) {
         /* transform error vector from NEU frame to body frame */
@@ -237,6 +237,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     state->position.x = estimator.pos[X];
     state->position.y = estimator.pos[Y];
+    // state->position.z = fusedHeightLpf;
     state->position.z = estimator.pos[Z];
 }
 

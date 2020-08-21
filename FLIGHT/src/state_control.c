@@ -1,4 +1,5 @@
 #include <math.h>
+#include "maths.h"
 #include "state_control.h"
 #include "stabilizer.h"
 #include "attitude_pid.h"
@@ -95,16 +96,16 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 			rateDesired.pitch = setpoint->attitude.pitch;
 			rateDesired.roll = setpoint->attitude.roll;
 		}
-		#ifdef BI_Fly_1
-		rateDesired.yaw = setpoint->attitude.yaw;
-		#endif
+		// #ifdef BI_Fly_1
+		// rateDesired.yaw = setpoint->attitude.yaw;
+		// #endif
 		attitudeRatePID(&sensors->gyro, &rateDesired, control);
-		#ifdef BI_Fly_2
-		control->yaw = setpoint->attitude.yaw * 100;
-		#endif
+		// #ifdef BI_Fly_2
+		// control->yaw = setpoint->attitude.yaw * 100;
+		// #endif
 	}
-
-	control->thrust = actualThrust;	
+	control->thrust = constrainf(actualThrust, 0.0f, 55000.0f);
+	// control->thrust = actualThrust;	
 	
 	if (control->thrust < 5.f)
 	{			

@@ -90,8 +90,8 @@ static Axis3i16 magRaw;
 static Axis3f gyroBff;
 
 /*低通滤波参数*/
-#define GYRO_LPF_CUTOFF_FREQ 80
-#define ACCEL_LPF_CUTOFF_FREQ 20
+#define GYRO_LPF_CUTOFF_FREQ 30
+#define ACCEL_LPF_CUTOFF_FREQ 10
 #define BARO_LPF_CUTOFF_FREQ 20
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
@@ -237,10 +237,10 @@ void sensorsDeviceInit(void)
 	mpu6500SetI2CBypassEnabled(true);					 // 旁路模式，磁力计和气压连接到主IIC
 	mpu6500SetFullScaleAccelRange(SENSORS_ACCEL_FS_CFG); // 设置加速计量程
 	mpu6500SetFullScaleGyroRange(SENSORS_GYRO_FS_CFG);	 // 设置陀螺量程
-	mpu6500SetAccelDLPF(MPU9250_ACCEL_DLPF_BW_44);		 // 设置加速计数字低通滤波,同时ACCEL_FCHOICE_B没有设置，默认为0，与A_DLPF_CFG共同决定输出频率，截止频率为44.8Hz，输出频率为1KHz
+	mpu6500SetAccelDLPF(MPU9250_ACCEL_DLPF_BW_21);		 // 设置加速计数字低通滤波,同时ACCEL_FCHOICE_B没有设置，默认为0，与A_DLPF_CFG共同决定输出频率，截止频率为21.2Hz，输出频率为1KHz
 
 	mpu6500SetRate(0);						// 设置采样速率: 1000 / (1 + 0) = 1000Hz
-	mpu6500SetDLPFMode(MPU6500_DLPF_BW_92); // 设置陀螺数字低通滤波
+	mpu6500SetDLPFMode(MPU6500_DLPF_BW_41); // 设置陀螺数字低通滤波
 
 	for (u8 i = 0; i < 3; i++) // 初始化加速计和陀螺二阶低通滤波
 	{
