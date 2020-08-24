@@ -96,63 +96,63 @@ static void atkpSendPacket(atkp_t* p)
 }
 /***************************发送至匿名上位机指令******************************/
 
-// TEST:sendTestData
-static void sendTestData(
-    float roll, float pitch, float yaw, s32 alt, Axis3f acc, Acc_Send accRawData, float ZPredict, uint32_t timestamp)
-{
+// // TEST:sendTestData
+// static void sendTestData(
+//     float roll, float pitch, float yaw, s32 alt, Axis3f acc, Acc_Send accRawData, float ZPredict, uint32_t timestamp)
+// {
 
-    u8     _cnt = 0;
-    atkp_t p;
-    vs16   _temp;
-    vs32   _temp2 = alt;
+//     u8     _cnt = 0;
+//     atkp_t p;
+//     vs16   _temp;
+//     vs32   _temp2 = alt;
 
-    p.msgID = 0x88;
+//     p.msgID = 0x88;
 
-    _temp          = (int)(roll * 100);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(pitch * 100);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(yaw * 100);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(roll * 100);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(pitch * 100);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(yaw * 100);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
 
-    _temp          = (int)(alt * 10);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(alt * 10);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
 
-    _temp          = (int)(acc.x * 10);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(acc.y * 10);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(acc.z * 10);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(acc.x * 10);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(acc.y * 10);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(acc.z * 10);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
 
-    _temp          = (int)(accRawData.acc_beforefusion.x * 1000);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(accRawData.acc_beforefusion.y * 1000);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
-    _temp          = (int)(accRawData.acc_beforefusion.z * 1000);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(accRawData.acc_beforefusion.x * 1000);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(accRawData.acc_beforefusion.y * 1000);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(accRawData.acc_beforefusion.z * 1000);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
 
-    _temp          = (int)(ZPredict * 10);
-    p.data[_cnt++] = BYTE1(_temp);
-    p.data[_cnt++] = BYTE0(_temp);
+//     _temp          = (int)(ZPredict * 10);
+//     p.data[_cnt++] = BYTE1(_temp);
+//     p.data[_cnt++] = BYTE0(_temp);
 
-    p.data[_cnt++] = BYTE3(timestamp);
-    p.data[_cnt++] = BYTE2(timestamp);
-    p.data[_cnt++] = BYTE1(timestamp);
-    p.data[_cnt++] = BYTE0(timestamp);
-    p.dataLen      = _cnt;
-    atkpSendPacket(&p);
-}
+//     p.data[_cnt++] = BYTE3(timestamp);
+//     p.data[_cnt++] = BYTE2(timestamp);
+//     p.data[_cnt++] = BYTE1(timestamp);
+//     p.data[_cnt++] = BYTE0(timestamp);
+//     p.dataLen      = _cnt;
+//     atkpSendPacket(&p);
+// }
 
 static void sendStatus(float roll, float pitch, float yaw, s32 alt, u8 fly_model, u8 armed, uint32_t timestamp)
 {
@@ -348,24 +348,24 @@ static void sendPIDOUT(u8 id, float pid1, float pid2, float pid3, float pid4, fl
     atkpSendPacket(&p);
 }
 
-static void sendSenser2(s32 bar_alt, u16 csb_alt)
-{
-    u8     _cnt = 0;
-    atkp_t p;
+// static void sendSenser2(s32 bar_alt, u16 csb_alt)
+// {
+//     u8     _cnt = 0;
+//     atkp_t p;
 
-    p.msgID = UP_SENSER2;
+//     p.msgID = UP_SENSER2;
 
-    p.data[_cnt++] = BYTE3(bar_alt);
-    p.data[_cnt++] = BYTE2(bar_alt);
-    p.data[_cnt++] = BYTE1(bar_alt);
-    p.data[_cnt++] = BYTE0(bar_alt);
+//     p.data[_cnt++] = BYTE3(bar_alt);
+//     p.data[_cnt++] = BYTE2(bar_alt);
+//     p.data[_cnt++] = BYTE1(bar_alt);
+//     p.data[_cnt++] = BYTE0(bar_alt);
 
-    p.data[_cnt++] = BYTE1(csb_alt);
-    p.data[_cnt++] = BYTE0(csb_alt);
+//     p.data[_cnt++] = BYTE1(csb_alt);
+//     p.data[_cnt++] = BYTE0(csb_alt);
 
-    p.dataLen = _cnt;
-    atkpSendPacket(&p);
-}
+//     p.dataLen = _cnt;
+//     atkpSendPacket(&p);
+// }
 
 static void sendPid(u8 group, float p1_p, float p1_i, float p1_d, float p2_p, float p2_i, float p2_d, float p3_p,
     float p3_i, float p3_d, float p1_limit, float p2_limit, float p3_limit)
@@ -427,6 +427,32 @@ static void sendCheck(u8 head, u8 check_sum)
     p.data[1] = check_sum;
     atkpSendPacket(&p);
 }
+
+void sendaccBiasprocess_ACK(u8 step_num,float accbias_x,float accbias_y,float accbias_z)
+{
+    atkp_t p;
+    u8 _cnt = 0;
+    p.msgID   = UP_ACK_ACC_CALIB;
+
+    p.data[_cnt++] = step_num;
+    p.data[_cnt++] = BYTE0(accbias_x);
+    p.data[_cnt++] = BYTE1(accbias_x);
+    p.data[_cnt++] = BYTE2(accbias_x);
+    p.data[_cnt++] = BYTE3(accbias_x);
+
+    p.data[_cnt++] = BYTE0(accbias_y);
+    p.data[_cnt++] = BYTE1(accbias_y);
+    p.data[_cnt++] = BYTE2(accbias_y);
+    p.data[_cnt++] = BYTE3(accbias_y);
+
+    p.data[_cnt++] = BYTE0(accbias_z);
+    p.data[_cnt++] = BYTE1(accbias_z);
+    p.data[_cnt++] = BYTE2(accbias_z);
+    p.data[_cnt++] = BYTE3(accbias_z);
+
+    p.dataLen = _cnt;
+    atkpSendPacket(&p);
+}
 static void sendUserData(u8 group, s16 a_x, s16 a_y, s16 a_z, s16 v_x, s16 v_y, s16 v_z, s16 p_x, s16 p_y, s16 p_z)
 {
     u8     _cnt = 0;
@@ -473,91 +499,91 @@ static void sendUserData(u8 group, s16 a_x, s16 a_y, s16 a_z, s16 v_x, s16 v_y, 
 static void atkpSendPeriod(void)
 {
     static u16 count_ms = 1;
-    // TEST: 300HZ 发送数据
+    //// TEST: 300HZ 发送数据
 
-    if (!(count_ms % 3)) {
-        attitude_t attitude;
-        Axis3f     acc, vel, pos;
-        Acc_Send   accRawData;
-
-        getAttitudeData(&attitude);
-        getStateData(&acc, &vel, &pos);
-        getAcc_SendData(&accRawData);
-
-        float zPredict = getPosZPredictData();
-
-        u32 timestamp = getSysTickCnt();
-        sendTestData(attitude.roll, attitude.pitch, attitude.yaw, pos.z, acc, accRawData, zPredict, timestamp);
-    }
-    // if (!(count_ms % PERIOD_STATUS)) {
+    // if (!(count_ms % 3)) {
     //     attitude_t attitude;
     //     Axis3f     acc, vel, pos;
+    //     Acc_Send   accRawData;
+
     //     getAttitudeData(&attitude);
     //     getStateData(&acc, &vel, &pos);
-    //     sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
+    //     getAcc_SendData(&accRawData);
+
+    //     float zPredict = getPosZPredictData();
+
+    //     u32 timestamp = getSysTickCnt();
+    //     sendTestData(attitude.roll, attitude.pitch, attitude.yaw, pos.z, acc, accRawData, zPredict, timestamp);
     // }
-    // if (!(count_ms % PERIOD_SENSOR)) {
-    //     Axis3i16 acc;
-    //     Axis3i16 gyro;
-    //     Axis3i16 mag;
-    //     Acc_Send acc_send;
-    //     getSensorRawData(&acc, &gyro, &mag);
-    // getAcc_SendData(&acc_send);
-    //     sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
-    //         gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
-    // }
-    // if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
+    if (!(count_ms % PERIOD_STATUS)) {
+        attitude_t attitude;
+        Axis3f     acc, vel, pos;
+        getAttitudeData(&attitude);
+        getStateData(&acc, &vel, &pos);
+        sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
+    }
+    if (!(count_ms % PERIOD_SENSOR)) {
+        Axis3i16 acc;
+        Axis3i16 gyro;
+        Axis3i16 mag;
+        Acc_Send acc_send;
+        getSensorRawData(&acc, &gyro, &mag);
+        getAcc_SendData(&acc_send);
+        sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
+            gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
+    }
+    if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
+    {
+        Axis3f acc, vel, pos;
+        float  thrustBase = 0.1f * configParam.thrustBase;
+
+        getStateData(&acc, &vel, &pos);
+        sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
+        sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
+            getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+    }
+    if (!(count_ms % PERIOD_RCDATA)) {
+        sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
+    }
+    if (!(count_ms % PERIOD_POWER)) {
+        float bat = pmGetBatteryVoltage();
+        sendPower(bat * 100, 500);
+    }
+    if (!(count_ms % PERIOD_MOTOR)) {
+        u16        f1, f2, s1, s2, s3, r1;
+        motorPWM_t motorPWM;
+        getMotorPWM(&motorPWM);
+        f1 = (float)motorPWM.f1 / 65535 * 1000;
+        f2 = (float)motorPWM.f2 / 65535 * 1000;
+        s1 = (float)motorPWM.s_left;
+        s2 = (float)motorPWM.s_rgith;
+        s3 = (float)motorPWM.s_middle;
+        r1 = (float)motorPWM.r1 / 65535 * 1000;
+
+        sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+    }
+    // if (!(count_ms % PERIOD_SENSOR2))
     // {
-    //     Axis3f acc, vel, pos;
-    //     float  thrustBase = 0.1f * configParam.thrustBase;
-
-    //     getStateData(&acc, &vel, &pos);
-    //     sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
-    //     sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
-    //         getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+    //     int baro = getBaroData() * 100.f;
+    //     sendSenser2(baro, 0);
     // }
-    // if (!(count_ms % PERIOD_RCDATA)) {
-    //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
-    // }
-    // if (!(count_ms % PERIOD_POWER)) {
-    //     float bat = pmGetBatteryVoltage();
-    //     sendPower(bat * 100, 500);
-    // }
-    // if (!(count_ms % PERIOD_MOTOR)) {
-    //     u16        f1, f2, s1, s2, s3, r1;
-    //     motorPWM_t motorPWM;
-    //     getMotorPWM(&motorPWM);
-    //     f1 = (float)motorPWM.f1 / 65535 * 1000;
-    //     f2 = (float)motorPWM.f2 / 65535 * 1000;
-    //     s1 = (float)motorPWM.s_left;
-    //     s2 = (float)motorPWM.s_rgith;
-    //     s3 = (float)motorPWM.s_middle;
-    //     r1 = (float)motorPWM.r1 / 65535 * 1000;
-
-    //     sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
-    // }
-    // // if (!(count_ms % PERIOD_SENSOR2))
-    // // {
-    // //     int baro = getBaroData() * 100.f;
-    // //     sendSenser2(baro, 0);
-    // // }
-    // if (!(count_ms % PERIOD_PIDOUT)) {
-    //     Axis3f acc, vel, pos;
-    //     mode_e z_mode;
-    //     u8 commander;
-    //     sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
-    //     pidAnglePitch.outI,
-    //         pidAnglePitch.outD);
-    //     sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
-    //         pidRateRoll.outD);
-    //     sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
-    //         pidRateYaw.outD);
-    //     getStateData(&acc, &vel, &pos);
-    //     z_mode = getZmode();
-    //     commander = getCommanderBits();
-    //     u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
-    //     sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
-    // }
+    if (!(count_ms % PERIOD_PIDOUT)) {
+        Axis3f acc, vel, pos;
+        mode_e z_mode;
+        u8 commander;
+        sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
+        pidAnglePitch.outI,
+            pidAnglePitch.outD);
+        sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
+            pidRateRoll.outD);
+        sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
+            pidRateYaw.outD);
+        getStateData(&acc, &vel, &pos);
+        z_mode = getZmode();
+        commander = getCommanderBits();
+        u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
+        sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
+    }
     if (++count_ms >= 65535)
         count_ms = 1;
 }
@@ -590,27 +616,43 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
 
         case D_COMMAND_BARO_CALIB:
             break;
-
+        case D_COMMAND_ACC_CALIB_EXIT:
+        {
+            reset_accbiasRunning();
+            resetaccBias_accScale();
+        }break;
         case D_COMMAND_ACC_CALIB_STEP1:
+            setprocessAccBias_stepnum(0);
             break;
         case D_COMMAND_ACC_CALIB_STEP2:
+            setprocessAccBias_stepnum(1);
             break;
         case D_COMMAND_ACC_CALIB_STEP3:
+            setprocessAccBias_stepnum(2);
             break;
         case D_COMMAND_ACC_CALIB_STEP4:
+            setprocessAccBias_stepnum(3);
             break;
         case D_COMMAND_ACC_CALIB_STEP5:
+            setprocessAccBias_stepnum(4);
             break;
         case D_COMMAND_ACC_CALIB_STEP6:
+            setprocessAccBias_stepnum(5);
             break;
-
+        case D_COMMAND_ACC_CALIB_WRITE_FLASH:
+        {
+            accbias_writeFlash();
+            configParamGiveSemaphore(); //将修改的configparamdefault写入flash
+        }break;  
         case D_COMMAND_FLIGHT_LOCK:
             flyable = false;
             break;
-
         case D_COMMAND_FLIGHT_ULOCK:
             flyable = true;
+            break;
         }
+		u8 cksum = atkpCheckSum(anlPacket);
+        sendCheck(anlPacket->msgID, cksum);   
     } else if (anlPacket->msgID == DOWN_ACK) {
         if (anlPacket->data[0] == D_ACK_READ_PID) /*读取PID参数*/
         {

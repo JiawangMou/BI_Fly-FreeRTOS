@@ -35,7 +35,7 @@
 static float wBaro    = 0.65f; /*气压校正权重*/
 static float wOpflowP = 1.0f;  /*光流位置校正权重*/
 static float wOpflowV = 2.0f;  /*光流速度校正权重*/
-static float wAccBias = 0.01f; /*加速度校正权重*/
+static float wAccBias = 0.1f;  /*加速度校正权重*/
 
 static bool isRstHeight = false; /*复位高度*/
 static bool isRstAll    = true;  /*复位估测*/
@@ -44,8 +44,8 @@ static float fusedHeight;          /*融合高度，起飞点为0*/
 static float fusedHeightLpf = 0.f; /*融合高度，低通*/
 static float startBaroAsl   = 0.f; /*起飞点海拔*/
 
-// TEST:加速度漂移问题
-static float posZPredict = 0.0f;
+// // TEST:加速度漂移问题
+// static float posZPredict = 0.0f;
 
 /*估测系统*/
 static estimator_t estimator = {
@@ -151,6 +151,11 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     accelBF.y = sensorData->acc.y * GRAVITY_CMSS - estimator.accBias[Y];
     accelBF.z = sensorData->acc.z * GRAVITY_CMSS - estimator.accBias[Z];
 
+    // accelBF.x = sensorData->acc.x * GRAVITY_CMSS;
+    // accelBF.y = sensorData->acc.y * GRAVITY_CMSS;
+    // accelBF.z = sensorData->acc.z * GRAVITY_CMSS;
+
+
     /* Rotate vector to Earth frame - from Forward-Right-Down to North-East-Up*/
     imuTransformVectorBodyToEarth(&accelBF);
 
@@ -166,9 +171,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     if (isKeyFlightLand == true) /*定高飞或者降落状态*/
     {
-        state->acc.x = constrainf(accLpf[X], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*加速度限幅*/
-        state->acc.y = constrainf(accLpf[Y], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*加速度限幅*/
-        state->acc.z = constrainf(accLpf[Z], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*加速度限幅*/
+        state->acc.x = constrainf(accLpf[X], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
+        state->acc.y = constrainf(accLpf[Y], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
+        state->acc.z = constrainf(accLpf[Z], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
     } else {
         state->acc.x = constrainf(estimator.acc[X], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*最大加速度限幅*/
         state->acc.y = constrainf(estimator.acc[Y], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*最大加速度限幅*/
@@ -178,10 +183,10 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     float errPosZ = fusedHeightLpf - estimator.pos[Z];
 
     /* 位置预估: Z-axis */
-    inavFilterPredict(Z, dt, accLpf[Z]);
+    inavFilterPredict(Z, dt, state->acc.z);
 
-    // TEST:发送加速度估计的数据
-    posZPredict = estimator.pos[Z];
+    // // TEST:发送加速度估计的数据
+    // posZPredict = estimator.pos[Z];
 
     /* 位置校正: Z-axis */
     inavFilterCorrectPos(Z, dt, errPosZ, weight);
@@ -255,4 +260,4 @@ void estRstHeight(void) { isRstHeight = true; }
 /*复位所有估测*/
 void estRstAll(void) { isRstAll = true; }
 
-float getPosZPredictData() { return posZPredict; }
+// float getPosZPredictData() { return posZPredict; }

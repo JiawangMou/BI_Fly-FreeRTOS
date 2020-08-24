@@ -59,6 +59,8 @@ typedef enum
 	UP_PID4 = 0x13,
 	UP_PID5 = 0x14,
 	UP_PID6 = 0x15,
+
+	UP_ACK_ACC_CALIB = 0x20,
 	UP_RADIO = 0x40,
 	UP_MSG = 0xEE,
 	UP_CHECK = 0xEF,
@@ -90,6 +92,8 @@ typedef enum
 #define D_COMMAND_ACC_CALIB_STEP4 0x24
 #define D_COMMAND_ACC_CALIB_STEP5 0x25
 #define D_COMMAND_ACC_CALIB_STEP6 0x26
+#define D_COMMAND_ACC_CALIB_WRITE_FLASH 0x27
+
 #define D_COMMAND_FLIGHT_LOCK 0xA0
 #define D_COMMAND_FLIGHT_ULOCK 0xA1
 
@@ -121,5 +125,6 @@ void atkpTxTask(void *param);
 void atkpRxAnlTask(void *param);
 void atkpInit(void);
 bool atkpReceivePacketBlocking(atkp_t *p);
+void sendaccBiasprocess_ACK(u8 step_num,float accbias_x,float accbias_y,float accbias_z);
 
 #endif /*ATKP_H*/

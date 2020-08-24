@@ -6,6 +6,7 @@
 #include "watchdog.h"
 #include "stmflash.h"
 #include "delay.h"
+#include "sensors.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -131,6 +132,12 @@ static configParam_t configParamDefault =
 				.s_right = 1520,
 				.s_middle = 1520,
 			},
+		.accBias = 
+		{
+			.accZero = {0, 0, 0},
+			.accGain = {1, 1, 1},
+			.bias_isfound = false,
+		},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
 		.thrustBase = 34000, /*定高油门基础值*/
@@ -232,11 +239,17 @@ static configParam_t configParamDefault =
 		},
 
 		.servo_initpos =
-			{
-				.s_left = 1520,
-				.s_right = 1520,
-				.s_middle = 1520,
-			},
+		{
+			.s_left = 1520,
+			.s_right = 1520,
+			.s_middle = 1520,
+		},
+		.accBias = 
+		{
+			.accZero = {0, 0, 0},
+			.accGain = {1, 1, 1},
+			.bias_isfound = false,
+		},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
 		.thrustBase = 40000, /*定高油门基础值*/
@@ -315,10 +328,10 @@ void configParamTask(void *param)
 
 		if (configParam.cksum != cksum)
 		{
-			configParam.cksum = cksum;									   /*数据校验*/
-																		   //			watchdogInit(500);			/*擦除时间比较长，看门狗时间设置大一些*/
+			configParam.cksum = cksum;				/*数据校验*/
+			//watchdogInit(500);					/*擦除时间比较长，看门狗时间设置大一些*/
 			STMFLASH_Write(CONFIG_PARAM_ADDR, (u32 *)&configParam, lenth); /*写入stm32 flash*/
-																		   //			watchdogInit(WATCHDOG_RESET_MS);		/*重新设置看门狗*/
+			//watchdogInit(WATCHDOG_RESET_MS);		/*重新设置看门狗*/
 		}
 	}
 }
@@ -374,3 +387,21 @@ u16 getservoinitpos_configParam(u8 pwm_id)
 	}
 	return value;
 }
+
+accBias_t getaccbias_configParam( void )
+{
+	return configParam.accBias;
+}
+
+void accbias_writeFlash(void)
+{
+	Axis3f temp=getaccBias();
+	configParam.accBias.accZero[0] = (int16_t)temp.x;
+	configParam.accBias.accZero[1] = (int16_t)getaccBias().y;
+	configParam.accBias.accZero[2] = (int16_t)getaccBias().z;	
+	configParam.accBias.bias_isfound = true;
+	configParam.accBias.accGain[0] = (int16_t)getaccScale().x;
+	configParam.accBias.accGain[1] = (int16_t)getaccScale().y;	
+	configParam.accBias.accGain[2] = (int16_t)getaccScale().z;
+}
+

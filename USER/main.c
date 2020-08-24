@@ -57,8 +57,7 @@ void startTask(void *arg)
     xTaskCreate(usblinkRxTask, "USBLINK_RX", 150, NULL, 4, NULL); /*创建usb接收任务*/
     xTaskCreate(usblinkTxTask, "USBLINK_TX", 150, NULL, 3, NULL); /*创建usb发送任务*/
 
-//TEST:加速度漂移问题  优先级从3变为5
-    xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 5, NULL);        /*创建atkp发送任务任务*/
+    xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 3, NULL);        /*创建atkp发送任务任务*/
     xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL); /*创建atkp解析任务*/
 
     xTaskCreate(configParamTask, "CONFIG_TASK", 150, NULL, 1, NULL); /*创建参数配置任务*/

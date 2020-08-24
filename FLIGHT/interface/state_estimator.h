@@ -29,6 +29,6 @@ void  estRstHeight(void);   /*复位估测高度*/
 void  estRstAll(void);      /*复位所有估测*/
 
 
-//TEST：加速度偏移问题
-float getPosZPredictData(void);
+// //TEST：加速度偏移问题
+// float getPosZPredictData(void);
 #endif /* __STATE_ESTIMATOR_H */
