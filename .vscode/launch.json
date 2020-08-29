@@ -11,7 +11,7 @@
                 "interface/stlink-v2.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "executable": ".\\out\\Release\\vscode_BI_Fly-FreeRTOS.elf",
+            "executable": ".\\out\\Release\\BI_Fly-FreeRTOS.elf",
             "runToMain": true
         }
     ]

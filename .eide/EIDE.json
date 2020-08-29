@@ -1,5 +1,5 @@
 {
-    "name": "vscode_BI_Fly-FreeRTOS",
+    "name": "BI_Fly-FreeRTOS",
     "type": "ARM",
     "mode": "Release",
     "toolchain": "AC5",
@@ -223,7 +223,7 @@
     "deviceName": null,
     "packDir": null,
     "uploadConfig": {
-        "bin": ".\\out\\Release\\vscode_BI_Fly-FreeRTOS.hex",
+        "bin": ".\\out\\Release\\BI_Fly-FreeRTOS.hex",
         "target": "stm32f4x",
         "interface": "stlink-v2",
         "baseAddr": "0x08000000"
