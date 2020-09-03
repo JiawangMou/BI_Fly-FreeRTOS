@@ -134,8 +134,8 @@ static configParam_t configParamDefault =
 			},
 		.accBias = 
 		{
-			.accZero = {0, 0, 0},
-			.accGain = {1, 1, 1},
+			.accZero = {32, -39, -92},
+			.accGain = {2049, 2045, 2068},
 			.bias_isfound = false,
 		},
 		.trimP = 0.f,		 /*pitchÎ¢µ÷*/
@@ -246,8 +246,8 @@ static configParam_t configParamDefault =
 		},
 		.accBias = 
 		{
-			.accZero = {0, 0, 0},
-			.accGain = {1, 1, 1},
+			.accZero = {32, -39, -92},
+			.accGain = {2049, 2045, 2068},
 			.bias_isfound = false,
 		},
 		.trimP = 0.f,		 /*pitchÎ¢µ÷*/
