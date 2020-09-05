@@ -5,6 +5,7 @@
 #include "attitude_pid.h"
 #include "position_pid.h"
 #include "config_param.h"
+#include "config.h"
 
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -96,13 +97,14 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 			rateDesired.pitch = setpoint->attitude.pitch;
 			rateDesired.roll = setpoint->attitude.roll;
 		}
-		// #ifdef BI_Fly_1
-		// rateDesired.yaw = setpoint->attitude.yaw;
-		// #endif
+		#ifdef BI_Fly_1
+		rateDesired.yaw = setpoint->attitude.yaw;
+		#endif
 		attitudeRatePID(&sensors->gyro, &rateDesired, control);
-		// #ifdef BI_Fly_2
-		// control->yaw = setpoint->attitude.yaw * 100;
-		// #endif
+
+		#ifdef BI_Fly_2
+		control->yaw = setpoint->attitude.yaw * 100;
+		#endif
 	}
 	control->thrust = constrainf(actualThrust, 0.0f, 55000.0f);
 	// control->thrust = actualThrust;	

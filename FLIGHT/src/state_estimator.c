@@ -247,8 +247,8 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     state->position.x = estimator.pos[X];
     state->position.y = estimator.pos[Y];
-    // state->position.z = fusedHeightLpf;
-    state->position.z = estimator.pos[Z];
+    state->position.z = fusedHeightLpf;
+    // state->position.z = estimator.pos[Z];
 }
 
 /*读取融合高度 单位cm*/
