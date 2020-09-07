@@ -36,12 +36,12 @@
                 {
                     "name": "toolchain",
                     "incList": [
-                        ".\\..\\..\\..\\Program Files (x86)\\Keil_5\\ARM\\ARMCC\\include",
-                        ".\\..\\..\\..\\Program Files (x86)\\Keil_5\\ARM\\ARMCC\\include\\rw"
+                        "D:\\Keilv5\\ARM\\ARMCC\\include",
+                        "D:\\Keilv5\\ARM\\ARMCC\\include\\rw"
                     ],
                     "sourceDirList": [],
                     "libList": [
-                        ".\\..\\..\\..\\Program Files (x86)\\Keil_5\\ARM\\ARMCC\\lib"
+                        "D:\\Keilv5\\ARM\\ARMCC\\lib"
                     ],
                     "defineList": []
                 }

@@ -88,7 +88,7 @@ void stateControl(control_t* control, sensorData_t* sensors, state_t* state, set
             rateDesired.roll  = setpoint->attitude.roll;
         }
 #ifdef BI_Fly_1
-        rateDesired.yaw = -setpoint->attitude.yaw;
+        rateDesired.yaw = setpoint->attitude.yaw;
 #endif
         attitudeRatePID(&sensors->gyro, &rateDesired, control);
 
