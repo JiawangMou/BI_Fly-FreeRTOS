@@ -89,9 +89,9 @@ static void ctrlDataUpdate(void)
         nowCache = &wifiCache; /* wifi缓存数据 */
         commanderLevelRPY();
     } else {
-        isRCLocked = true; /*锁定*/
+        // isRCLocked = true; /*锁定*/
         nowCache   = &remoteCache;
-        commanderDropToGround();
+        // commanderDropToGround();
     }
 
     if (isRCLocked == false) /*解锁状态*/
