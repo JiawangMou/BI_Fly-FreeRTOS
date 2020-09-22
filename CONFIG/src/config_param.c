@@ -28,7 +28,7 @@
  * All rights reserved
 ********************************************************************************/
 
-#define VERSION 0xff /*13 表示V1.3*/
+#define VERSION 13 /*13 表示V1.3*/
 
 configParam_t configParam;
 
@@ -136,7 +136,7 @@ static configParam_t configParamDefault =
 		{
 			.accZero = {32, -39, -92},
 			.accGain = {2049, 2045, 2068},
-			.bias_isfound = false,
+			.bias_isfound = true,
 		},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
@@ -248,7 +248,7 @@ static configParam_t configParamDefault =
 		{
 			.accZero = {32, -39, -92},
 			.accGain = {2049, 2045, 2068},
-			.bias_isfound = false,
+			.bias_isfound = true,
 		},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/

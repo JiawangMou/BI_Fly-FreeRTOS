@@ -572,8 +572,7 @@ static void atkpSendPeriod(void)
         mode_e z_mode;
         u8 commander;
         sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
-        pidAnglePitch.outI,
-            pidAnglePitch.outD);
+        pidAnglePitch.outI,pidAnglePitch.outD);
         sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
             pidRateRoll.outD);
         sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
