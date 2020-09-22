@@ -46,6 +46,7 @@ static float startBaroAsl   = 0.f; /*起飞点海拔*/
 
 // // TEST:加速度漂移问题
 // static float posZPredict = 0.0f;
+static float fHLast = 0.0f;
 
 /*估测系统*/
 static estimator_t estimator = {
@@ -107,6 +108,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         fusedHeight = relateHight; /*融合高度*/
     }
+    fHLast = fusedHeightLpf;
     fusedHeightLpf += (fusedHeight - fusedHeightLpf) * 0.1f; /*融合高度 低通*/
 
     if (isRstHeight) {
@@ -154,7 +156,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     // accelBF.x = sensorData->acc.x * GRAVITY_CMSS;
     // accelBF.y = sensorData->acc.y * GRAVITY_CMSS;
     // accelBF.z = sensorData->acc.z * GRAVITY_CMSS;
-
 
     /* Rotate vector to Earth frame - from Forward-Right-Down to North-East-Up*/
     imuTransformVectorBodyToEarth(&accelBF);
@@ -247,8 +248,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     state->position.x = estimator.pos[X];
     state->position.y = estimator.pos[Y];
-    // state->position.z = fusedHeightLpf;
-    state->position.z = estimator.pos[Z];
+    state->position.z = fusedHeightLpf;
+    // state->velocity.z = (fusedHeightLpf - fHLast) / dt;
+    // state->position.z = estimator.pos[Z];
 }
 
 /*读取融合高度 单位cm*/
