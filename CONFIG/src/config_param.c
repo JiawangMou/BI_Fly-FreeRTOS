@@ -252,7 +252,7 @@ static configParam_t configParamDefault =
 		},
 		.trimP = 0.f,		 /*pitch微调*/
 		.trimR = 0.f,		 /*roll微调*/
-		.thrustBase = 40000, /*定高油门基础值*/
+		.thrustBase = 44500, /*定高油门基础值*/
 };
 #endif
 
