@@ -202,7 +202,7 @@ u32 servoPWMLimit(u8 id, u16 value)
     u16 _temp      = 0;
     u16 HLimit     = SERVO_MAXPWM - getservoinitpos_configParam(id);
     u16 LLimit     = getservoinitpos_configParam(id) - SERVO_MINPWM;
-    u16 servoRange = (HLimit > LLimit) ? HLimit : LLimit;
+    u16 servoRange = (HLimit > LLimit) ? LLimit : HLimit;
 	
     if (value > getservoinitpos_configParam(id) + servoRange)
         _temp = getservoinitpos_configParam(id) + servoRange;
