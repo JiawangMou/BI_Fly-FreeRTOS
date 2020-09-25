@@ -735,9 +735,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         pidVZ.ki = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
         pidVZ.kd = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
 
-        pidVX.outputLimit = ((s16)(*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
-        pidVY.outputLimit = ((s16)(*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
-        pidVZ.outputLimit = ((s16)(*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
+        pidVX.outputLimit = ((u16)(*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
+        pidVY.outputLimit = ((u16)(*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
+        pidVZ.outputLimit = ((u16)(*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
         positionPIDwriteToConfigParam();
         configParamGiveSemaphore(); //将修改的configparamdefault写入flash
         u8 cksum = atkpCheckSum(anlPacket);
@@ -755,9 +755,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         pidZ.ki = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
         pidZ.kd = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
 
-        pidX.outputLimit = ((s16)(*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
-        pidY.outputLimit = ((s16)(*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
-        pidZ.outputLimit = ((s16)(*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
+        pidX.outputLimit = ((u16)(*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
+        pidY.outputLimit = ((u16)(*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
+        pidZ.outputLimit = ((u16)(*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
 
         positionPIDwriteToConfigParam();
         configParamGiveSemaphore(); //将修改的configparamdefault写入flash
