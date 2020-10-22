@@ -70,10 +70,13 @@ static void velocityController(float* thrust, attitude_t *attitude, setpoint_t *
 	attitude->roll = 0.15f * pidUpdate(&pidVY, setpoint->velocity.y - state->velocity.y);
 	
 	// Thrust
-	float thrustRaw = pidUpdate(&pidVZ, setpoint->velocity.z - state->velocity.z);
+	float thrustRaw = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
 	
 	*thrust = constrainf(thrustRaw + THRUST_BASE, 1000, 65500);	/*油门限幅*/
 	
+	if(*thrust < THRUST_BASE)
+		*thrust = *thrust/8 + 35000;
+		
 	thrustLpf += (*thrust - thrustLpf) * 0.003f;
 	
 	if(getCommanderKeyFlight())	/*定高飞行状态*/
@@ -107,7 +110,7 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
 	
 	if (setpoint->mode.z == modeAbs)
 	{
-		setpoint->velocity.z = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
+		//setpoint->velocity.z = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
 	}
 	
 	velocityController(thrust, attitude, setpoint, state);
