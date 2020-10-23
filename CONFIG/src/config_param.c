@@ -92,18 +92,21 @@ static configParam_t configParamDefault =
 					.kp = 4.5,
 					.ki = 0.0,
 					.kd = 0.0,
+					.outputLimit = 120.0f,
 				},
 			.vy =
 				{
 					.kp = 4.5,
 					.ki = 0.0,
 					.kd = 0.0,
+					.outputLimit = 120.0f,
 				},
 			.vz =
 				{
 					.kp = 80.0,
 					.ki = 130.0,
 					.kd = 10.0,
+					.outputLimit = 65500.0f,
 				},
 
 			.x =
@@ -111,18 +114,21 @@ static configParam_t configParamDefault =
 					.kp = 4.0,
 					.ki = 0.0,
 					.kd = 0.6,
+					.outputLimit = 1200.0f,
 				},
 			.y =
 				{
 					.kp = 4.0,
 					.ki = 0.0,
 					.kd = 0.6,
+					.outputLimit = 1200.0f,
 				},
 			.z =
 				{
-					.kp = 4.0,
+					.kp = 300.0,
 					.ki = 0.0,
-					.kd = 4.5,
+					.kd = 100.0,
+					.outputLimit = 65500.0f,
 				},
 		},
 

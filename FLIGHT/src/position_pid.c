@@ -31,8 +31,9 @@
 
 #define PIDX_OUTPUT_LIMIT	1200.0f	//X轴速度限幅(单位cm/s 带0.1的系数)
 #define PIDY_OUTPUT_LIMIT	1200.0f	//Y轴速度限幅(单位cm/s 带0.1的系数)
-#define PIDZ_OUTPUT_LIMIT	120.0f	//Z轴速度限幅(单位cm/s)
-
+//#define PIDZ_OUTPUT_LIMIT	120.0f	//Z轴速度限幅(单位cm/s)
+//临时版本，定高变为单环PID,输出限幅直接到油门输出
+#define PIDZ_OUTPUT_LIMIT	65500.0f	//Z轴速度限幅(油门量)
 
 static float thrustLpf = THRUST_BASE;	/*油门低通*/
 
@@ -49,16 +50,16 @@ void positionControlInit(float velocityPidDt, float posPidDt)
 	pidInit(&pidVX, 0, configParam.pidPos.vx, velocityPidDt);	/*vx PID初始化*/
 	pidInit(&pidVY, 0, configParam.pidPos.vy, velocityPidDt);	/*vy PID初始化*/
 	pidInit(&pidVZ, 0, configParam.pidPos.vz, velocityPidDt);	/*vz PID初始化*/
-	pidSetOutputLimit(&pidVX, PIDVX_OUTPUT_LIMIT);		/* 输出限幅 */
-	pidSetOutputLimit(&pidVY, PIDVY_OUTPUT_LIMIT);		/* 输出限幅 */
-	pidSetOutputLimit(&pidVZ, PIDVZ_OUTPUT_LIMIT);		/* 输出限幅 */
+	pidSetOutputLimit(&pidVX, configParam.pidPos.vx.outputLimit);		/* 输出限幅 */
+	pidSetOutputLimit(&pidVY, configParam.pidPos.vy.outputLimit);		/* 输出限幅 */
+	pidSetOutputLimit(&pidVZ, configParam.pidPos.vz.outputLimit);		/* 输出限幅 */
 	
 	pidInit(&pidX, 0, configParam.pidPos.x, posPidDt);			/*x PID初始化*/
 	pidInit(&pidY, 0, configParam.pidPos.y, posPidDt);			/*y PID初始化*/
 	pidInit(&pidZ, 0, configParam.pidPos.z, posPidDt);			/*z PID初始化*/
-	pidSetOutputLimit(&pidX, PIDX_OUTPUT_LIMIT);		/* 输出限幅 */
-	pidSetOutputLimit(&pidY, PIDY_OUTPUT_LIMIT);		/* 输出限幅 */
-	pidSetOutputLimit(&pidZ, PIDZ_OUTPUT_LIMIT);		/* 输出限幅 */
+	pidSetOutputLimit(&pidX, configParam.pidPos.x.outputLimit);		/* 输出限幅 */
+	pidSetOutputLimit(&pidY, configParam.pidPos.y.outputLimit);		/* 输出限幅 */
+	pidSetOutputLimit(&pidZ, configParam.pidPos.z.outputLimit);		/* 输出限幅 */
 }
 
 static void velocityController(float* thrust, attitude_t *attitude, setpoint_t *setpoint, const state_t *state)                                                         
@@ -74,6 +75,7 @@ static void velocityController(float* thrust, attitude_t *attitude, setpoint_t *
 	
 	*thrust = constrainf(thrustRaw + THRUST_BASE, 1000, 65500);	/*油门限幅*/
 	
+	//防止PID计算油门降得太快，让飞行器停机，影响定高效果，所以对低于基础油门的油门进行小变化范围处理，无论如何使油门不低于35000
 	if(*thrust < THRUST_BASE)
 		*thrust = *thrust/8 + 35000;
 		
