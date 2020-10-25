@@ -90,7 +90,7 @@ static void ctrlDataUpdate(void)
         commanderLevelRPY();
     } else {
         // isRCLocked = true; /*锁定*/
-        nowCache   = &remoteCache;
+        nowCache = &remoteCache;
         // commanderDropToGround();
     }
 
@@ -278,7 +278,9 @@ void commanderGetSetpoint(setpoint_t* setpoint, state_t* state)
                 isAdjustingPosZ      = false;
                 setpoint->mode.z     = modeAbs;
                 setpoint->position.z = state->position.z + errorPosZ; /*调整新位置*/
-            } else if (isAdjustingPosZ == false)                      /*Z位移误差*/
+                //NOTE:为了下次进入定高的速率模式时使用PID叠加PID，现在只使用了 P 不需要清空PID缓存
+                // pidReset(&pidVZ);
+            } else if (isAdjustingPosZ == false) /*Z位移误差*/
             {
                 errorPosZ = setpoint->position.z - state->position.z;
                 errorPosZ = constrainf(errorPosZ, -10.f, 10.f); /*误差限幅 单位cm*/
@@ -300,13 +302,13 @@ void commanderGetSetpoint(setpoint_t* setpoint, state_t* state)
 
     setpoint->attitude.roll  = ctrlValLpf.roll;
     setpoint->attitude.pitch = ctrlValLpf.pitch;
-	#ifdef BI_Fly_1
-    	setpoint->attitude.yaw = -ctrlValLpf.yaw; /*摇杆方向和yaw方向相反*/
-	#endif
-	
-	#ifdef BI_Fly_2
-    	setpoint->attitude.yaw = ctrlValLpf.yaw; /*摇杆方向和yaw方向相反*/
-	#endif
+#ifdef BI_Fly_1
+    setpoint->attitude.yaw = -ctrlValLpf.yaw; /*摇杆方向和yaw方向相反*/
+#endif
+
+#ifdef BI_Fly_2
+    setpoint->attitude.yaw = ctrlValLpf.yaw; /*摇杆方向和yaw方向相反*/
+#endif
 
     if (getOpDataState() && commander.ctrlMode == 0x03) /*光流数据可用，定点模式*/
     {
