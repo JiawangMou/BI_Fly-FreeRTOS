@@ -4,19 +4,6 @@
 #include "config.h"
 #include "spl06.h"
 
-/********************************************************************************	 
- * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
- * ALIENTEK MiniFly
- * SPL06驱动代码	
- * 正点原子@ALIENTEK
- * 技术论坛:www.openedv.com
- * 创建日期:2017/5/12
- * 版本：V1.3
- * 版权所有，盗版必究。
- * Copyright(C) 广州市星翼电子科技有限公司 2014-2024
- * All rights reserved
-********************************************************************************/
-
 #define P_MEASURE_RATE 			SPL06_MWASURE_16 	//每秒测量次数
 #define P_OVERSAMP_RATE 		SPL06_OVERSAMP_64	//过采样率
 #define SPL06_PRESSURE_CFG		(P_MEASURE_RATE<<4 | P_OVERSAMP_RATE)

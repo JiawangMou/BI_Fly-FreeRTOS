@@ -3,22 +3,6 @@
 #include "sensors.h"
 #include "attitude_pid.h"
 
-/********************************************************************************	 
- * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
- * ALIENTEK MiniFly
- * 姿态PID控制代码	
- * 正点原子@ALIENTEK
- * 技术论坛:www.openedv.com
- * 创建日期:2017/5/12
- * 版本：V1.3
- * 版权所有，盗版必究。
- * Copyright(C) 广州市星翼电子科技有限公司 2014-2024
- * All rights reserved
- *
- * 修改说明:
- * 版本V1.3 纠正角度环和角速度环积分时间参数错误的bug。
-********************************************************************************/
-
 /*角度环积分限幅*/
 #define PID_ANGLE_ROLL_INTEGRATION_LIMIT 30.0
 #define PID_ANGLE_PITCH_INTEGRATION_LIMIT 30.0
