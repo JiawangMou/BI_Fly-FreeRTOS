@@ -7,8 +7,9 @@
 #include "mpu6500.h"
 #include "sensors.h"
 #include "ak8963.h"
-#include "bmp3_defs.h"
-#include "bmp3.h"
+// #include "bmp3_defs.h"
+// #include "bmp3.h"
+#include "bmp280.h"
 #include "filter.h"
 #include "axis.h"
 #include "spl06.h"
@@ -91,7 +92,7 @@ static bool isBaroPresent = false;
 enum
 {
 	IDLE,
-	BMP388,
+	BMP280,
 	SPL06
 } baroType = IDLE;
 
@@ -250,15 +251,32 @@ void sensorsDeviceInit(void)
 	}
 #endif
 
-	if (bmp3_init(BMP388_DEV) == true) //BMP388初始化
+	// if (bmp3_init(BMP388_DEV) == true) //BMP388初始化
+	// {
+	// 	isBaroPresent = true;
+	// 	baroType = BMP388;
+
+	// 	bmp3_set_sensor_settings(BMP3_ALL_SETTINGS, BMP388_DEV);
+	// 	bmp3_set_op_mode(BMP388_DEV);
+	// 	vTaskDelay(100);
+	// 	//		bmp3_get_sensor_settings(BMP388_DEV);
+	// }
+	// else
+	// {
+	// 	isBaroPresent = false;
+	// }
+
+		if (bmp280Init(I2C3_DEV) == true)//BMP280初始化
 	{
 		isBaroPresent = true;
-		baroType = BMP388;
-
-		bmp3_set_sensor_settings(BMP3_ALL_SETTINGS, BMP388_DEV);
-		bmp3_set_op_mode(BMP388_DEV);
+		baroType = BMP280;
 		vTaskDelay(100);
-		//		bmp3_get_sensor_settings(BMP388_DEV);
+	}
+	else if (SPL06Init(I2C3_DEV) == true)//SPL06初始化
+	{
+		isBaroPresent = true;
+		baroType = SPL06;
+		vTaskDelay(100);
 	}
 	else
 	{
@@ -384,14 +402,44 @@ static void sensorsSetupSlaveRead(void)
 	}
 #endif
 
-	if (isBaroPresent && baroType == BMP388)
+	// if (isBaroPresent && baroType == BMP388)
+	// {
+	// 	// 设置MPU6500主机要读取BMP388的寄存器
+	// 	mpu6500SetSlaveAddress(1, 0x80 | BMP3_I2C_ADDR_PRIM);  // 设置气压计状态寄存器为1号从机
+	// 	mpu6500SetSlaveRegister(1, BMP3_SENS_STATUS_REG_ADDR); // 从机1需要读取的寄存器
+	// 	mpu6500SetSlaveDataLength(1, SENSORS_BARO_BUFF_LEN);   // 读取7个字节
+	// 	mpu6500SetSlaveDelayEnabled(1, true);
+	// 	mpu6500SetSlaveEnabled(1, true);
+	// }
+	if (isBaroPresent && baroType == BMP280)
 	{
-		// 设置MPU6500主机要读取BMP388的寄存器
-		mpu6500SetSlaveAddress(1, 0x80 | BMP3_I2C_ADDR_PRIM);  // 设置气压计状态寄存器为1号从机
-		mpu6500SetSlaveRegister(1, BMP3_SENS_STATUS_REG_ADDR); // 从机1需要读取的寄存器
-		mpu6500SetSlaveDataLength(1, SENSORS_BARO_BUFF_LEN);   // 读取7个字节
+		// 设置MPU6500主机要读取BMP280的寄存器
+		mpu6500SetSlaveAddress(1, 0x80 | BMP280_I2C_ADDR);		// 设置气压计状态寄存器为1号从机
+		mpu6500SetSlaveRegister(1, BMP280_STAT_REG);			// 从机1需要读取的寄存器
+		mpu6500SetSlaveDataLength(1, SENSORS_BARO_STATUS_LEN);	// 读取1个字节
 		mpu6500SetSlaveDelayEnabled(1, true);
 		mpu6500SetSlaveEnabled(1, true);
+
+		mpu6500SetSlaveAddress(2, 0x80 | BMP280_I2C_ADDR);		// 设置气压计数据寄存器为2号从机
+		mpu6500SetSlaveRegister(2, BMP280_PRESSURE_MSB_REG);	// 从机2需要读取的寄存器
+		mpu6500SetSlaveDataLength(2, SENSORS_BARO_DATA_LEN);	// 读取6个字节
+		mpu6500SetSlaveDelayEnabled(2, true);
+		mpu6500SetSlaveEnabled(2, true);
+	}
+	if (isBaroPresent && baroType == SPL06)
+	{
+		// 设置MPU6500主机要读取SPL06的寄存器
+		mpu6500SetSlaveAddress(1, 0x80 | SPL06_I2C_ADDR);		// 设置气压计状态寄存器为1号从机
+		mpu6500SetSlaveRegister(1, SPL06_MODE_CFG_REG);			// 从机1需要读取的寄存器
+		mpu6500SetSlaveDataLength(1, SENSORS_BARO_STATUS_LEN);	// 读取1个字节
+		mpu6500SetSlaveDelayEnabled(1, true);
+		mpu6500SetSlaveEnabled(1, true);
+
+		mpu6500SetSlaveAddress(2, 0x80 | SPL06_I2C_ADDR);		// 设置气压计数据寄存器为2号从机
+		mpu6500SetSlaveRegister(2, SPL06_PRESSURE_MSB_REG);		// 从机2需要读取的寄存器
+		mpu6500SetSlaveDataLength(2, SENSORS_BARO_DATA_LEN);	// 读取6个字节
+		mpu6500SetSlaveDelayEnabled(2, true);
+		mpu6500SetSlaveEnabled(2, true);
 	}
 
 	mpu6500SetI2CMasterModeEnabled(true); //使能mpu6500主机模式
@@ -460,25 +508,55 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
 /*处理气压计数据*/
 void processBarometerMeasurements(const u8 *buffer)
 {
-	//	static float temp;
+	static float temp;
 	static float pressure;
-	struct bmp3_uncomp_data uncomp_data = {0};
-	struct bmp3_data comp_data = {0};
-	if (baroType == BMP388)
+//	struct bmp3_uncomp_data uncomp_data = {0};
+//	struct bmp3_data comp_data = {0};
+	// if (baroType == BMP388)
+	// {
+	// 	// Check if there is a new data update
+	// 	if ((buffer[0] & 0x30)) /*转换完成*/
+	// 	{
+	// 		uncomp_data.pressure = (uint64_t)((((u32)(buffer[3])) << 16) | (((u32)(buffer[2])) << 8) | (u32)buffer[1]);
+	// 		uncomp_data.temperature = (int64_t)((((u32)(buffer[6])) << 16) | (((u32)(buffer[5])) << 8) | (u32)buffer[4]);
+	// 		compensate_data(BMP3_ALL, &uncomp_data, &comp_data, BMP388_DEV.calib_data);
+	// 		pressure = (float)comp_data.pressure / 100.0f;
+	// 		sensors.baro.temperature = (float)comp_data.temperature / 100.0f; /*单位度*/
+
+	// 		pressureFilter(&pressure, &sensors.baro.pressure);
+	// 		sensors.baro.asl = PressureToAltitude(&sensors.baro.pressure) * 100; /*转换成海拔，单位：cm*/
+	// 		sensors.baro.asl = lpf2pApply(&BaroLpf, sensors.baro.asl);
+	// 	}
+	// }
+	if (baroType == BMP280)
 	{
 		// Check if there is a new data update
-		if ((buffer[0] & 0x30)) /*转换完成*/
+		if ((buffer[0] & 0x08)) /*bit3=1 转换完成*/
 		{
-			uncomp_data.pressure = (uint64_t)((((u32)(buffer[3])) << 16) | (((u32)(buffer[2])) << 8) | (u32)buffer[1]);
-			uncomp_data.temperature = (int64_t)((((u32)(buffer[6])) << 16) | (((u32)(buffer[5])) << 8) | (u32)buffer[4]);
-			compensate_data(BMP3_ALL, &uncomp_data, &comp_data, BMP388_DEV.calib_data);
-			pressure = (float)comp_data.pressure / 100.0f;
-			sensors.baro.temperature = (float)comp_data.temperature / 100.0f; /*单位度*/
+			s32 rawPressure = (s32)((((u32)(buffer[1])) << 12) | (((u32)(buffer[2])) << 4) | ((u32)buffer[3] >> 4));
+			s32 rawTemp = (s32)((((u32)(buffer[4])) << 12) | (((u32)(buffer[5])) << 4) | ((u32)buffer[6] >> 4));
+			temp = bmp280CompensateT(rawTemp)/100.0f;		
+			pressure = bmp280CompensateP(rawPressure)/25600.0f;			
 
-			pressureFilter(&pressure, &sensors.baro.pressure);
-			sensors.baro.asl = PressureToAltitude(&sensors.baro.pressure) * 100; /*转换成海拔，单位：cm*/
-			sensors.baro.asl = lpf2pApply(&BaroLpf, sensors.baro.asl);
+//			pressureFilter(&pressure, &sensors.baro.pressure);	
+			sensors.baro.pressure = pressure;
+			sensors.baro.temperature = (float)temp;	/*单位度*/
+			sensors.baro.asl = bmp280PressureToAltitude(&pressure) * 100.f;	/*转换成海拔*/
 		}
+	}
+	else if (baroType == SPL06)
+	{
+		s32 rawPressure = (int32_t)buffer[1]<<16 | (int32_t)buffer[2]<<8 | (int32_t)buffer[3];
+		rawPressure = (rawPressure & 0x800000) ? (0xFF000000 | rawPressure) : rawPressure;
+		
+		s32 rawTemp = (int32_t)buffer[4]<<16 | (int32_t)buffer[5]<<8 | (int32_t)buffer[6];
+		rawTemp = (rawTemp & 0x800000) ? (0xFF000000 | rawTemp) : rawTemp;
+		
+		temp = spl0601_get_temperature(rawTemp);
+		pressure = spl0601_get_pressure(rawPressure, rawTemp);
+		sensors.baro.pressure = pressure / 100.0f;
+		sensors.baro.temperature = (float)temp; /*单位度*/
+		sensors.baro.asl = SPL06PressureToAltitude(sensors.baro.pressure) * 100.f; //cm
 	}
 }
 /*处理磁力计数据*/

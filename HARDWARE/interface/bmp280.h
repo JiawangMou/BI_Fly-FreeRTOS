@@ -3,35 +3,26 @@
 #include "stm32f4xx.h"
 #include "i2cdev.h"
 
-#define BMP3_I2C_ADDR			(0x76)
-#define BMP3_CHIP_ID			(0x50)
+#define BMP280_I2C_ADDR					(0x76)
+#define BMP280_DEFAULT_CHIP_ID			(0x58)
 
-/**\name Register Address */
-#define BMP3_CHIP_ID_ADDR                       UINT8_C(0x00)
-#define BMP3_ERR_REG_ADDR                       UINT8_C(0x02)
-#define BMP3_SENS_STATUS_REG_ADDR               UINT8_C(0x03)
-#define BMP3_DATA_ADDR                          UINT8_C(0x04)
-#define BMP3_EVENT_ADDR                         UINT8_C(0x10)
-#define BMP3_INT_STATUS_REG_ADDR                UINT8_C(0x11)
-#define BMP3_FIFO_LENGTH_ADDR                   UINT8_C(0x12)
-#define BMP3_FIFO_DATA_ADDR                     UINT8_C(0x14)
-#define BMP3_FIFO_WM_ADDR                       UINT8_C(0x15)
-#define BMP3_FIFO_CONFIG_1_ADDR                 UINT8_C(0x17)
-#define BMP3_FIFO_CONFIG_2_ADDR                 UINT8_C(0x18)
-#define BMP3_INT_CTRL_ADDR                      UINT8_C(0x19)
-#define BMP3_IF_CONF_ADDR                       UINT8_C(0x1A)
-#define BMP3_PWR_CTRL_ADDR                      UINT8_C(0x1B)
-#define BMP3_OSR_ADDR                           UINT8_C(0X1C)
-#define BMP3_CALIB_DATA_ADDR                    UINT8_C(0x31)
-#define BMP3_CMD_ADDR                           UINT8_C(0x7E)
+#define BMP280_CHIP_ID					(0xD0)  /* Chip ID Register */
+#define BMP280_RST_REG					(0xE0)  /* Softreset Register */
+#define BMP280_STAT_REG					(0xF3)  /* Status Register */
+#define BMP280_CTRL_MEAS_REG			(0xF4)  /* Ctrl Measure Register */
+#define BMP280_CONFIG_REG				(0xF5)  /* Configuration Register */
+#define BMP280_PRESSURE_MSB_REG			(0xF7)  /* Pressure MSB Register */
+#define BMP280_PRESSURE_LSB_REG			(0xF8)  /* Pressure LSB Register */
+#define BMP280_PRESSURE_XLSB_REG		(0xF9)  /* Pressure XLSB Register */
+#define BMP280_TEMPERATURE_MSB_REG		(0xFA)  /* Temperature MSB Reg */
+#define BMP280_TEMPERATURE_LSB_REG		(0xFB)  /* Temperature LSB Reg */
+#define BMP280_TEMPERATURE_XLSB_REG		(0xFC)  /* Temperature XLSB Reg */
 
+#define BMP280_SLEEP_MODE				(0x00)
+#define BMP280_FORCED_MODE				(0x01)
+#define BMP280_NORMAL_MODE				(0x03)
 
-/**\name Power mode macros */
-#define BMP3_SLEEP_MODE                         UINT8_C(0x00)
-#define BMP3_FORCED_MODE                        UINT8_C(0x01)
-#define BMP3_NORMAL_MODE                        UINT8_C(0x03)
-
-#define BMP280_TEMPERATURE_CALIB_DIG_T1_LSB_REG             UINT8_C(0x31)
+#define BMP280_TEMPERATURE_CALIB_DIG_T1_LSB_REG             (0x88)
 #define BMP280_PRESSURE_TEMPERATURE_CALIB_DATA_LENGTH       (24)
 #define BMP280_DATA_FRAME_SIZE			(6)
 
