@@ -268,6 +268,12 @@ void sensorsDeviceInit(void)
 		bmp3_set_op_mode(BMP388_DEV);
 		vTaskDelay(100);
 	}
+	else if(SPL06Init(I2C3_DEV) == true)
+	{
+		isBaroPresent = true;
+		baroType = SPL06;
+		vTaskDelay(100);
+	}
 	else
 	{
 		isBaroPresent = false;
@@ -440,6 +446,21 @@ static void sensorsSetupSlaveRead(void)
 		mpu6500SetSlaveDelayEnabled(1, true);
 		mpu6500SetSlaveEnabled(1, true);
 	}
+	if (isBaroPresent && baroType == SPL06)
+	{
+		// 设置MPU6500主机要读取SPL06的寄存器
+		mpu6500SetSlaveAddress(1, 0x80 | SPL06_I2C_ADDR);		// 设置气压计状态寄存器为1号从机
+		mpu6500SetSlaveRegister(1, SPL06_MODE_CFG_REG);			// 从机1需要读取的寄存器
+		mpu6500SetSlaveDataLength(1, SENSORS_BARO_STATUS_LEN);	// 读取1个字节
+		mpu6500SetSlaveDelayEnabled(1, true);
+		mpu6500SetSlaveEnabled(1, true);
+
+		mpu6500SetSlaveAddress(2, 0x80 | SPL06_I2C_ADDR);		// 设置气压计数据寄存器为2号从机
+		mpu6500SetSlaveRegister(2, SPL06_PRESSURE_MSB_REG);		// 从机2需要读取的寄存器
+		mpu6500SetSlaveDataLength(2, SENSORS_BARO_DATA_LEN);	// 读取6个字节
+		mpu6500SetSlaveDelayEnabled(2, true);
+		mpu6500SetSlaveEnabled(2, true);
+	}
 
 	mpu6500SetI2CMasterModeEnabled(true); //使能mpu6500主机模式
 	mpu6500SetIntDataReadyEnabled(true);  //数据就绪中断使能
@@ -555,7 +576,7 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
 /*处理气压计数据*/
 void processBarometerMeasurements(const u8 *buffer)
 {
-	//	static float temp;
+	static float temp;
 	static float pressure;
 	struct bmp3_uncomp_data uncomp_data = {0};
 	struct bmp3_data comp_data = {0};
@@ -574,6 +595,20 @@ void processBarometerMeasurements(const u8 *buffer)
 			sensors.baro.asl = PressureToAltitude(&sensors.baro.pressure) * 100; /*转换成海拔，单位：cm*/
 			sensors.baro.asl = lpf2pApply(&BaroLpf, sensors.baro.asl);
 		}
+	}
+	else if (baroType == SPL06)
+	{
+		s32 rawPressure = (int32_t)buffer[1]<<16 | (int32_t)buffer[2]<<8 | (int32_t)buffer[3];
+		rawPressure = (rawPressure & 0x800000) ? (0xFF000000 | rawPressure) : rawPressure;
+		
+		s32 rawTemp = (int32_t)buffer[4]<<16 | (int32_t)buffer[5]<<8 | (int32_t)buffer[6];
+		rawTemp = (rawTemp & 0x800000) ? (0xFF000000 | rawTemp) : rawTemp;
+		
+		temp = spl0601_get_temperature(rawTemp);
+		pressure = spl0601_get_pressure(rawPressure, rawTemp);
+		sensors.baro.pressure = pressure / 100.0f;
+		sensors.baro.temperature = (float)temp; /*??????*/
+		sensors.baro.asl = SPL06PressureToAltitude(sensors.baro.pressure) * 100.f; //cm
 	}
 }
 /*处理磁力计数据*/
