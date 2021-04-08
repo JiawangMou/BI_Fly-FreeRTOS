@@ -13,6 +13,7 @@
 #include "remoter_ctrl.h"
 #include "sensfusion6.h"
 #include "sensors.h"
+#include "state_control.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
 #include "uart_3.h"
@@ -537,8 +538,13 @@ static void atkpSendPeriod(void)
         Axis3f acc, vel, pos;
         float  thrustBase = 0.1f * configParam.thrustBase;
 
+        attitude_t rateDesired;
+        sensorData_t sensor;
+        getSensorData(&sensor);
+        getRateDesired(&rateDesired);
+
         getStateData(&acc, &vel, &pos);
-        sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
+        sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
         sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
             getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
