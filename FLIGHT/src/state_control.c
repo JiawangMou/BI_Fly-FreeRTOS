@@ -120,4 +120,6 @@ void getRateDesired(attitude_t *get){
     *get = rateDesired;
 }
 
-
+void getAngleDesired(attitude_t *get){
+    *get = attitudeDesired;
+}

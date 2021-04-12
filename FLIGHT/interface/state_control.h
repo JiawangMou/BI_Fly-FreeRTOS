@@ -22,6 +22,7 @@ bool stateControlTest(void);
 void stateControl(control_t *control, sensorData_t *sensors, state_t *state, setpoint_t *setpoint, const u32 tick);
 
 void getRateDesired(attitude_t *get);
+void getAngleDesired(attitude_t *get);
 
 #endif /*__STATE_CONTROL_H */
 

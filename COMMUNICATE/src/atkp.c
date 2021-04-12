@@ -538,15 +538,17 @@ static void atkpSendPeriod(void)
         Axis3f acc, vel, pos;
         float  thrustBase = 0.1f * configParam.thrustBase;
 
-        attitude_t rateDesired;
+        attitude_t rateDesired, angleDesired, attitude;
         sensorData_t sensor;
         getSensorData(&sensor);
         getRateDesired(&rateDesired);
+        getAngleDesired(&angleDesired);
+        getAttitudeData(&attitude);
 
         getStateData(&acc, &vel, &pos);
         sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
-        sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
-            getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+        sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
+                     vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
     if (!(count_ms % PERIOD_RCDATA)) {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
@@ -573,6 +575,7 @@ static void atkpSendPeriod(void)
     //     int baro = getBaroData() * 100.f;
     //     sendSenser2(baro, 0);
     // }
+
     if (!(count_ms % PERIOD_PIDOUT)) {
         Axis3f acc, vel, pos;
         mode_e z_mode;
@@ -589,6 +592,7 @@ static void atkpSendPeriod(void)
         u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
         sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
     }
+    
     if (++count_ms >= 65535)
         count_ms = 1;
 }
