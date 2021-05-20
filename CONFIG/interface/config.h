@@ -32,6 +32,9 @@
 #define MCU_FLASH_SIZE_ADDRESS  0x1FFF7A22
 
 #define BI_Fly_1
+
+#define BOARD_VERTICAL
+// #define BOARD_HORIZONTAL
 //#define ENABLE_GET_TASK_STATUS
 
 
