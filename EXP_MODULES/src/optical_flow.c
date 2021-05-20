@@ -371,7 +371,7 @@ bool getOpFlowData(state_t* state, float dt)
 
         opFlow.pixValid[X] = (opFlow.pixSum[X] + opFlow.pixComp[X] - dtCompX); /*实际输出像素*/
         opFlow.pixValid[Y] = (opFlow.pixSum[Y] - opFlow.pixComp[Y] + dtCompY);
-        // // TODO:test
+        //TEST：
         opFlow.pixComp[X] = dtCompX; /*像素补偿，负方向*/
         opFlow.pixComp[Y] = dtCompY;
 
@@ -379,6 +379,7 @@ bool getOpFlowData(state_t* state, float dt)
         {
             coeff = 0.0f;
         }
+
         /*2帧之间位移变化量，单位cm*/
         opFlow.deltaPos[X] = coeff * (opFlow.pixValid[X] - opFlow.pixValidLast[X]);
         opFlow.deltaPos[Y] = coeff * (opFlow.pixValid[Y] - opFlow.pixValidLast[Y]);

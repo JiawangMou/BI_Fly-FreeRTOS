@@ -54,6 +54,8 @@
 
 #ifdef BI_Fly_2
 #define SERVO_RANGE 350
+#define SERVO_MAXPWM 2100 //2.1ms
+#define SERVO_MINPWM 900  //0.9ms
 #endif
 
 void motorsInit(void);                    /*电机初始化*/

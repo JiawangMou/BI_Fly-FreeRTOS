@@ -210,3 +210,8 @@ control_t getControlData(void)
     return control;
 }
 
+mode_e getZmode(void)
+{
+    return setpoint.mode.z;
+}
+

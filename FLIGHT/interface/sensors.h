@@ -50,4 +50,15 @@ bool sensorsReadBaro(baro_t *baro);
 /*磁力计标定数据获取*/
 void setMagCalibData(Axis3i16 offset, Axis3u16 radius);
 
+/*设置当前的acc标定步骤*/
+void setprocessAccBias_stepnum( u8 i );
+
+/*复位accbias标定的buffer*/
+void reset_accbiasRunning(void);
+
+/*获取accBias的值*/
+Axis3f getaccBias(void);
+/*获取accScale的值*/
+Axis3f getaccScale(void);
+void resetaccBias_accScale(void);
 #endif //__SENSORS_H

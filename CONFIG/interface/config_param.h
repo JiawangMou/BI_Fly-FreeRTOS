@@ -46,6 +46,7 @@ typedef struct
 {
 	int16_t accZero[3];
 	int16_t accGain[3];
+	bool bias_isfound;
 } accBias_t;
 
 typedef struct
@@ -67,6 +68,17 @@ typedef struct
 	u16 s_middle;	
 }Servo_initpos;
 
+// typedef struct
+// {
+// 	float x;
+// 	float y;
+// 	float z;
+// }Bias_Value;
+// typedef struct
+// {
+// 	Bias_Value bias_value;
+// 	bool bias_isfound;
+// }Bias;
 typedef struct	
 {
 	u8 version;				/*软件版本号*/
@@ -79,6 +91,7 @@ typedef struct
 	float trimR;			/*roll微调*/
 	u16 thrustBase;			/*油门基础值*/
 	Servo_initpos servo_initpos;	/*舵机初始值*/
+	accBias_t accBias;
 	u8 cksum;				/*校验*/
 } configParam_t;
 
@@ -95,6 +108,8 @@ void resetConfigParamPID(void);
 void saveConfigAndNotify(void);
 void changeServoinitpos_configParam(u16 s1,u16 s2,u16 s3);
 u16 getservoinitpos_configParam(u8 pwm_id);
+accBias_t getaccbias_configParam( void );
+void accbias_writeFlash(void);
 
 #endif /*__CONFIG_PARAM_H */
 

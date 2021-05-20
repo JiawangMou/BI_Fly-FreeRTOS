@@ -12,6 +12,7 @@
 #include "filter.h"
 #include "axis.h"
 #include "spl06.h"
+#include "atkp.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -38,6 +39,7 @@
 
 #define SENSORS_NBR_OF_BIAS_SAMPLES 1024 /* 计算方差的采样样本个数 */
 #define GYRO_VARIANCE_BASE 300			 /* 陀螺仪零偏方差阈值 */
+#define ACC_VARIANCE_BASE  300			 /* 陀螺仪零偏方差阈值 */
 #define SENSORS_ACC_SCALE_SAMPLES 200	 /* 加速计采样个数 */
 
 // MPU9250主机模式读取数据 缓冲区长度
@@ -47,6 +49,8 @@
 #define SENSORS_BARO_DATA_LEN 6
 #define SENSORS_BARO_BUFF_LEN (SENSORS_BARO_STATUS_LEN + SENSORS_BARO_DATA_LEN)
 
+#define ACC_ID 0
+#define GYRO_ID 1
 typedef struct
 {
 	Axis3f bias;
@@ -56,42 +60,32 @@ typedef struct
 	Axis3i16 buffer[SENSORS_NBR_OF_BIAS_SAMPLES];
 } BiasObj;
 
+BiasObj accBiasRunning[6];
+static Axis3f accBias;
 BiasObj gyroBiasRunning;
 static Axis3f gyroBias;
 
 static bool gyroBiasFound = false;
-static float accScaleSum = 0;
-static float accScale = 1;
+static bool accBiasFound = false;
+
+/*允许进行accbias计算标志位*/ 
+static bool isreadytoprocessAccBias = false;   
+//static float accScaleSum = 0;
+static Axis3f accScale;
 
 static bool isInit = false;
 static sensorData_t sensors;
 
-//  Accbuffer acc_buffer = {
-// 	.acc = {
-// 		.x = 0.0,
-// 		.y = 0.0,
-// 		.z = 0.0,
-// 	},
-// 	.count = 0,
-// };
-//  Gyrobuffer gyro_buffer = {
-// 	.gyro = {
-// 		.x = 0.0,
-// 		.y = 0.0,
-// 		.z = 0.0,
-// 	},
-// 	.count = 0,
-// };
 
 static Axis3i16 gyroRaw;
 static Axis3i16 accRaw;
 static Axis3i16 magRaw;
 
-static Axis3f gyroBff;
+// static Axis3f gyroBff;
 
 /*低通滤波参数*/
-#define GYRO_LPF_CUTOFF_FREQ 80
-#define ACCEL_LPF_CUTOFF_FREQ 20
+#define GYRO_LPF_CUTOFF_FREQ 30
+#define ACCEL_LPF_CUTOFF_FREQ 10
 #define BARO_LPF_CUTOFF_FREQ 20
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
@@ -100,6 +94,8 @@ static lpf2pData BaroLpf;
 static bool isMPUPresent = false;
 static bool isMagPresent = false;
 static bool isBaroPresent = false;
+
+static u8 processAccBias_stepnum = 0;	//为0时表示没有进行accBias计算，进入计算时，stepnum 表示当前的步骤号 0~5；
 
 enum
 {
@@ -117,9 +113,9 @@ static xQueueHandle barometerDataQueue;
 static xSemaphoreHandle sensorsDataReady;
 
 static void applyAxis3fLpf(lpf2pData *data, Axis3f *in);
-static void sensorsBiasObjInit(BiasObj *bias);
+// static void sensorsBiasObjInit(BiasObj *bias);
 static void sensorsCalculateVarianceAndMean(BiasObj *bias, Axis3f *varOut, Axis3f *meanOut);
-static bool sensorsFindBiasValue(BiasObj *bias);
+static bool sensorsFindBiasValue(BiasObj *bias, u8 sensor_id);
 static void sensorsAddBiasValue(BiasObj *bias, int16_t x, int16_t y, int16_t z);
 
 /*从队列读取陀螺数据*/
@@ -237,10 +233,10 @@ void sensorsDeviceInit(void)
 	mpu6500SetI2CBypassEnabled(true);					 // 旁路模式，磁力计和气压连接到主IIC
 	mpu6500SetFullScaleAccelRange(SENSORS_ACCEL_FS_CFG); // 设置加速计量程
 	mpu6500SetFullScaleGyroRange(SENSORS_GYRO_FS_CFG);	 // 设置陀螺量程
-	mpu6500SetAccelDLPF(MPU9250_ACCEL_DLPF_BW_44);		 // 设置加速计数字低通滤波,同时ACCEL_FCHOICE_B没有设置，默认为0，与A_DLPF_CFG共同决定输出频率，截止频率为44.8Hz，输出频率为1KHz
+	mpu6500SetAccelDLPF(MPU9250_ACCEL_DLPF_BW_21);		 // 设置加速计数字低通滤波,同时ACCEL_FCHOICE_B没有设置，默认为0，与A_DLPF_CFG共同决定输出频率，截止频率为21.2Hz，输出频率为1KHz
 
 	mpu6500SetRate(0);						// 设置采样速率: 1000 / (1 + 0) = 1000Hz
-	mpu6500SetDLPFMode(MPU6500_DLPF_BW_92); // 设置陀螺数字低通滤波
+	mpu6500SetDLPFMode(MPU6500_DLPF_BW_41); // 设置陀螺数字低通滤波
 
 	for (u8 i = 0; i < 3; i++) // 初始化加速计和陀螺二阶低通滤波
 	{
@@ -255,11 +251,11 @@ void sensorsDeviceInit(void)
 	{
 		isMagPresent = true;
 		ak8963SetMode(AK8963_MODE_16BIT | AK8963_MODE_CONT2); // 16bit 100Hz
-															  //		printf("AK8963 I2C connection [OK].\n");
+		//printf("AK8963 I2C connection [OK].\n");
 	}
 	else
 	{
-		//		printf("AK8963 I2C connection [FAIL].\n");
+		//printf("AK8963 I2C connection [FAIL].\n");
 	}
 #endif
 
@@ -271,7 +267,12 @@ void sensorsDeviceInit(void)
 		bmp3_set_sensor_settings(BMP3_ALL_SETTINGS, BMP388_DEV);
 		bmp3_set_op_mode(BMP388_DEV);
 		vTaskDelay(100);
-		//		bmp3_get_sensor_settings(BMP388_DEV);
+	}
+	else if(SPL06Init(I2C3_DEV) == true)
+	{
+		isBaroPresent = true;
+		baroType = SPL06;
+		vTaskDelay(100);
 	}
 	else
 	{
@@ -285,8 +286,39 @@ void sensorsDeviceInit(void)
 	barometerDataQueue = xQueueCreate(1, sizeof(baro_t));
 }
 /*传感器偏置初始化*/
-static void sensorsBiasObjInit(BiasObj *bias)
+static void gyroBiasObjInit(BiasObj *bias)
 {
+	bias->isBufferFilled = false;
+	bias->bufHead = bias->buffer;
+}
+
+static void accBiasObjInit(BiasObj *bias)
+{
+	accBias_t accBias_init;
+	accBias_init = getaccbias_configParam();
+	accBiasFound = accBias_init.bias_isfound;
+	if(accBiasFound)
+	{
+		accBias.x = accBias_init.accZero[0];
+		accBias.y = accBias_init.accZero[1]; 
+		accBias.z = accBias_init.accZero[2];
+
+		accScale.x = accBias_init.accGain[0];
+		accScale.y = accBias_init.accGain[1];
+		accScale.z = accBias_init.accGain[2];
+	}
+	else
+	{
+		accBias.x = 0;
+		accBias.y = 0; 
+		accBias.z = 0;
+
+		accScale.x = 1;
+		accScale.y = 1;
+		accScale.z = 1;		
+	}
+	
+
 	bias->isBufferFilled = false;
 	bias->bufHead = bias->buffer;
 }
@@ -332,18 +364,24 @@ static void sensorsCalculateVarianceAndMean(BiasObj *bias, Axis3f *varOut, Axis3
 	meanOut->z = (float)sum[2] / SENSORS_NBR_OF_BIAS_SAMPLES;
 }
 /*传感器查找偏置值*/
-static bool sensorsFindBiasValue(BiasObj *bias)
+static bool sensorsFindBiasValue(BiasObj *bias, u8 sensor_id)
 {
 	bool foundbias = false;
 
 	if (bias->isBufferFilled)
 	{
-
 		Axis3f mean;
 		Axis3f variance;
+		float variance_base = 0;
+
+		if(sensor_id == ACC_ID)
+			variance_base = ACC_VARIANCE_BASE;
+		if(sensor_id == GYRO_ID)
+			variance_base = GYRO_VARIANCE_BASE;	
+
 		sensorsCalculateVarianceAndMean(bias, &variance, &mean);
 
-		if (variance.x < GYRO_VARIANCE_BASE && variance.y < GYRO_VARIANCE_BASE && variance.z < GYRO_VARIANCE_BASE)
+		if (variance.x < variance_base && variance.y < variance_base && variance.z < variance_base)
 		{
 			bias->bias.x = mean.x;
 			bias->bias.y = mean.y;
@@ -364,7 +402,9 @@ void sensorsInit(void)
 		return;
 
 	sensorsDataReady = xSemaphoreCreateBinary(); /*创建传感器数据就绪二值信号量*/
-	sensorsBiasObjInit(&gyroBiasRunning);
+	gyroBiasObjInit(&gyroBiasRunning);
+	for(u8 i=0; i < 6; i++)
+		accBiasObjInit(&accBiasRunning[i]);
 	sensorsDeviceInit();	/*传感器器件初始化*/
 	sensorsInterruptInit(); /*传感器中断初始化*/
 
@@ -406,6 +446,21 @@ static void sensorsSetupSlaveRead(void)
 		mpu6500SetSlaveDelayEnabled(1, true);
 		mpu6500SetSlaveEnabled(1, true);
 	}
+	if (isBaroPresent && baroType == SPL06)
+	{
+		// 设置MPU6500主机要读取SPL06的寄存器
+		mpu6500SetSlaveAddress(1, 0x80 | SPL06_I2C_ADDR);		// 设置气压计状态寄存器为1号从机
+		mpu6500SetSlaveRegister(1, SPL06_MODE_CFG_REG);			// 从机1需要读取的寄存器
+		mpu6500SetSlaveDataLength(1, SENSORS_BARO_STATUS_LEN);	// 读取1个字节
+		mpu6500SetSlaveDelayEnabled(1, true);
+		mpu6500SetSlaveEnabled(1, true);
+
+		mpu6500SetSlaveAddress(2, 0x80 | SPL06_I2C_ADDR);		// 设置气压计数据寄存器为2号从机
+		mpu6500SetSlaveRegister(2, SPL06_PRESSURE_MSB_REG);		// 从机2需要读取的寄存器
+		mpu6500SetSlaveDataLength(2, SENSORS_BARO_DATA_LEN);	// 读取6个字节
+		mpu6500SetSlaveDelayEnabled(2, true);
+		mpu6500SetSlaveEnabled(2, true);
+	}
 
 	mpu6500SetI2CMasterModeEnabled(true); //使能mpu6500主机模式
 	mpu6500SetIntDataReadyEnabled(true);  //数据就绪中断使能
@@ -427,29 +482,77 @@ static void sensorsAddBiasValue(BiasObj *bias, int16_t x, int16_t y, int16_t z)
 		bias->isBufferFilled = true;
 	}
 }
-
 /**
- * 根据样本计算重力加速度缩放因子
+ * 根据样本计算重力加速度计算偏置和缩放因子
  */
-static bool processAccScale(int16_t ax, int16_t ay, int16_t az)
+static bool processAccBias_Scale(int16_t ax, int16_t ay, int16_t az, Axis3f *accBiasOut)
 {
 	static bool accBiasFound = false;
-	static uint32_t accScaleSumCount = 0;
+	static Axis3f accbias[6] = {0};
 
-	if (!accBiasFound)
+	sensorsAddBiasValue(&accBiasRunning[processAccBias_stepnum], ax, ay, az);
+
+	if (!accBiasRunning[processAccBias_stepnum].isBiasValueFound)
 	{
-		accScaleSum += sqrtf(powf(ax * SENSORS_G_PER_LSB_CFG, 2) + powf(ay * SENSORS_G_PER_LSB_CFG, 2) + powf(az * SENSORS_G_PER_LSB_CFG, 2));
-		accScaleSumCount++;
+		sensorsFindBiasValue(&accBiasRunning[processAccBias_stepnum], ACC_ID);
+	}
+	else
+	{
+		accbias[processAccBias_stepnum].x = accBiasRunning[processAccBias_stepnum].bias.x;
+		accbias[processAccBias_stepnum].y = accBiasRunning[processAccBias_stepnum].bias.y;
+		accbias[processAccBias_stepnum].z = accBiasRunning[processAccBias_stepnum].bias.z;
+		//找到一组accbias,停止buffer缓冲数据，停止计算accbias,等待下一次的指令
+		isreadytoprocessAccBias = false;
+		//计算accbias当前步骤计算完成，发送应答信号
+		sendaccBiasprocess_ACK(processAccBias_stepnum,accbias[processAccBias_stepnum].x,accbias[processAccBias_stepnum].y,accbias[processAccBias_stepnum].z);
+	}
 
-		if (accScaleSumCount == SENSORS_ACC_SCALE_SAMPLES)
-		{
-			accScale = accScaleSum / SENSORS_ACC_SCALE_SAMPLES;
-			accBiasFound = true;
-		}
+	if((processAccBias_stepnum == 5 ) && 
+		(accBiasRunning[0].isBiasValueFound)&& 
+		(accBiasRunning[1].isBiasValueFound)&& 
+		(accBiasRunning[2].isBiasValueFound)&& 
+		(accBiasRunning[3].isBiasValueFound)&& 
+		(accBiasRunning[4].isBiasValueFound)&& 
+		(accBiasRunning[5].isBiasValueFound))
+	{
+		accBiasOut->x = (accbias[0].x + accbias[1].x) / 2;
+		accBiasOut->y = (accbias[2].y + accbias[3].y) / 2;
+		accBiasOut->z = (accbias[4].z + accbias[5].z) / 2;
+		accScale.x = fabsf(accbias[1].x - accbias[0].x) / 2;
+		accScale.y = fabsf(accbias[3].y - accbias[2].y) / 2;
+		accScale.z = fabsf(accbias[5].z - accbias[4].z) / 2;
+		//acc六面矫正完成发送给，计算得到的bias值
+		sendaccBiasprocess_ACK(6,accBiasOut->x,accBiasOut->y,accBiasOut->z);
+
+		accBiasFound = true;
+		processAccBias_stepnum = 0;
 	}
 
 	return accBiasFound;
 }
+
+// /**
+//  * 根据样本计算重力加速度缩放因子
+//  */
+// static bool processAccScale(int16_t ax, int16_t ay, int16_t az)
+// {
+// 	static bool accScaleFound = false;
+// 	static uint32_t accScaleSumCount = 0;
+
+// 	if (!accScaleFound)
+// 	{
+// 		accScaleSum += sqrtf(powf(ax * SENSORS_G_PER_LSB_CFG, 2) + powf(ay * SENSORS_G_PER_LSB_CFG, 2) + powf(az * SENSORS_G_PER_LSB_CFG, 2));
+// 		accScaleSumCount++;
+
+// 		if (accScaleSumCount == SENSORS_ACC_SCALE_SAMPLES)
+// 		{
+// 			accScale = accScaleSum / SENSORS_ACC_SCALE_SAMPLES;
+// 			accScaleFound = true;
+// 		}
+// 	}
+
+// 	return accScaleFound;
+// }
 
 /**
  * 计算陀螺方差
@@ -460,7 +563,7 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
 
 	if (!gyroBiasRunning.isBiasValueFound)
 	{
-		sensorsFindBiasValue(&gyroBiasRunning);
+		sensorsFindBiasValue(&gyroBiasRunning,GYRO_ID);
 	}
 
 	gyroBiasOut->x = gyroBiasRunning.bias.x;
@@ -473,7 +576,7 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
 /*处理气压计数据*/
 void processBarometerMeasurements(const u8 *buffer)
 {
-	//	static float temp;
+	static float temp;
 	static float pressure;
 	struct bmp3_uncomp_data uncomp_data = {0};
 	struct bmp3_data comp_data = {0};
@@ -493,6 +596,20 @@ void processBarometerMeasurements(const u8 *buffer)
 			sensors.baro.asl = lpf2pApply(&BaroLpf, sensors.baro.asl);
 		}
 	}
+	else if (baroType == SPL06)
+	{
+		s32 rawPressure = (int32_t)buffer[1]<<16 | (int32_t)buffer[2]<<8 | (int32_t)buffer[3];
+		rawPressure = (rawPressure & 0x800000) ? (0xFF000000 | rawPressure) : rawPressure;
+		
+		s32 rawTemp = (int32_t)buffer[4]<<16 | (int32_t)buffer[5]<<8 | (int32_t)buffer[6];
+		rawTemp = (rawTemp & 0x800000) ? (0xFF000000 | rawTemp) : rawTemp;
+		
+		temp = spl0601_get_temperature(rawTemp);
+		pressure = spl0601_get_pressure(rawPressure, rawTemp);
+		sensors.baro.pressure = pressure / 100.0f;
+		sensors.baro.temperature = (float)temp; /*??????*/
+		sensors.baro.asl = SPL06PressureToAltitude(sensors.baro.pressure) * 100.f; //cm
+	}
 }
 /*处理磁力计数据*/
 void processMagnetometerMeasurements(const uint8_t *buffer)
@@ -507,7 +624,6 @@ void processMagnetometerMeasurements(const uint8_t *buffer)
 		sensors.mag.y = (float)headingy / MAG_GAUSS_PER_LSB;
 		sensors.mag.z = (float)headingz / MAG_GAUSS_PER_LSB;
 		magRaw.x = headingx; /*用于上传到上位机*/
-
 		magRaw.y = headingy;
 		magRaw.z = headingz;
 	}
@@ -517,15 +633,15 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 {
 	/*注意传感器读取方向(旋转270°x和y交换)*/
 	int16_t ay = (((int16_t)buffer[0]) << 8) | buffer[1];
-	int16_t ax = ((((int16_t)buffer[2]) << 8) | buffer[3]);
+	int16_t ax = (((int16_t)buffer[2]) << 8) | buffer[3];
 	int16_t az = (((int16_t)buffer[4]) << 8) | buffer[5];
 	int16_t gy = (((int16_t)buffer[8]) << 8) | buffer[9];
 	int16_t gx = (((int16_t)buffer[10]) << 8) | buffer[11];
 	int16_t gz = (((int16_t)buffer[12]) << 8) | buffer[13];
 
-	accRaw.x = ax; /*用于上传到上位机*/
-	accRaw.y = ay;
-	accRaw.z = az;
+	accRaw.x = ax - accBias.x; /*用于上传到上位机*/
+	accRaw.y = ay - accBias.y;
+	accRaw.z = az - accBias.z;
 	gyroRaw.x = gx - gyroBias.x;
 	gyroRaw.y = gy - gyroBias.y;
 	gyroRaw.z = gz - gyroBias.z;
@@ -534,17 +650,23 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 
 	if (gyroBiasFound)
 	{
-		processAccScale(ax, ay, az); /*计算accScale*/
+		if(!accBiasFound && isreadytoprocessAccBias)
+			processAccBias_Scale(ax, ay, az,&accBias);
+		
+		//processAccScale(ax, ay, az); /*计算accScale*/
 	}
 
 	sensors.gyro.x = -(gx - gyroBias.x) * SENSORS_DEG_PER_LSB_CFG; /*单位 °/s */
-	sensors.gyro.y = (gy - gyroBias.y) * SENSORS_DEG_PER_LSB_CFG;
-	sensors.gyro.z = (gz - gyroBias.z) * SENSORS_DEG_PER_LSB_CFG;
+	sensors.gyro.y =  (gy - gyroBias.y) * SENSORS_DEG_PER_LSB_CFG;
+	sensors.gyro.z =  (gz - gyroBias.z) * SENSORS_DEG_PER_LSB_CFG;
 	applyAxis3fLpf(gyroLpf, &sensors.gyro);
 
-	sensors.acc.x = -(ax)*SENSORS_G_PER_LSB_CFG / accScale; /*单位 g(9.8m/s^2)*/
-	sensors.acc.y = (ay)*SENSORS_G_PER_LSB_CFG / accScale;	/*重力加速度缩放因子accScale 根据样本计算得出*/
-	sensors.acc.z = (az)*SENSORS_G_PER_LSB_CFG / accScale;
+	// sensors.acc.x = -(ax)*SENSORS_G_PER_LSB_CFG / accScale.x; /*单位 g(9.8m/s^2)*/
+	// sensors.acc.y =  (ay)*SENSORS_G_PER_LSB_CFG / accScale.y;	/*重力加速度缩放因子accScale 根据样本计算得出*/
+	// sensors.acc.z =  (az)*SENSORS_G_PER_LSB_CFG / accScale.z;
+	sensors.acc.x = -(accRaw.x) / accScale.x;		/*单位 g(9.8m/s^2)*/
+	sensors.acc.y =   accRaw.y	/ accScale.y;		/*单位 g(9.8m/s^2)*/
+	sensors.acc.z =   accRaw.z	/ accScale.z;		/*单位 g(9.8m/s^2)*/
 
 	applyAxis3fLpf(accLpf, &sensors.acc);
 
@@ -575,7 +697,6 @@ void sensorsTask(void *param)
 	{
 		if (xSemaphoreTake(sensorsDataReady, portMAX_DELAY) == pdTRUE)
 		{
-
 			/*确定数据长度*/
 			u8 dataLen = (u8)(SENSORS_MPU6500_BUFF_LEN +
 							  (isMagPresent ? SENSORS_MAG_BUFF_LEN : 0) +
@@ -657,9 +778,9 @@ bool sensorsAreCalibrated()
 /*上位机获取读取原始数据*/
 void getSensorRawData(Axis3i16 *acc, Axis3i16 *gyro, Axis3i16 *mag)
 {
-	*acc = accRaw;
-	*gyro = gyroRaw;
-	*mag = magRaw;
+    *acc  = accRaw;
+    *gyro = gyroRaw;
+    *mag  = magRaw;
 }
 
 bool getIsMPU9250Present(void)
@@ -680,4 +801,44 @@ void setMagCalibData(Axis3i16 offset, Axis3u16 radius)
 {
 	sensors.mag_calibration.offset = offset;
 	sensors.mag_calibration.radius = radius;
+}
+void setprocessAccBias_stepnum( u8 i )
+{
+	processAccBias_stepnum = i;			//设置当前计算accbias到哪一步了
+	isreadytoprocessAccBias = true;		//将允许进行accbias计算标志位使能
+	accBiasFound = false;				//重新开始标定时，回复accBiasFound为false状态
+}
+
+void reset_accbiasRunning(void)
+{
+	for(u8 i = 0;i < 6; i++ )
+	{
+		accBiasRunning[i].isBufferFilled = false;
+		accBiasRunning[i].isBiasValueFound = false;
+		accBiasRunning[i].bufHead = accBiasRunning[i].buffer;
+		accBiasRunning[i].bias.x = 0.0f;
+		accBiasRunning[i].bias.y = 0.0f;
+		accBiasRunning[i].bias.z = 0.0f;	
+	}
+}
+
+Axis3f getaccBias(void)
+{
+	return accBias;
+}
+
+Axis3f getaccScale(void)
+{
+	return accScale;
+}
+
+void resetaccBias_accScale(void)
+{
+    accBias.x = 0;
+    accBias.y = 0;
+    accBias.z = 0;
+
+    accScale.x = 1;
+    accScale.y = 1;
+    accScale.z = 1;
 }

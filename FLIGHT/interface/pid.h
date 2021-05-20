@@ -18,7 +18,7 @@
  * 修改说明:
  * 版本V1.3 增加PID结构体的输出一项(out)。
 ********************************************************************************/
-#define DEFAULT_PID_INTEGRATION_LIMIT 		6000.0 //默认pid的积分限幅
+#define DEFAULT_PID_INTEGRATION_LIMIT 		500.0 //默认pid的积分限幅
 #define DEFAULT_PID_OUTPUT_LIMIT      		0.0	  //默认pid输出限幅，0为不限幅
 
 typedef struct

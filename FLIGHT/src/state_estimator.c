@@ -30,12 +30,12 @@
 
 #define GRAVITY_CMSS (980.f) /*重力加速度 单位cm/s/s*/
 #define INAV_ACC_BIAS_ACCEPTANCE_VALUE                                                                                 \
-    (GRAVITY_CMSS * 0.25f) // Max accepted bias correction of 0.25G - unlikely we are going to be that much off anyway
+    (GRAVITY_CMSS * 1.0f) // Max accepted bias correction of 0.25G - unlikely we are going to be that much off anyway
 
-static float wBaro    = 0.35f; /*气压校正权重*/
+static float wBaro    = 0.65f; /*气压校正权重*/
 static float wOpflowP = 1.0f;  /*光流位置校正权重*/
 static float wOpflowV = 2.0f;  /*光流速度校正权重*/
-static float wAccBias = 0.01f; /*加速度校正权重*/
+static float wAccBias = 0.1f;  /*加速度校正权重*/
 
 static bool isRstHeight = false; /*复位高度*/
 static bool isRstAll    = true;  /*复位估测*/
@@ -43,6 +43,10 @@ static bool isRstAll    = true;  /*复位估测*/
 static float fusedHeight;          /*融合高度，起飞点为0*/
 static float fusedHeightLpf = 0.f; /*融合高度，低通*/
 static float startBaroAsl   = 0.f; /*起飞点海拔*/
+
+// // TEST:加速度漂移问题
+// static float posZPredict = 0.0f;
+static float fHLast = 0.0f;
 
 /*估测系统*/
 static estimator_t estimator = {
@@ -83,14 +87,12 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     static float accLpf[3] = { 0.f }; /*加速度低通*/
     float        weight    = wBaro;
 
-
     float relateHight = sensorData->baro.asl - startBaroAsl; /*气压相对高度*/
 
     if (getVl53l1xstate() == true) /*激光传感器可用*/
     {
         vl53lxxReadRange(&sensorData->zrange); /*读取激光数据*/
 
-        //		rangeLpf = sensorData->zrange.distance;
         rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f; /*低通 单位cm*/
 
         float quality = sensorData->zrange.quality;
@@ -106,6 +108,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         fusedHeight = relateHight; /*融合高度*/
     }
+    fHLast = fusedHeightLpf;
     fusedHeightLpf += (fusedHeight - fusedHeightLpf) * 0.1f; /*融合高度 低通*/
 
     if (isRstHeight) {
@@ -130,7 +133,6 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
         fusedHeight    = 0.f;
         fusedHeightLpf = 0.f;
         startBaroAsl   = sensorData->baro.asl;
-
         if (getVl53l1xstate()) {
             if (sensorData->zrange.distance < VL53L1X_MAX_RANGE) {
                 startBaroAsl -= sensorData->zrange.distance;
@@ -140,6 +142,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
         estimator.vel[Z] = 0.f;
         estimator.pos[Z] = fusedHeight;
+
+        pidReset(&pidZ);
+        pidReset(&pidVZ);
     }
 
     Axis3f accelBF; // BF:body frame ?
@@ -147,6 +152,10 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     accelBF.x = sensorData->acc.x * GRAVITY_CMSS - estimator.accBias[X];
     accelBF.y = sensorData->acc.y * GRAVITY_CMSS - estimator.accBias[Y];
     accelBF.z = sensorData->acc.z * GRAVITY_CMSS - estimator.accBias[Z];
+
+    // accelBF.x = sensorData->acc.x * GRAVITY_CMSS;
+    // accelBF.y = sensorData->acc.y * GRAVITY_CMSS;
+    // accelBF.z = sensorData->acc.z * GRAVITY_CMSS;
 
     /* Rotate vector to Earth frame - from Forward-Right-Down to North-East-Up*/
     imuTransformVectorBodyToEarth(&accelBF);
@@ -166,8 +175,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
         state->acc.x = constrainf(accLpf[X], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
         state->acc.y = constrainf(accLpf[Y], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
         state->acc.z = constrainf(accLpf[Z], -ACC_LIMIT, ACC_LIMIT); /*加速度限幅*/
-    } else                                                           /*TODO:为什么不用低通后的加速度数据*/
-    {
+    } else {
         state->acc.x = constrainf(estimator.acc[X], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*最大加速度限幅*/
         state->acc.y = constrainf(estimator.acc[Y], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*最大加速度限幅*/
         state->acc.z = constrainf(estimator.acc[Z], -ACC_LIMIT_MAX, ACC_LIMIT_MAX); /*最大加速度限幅*/
@@ -176,7 +184,11 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     float errPosZ = fusedHeightLpf - estimator.pos[Z];
 
     /* 位置预估: Z-axis */
-    inavFilterPredict(Z, dt, estimator.acc[Z]);
+    inavFilterPredict(Z, dt, state->acc.z);
+
+    // // TEST:发送加速度估计的数据
+    // posZPredict = estimator.pos[Z];
+
     /* 位置校正: Z-axis */
     inavFilterCorrectPos(Z, dt, errPosZ, weight);
 
@@ -206,9 +218,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     }
 
     /*加速度偏置校正*/
-    Axis3f accelBiasCorr = { { 0, 0, 0 } };
+    Axis3f accelBiasCorr = { { 0.0, 0.0, 0.0 } };
 
-    accelBiasCorr.z -= errPosZ * sq(wBaro);
+    accelBiasCorr.z                = -errPosZ * sq(wBaro);
     float accelBiasCorrMagnitudeSq = sq(accelBiasCorr.x) + sq(accelBiasCorr.y) + sq(accelBiasCorr.z);
     if (accelBiasCorrMagnitudeSq < sq(INAV_ACC_BIAS_ACCEPTANCE_VALUE)) {
         /* transform error vector from NEU frame to body frame */
@@ -236,7 +248,9 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     state->position.x = estimator.pos[X];
     state->position.y = estimator.pos[Y];
-    state->position.z = estimator.pos[Z];
+    state->position.z = fusedHeightLpf;
+    // state->velocity.z = (fusedHeightLpf - fHLast) / dt;
+    // state->position.z = estimator.pos[Z];
 }
 
 /*读取融合高度 单位cm*/
@@ -247,3 +261,5 @@ void estRstHeight(void) { isRstHeight = true; }
 
 /*复位所有估测*/
 void estRstAll(void) { isRstAll = true; }
+
+// float getPosZPredictData() { return posZPredict; }

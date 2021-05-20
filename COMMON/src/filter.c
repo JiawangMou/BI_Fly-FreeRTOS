@@ -101,3 +101,27 @@ float lpf2pReset(lpf2pData* lpfData, float sample)
 	return lpf2pApply(lpfData, sample);
 }
 
+void smoothFilterInit(smoothFilter_t* filter, uint8_t n){
+	
+	int i;
+	filter -> n = n;
+	for(i = 0; i < n; i ++)
+		filter -> buffer[i] = 0;
+	
+	filter -> current_sum = 0;
+	filter -> head = 0;
+}
+
+void smoothFilterReset(smoothFilter_t* filter, uint8_t n){
+	smoothFilterInit(filter, n);
+}
+
+float smoothFilterApply(smoothFilter_t* filter, int16_t data){
+
+	filter -> current_sum -= filter -> buffer[filter -> head];
+	filter -> buffer[filter -> head] = data;
+	filter -> current_sum += filter -> buffer[filter -> head];
+	filter -> head ++;
+	if(filter -> head >= filter -> n) filter -> head = 0;
+	return (float)(filter -> current_sum) / filter -> n;
+}
