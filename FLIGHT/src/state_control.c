@@ -115,3 +115,11 @@ void stateControl(control_t* control, sensorData_t* sensors, state_t* state, set
         cnt = 0;
     }
 }
+
+void getRateDesired(attitude_t *get){
+    *get = rateDesired;
+}
+
+void getAngleDesired(attitude_t *get){
+    *get = attitudeDesired;
+}

@@ -176,9 +176,9 @@ void stabilizerTask(void* param)
 
 void getAttitudeData(attitude_t* get)
 {
-    get->pitch = -state.attitude.pitch;
+    get->pitch = state.attitude.pitch;
     get->roll = state.attitude.roll;
-    get->yaw = -state.attitude.yaw;
+    get->yaw = state.attitude.yaw;
     get->timestamp = state.attitude.timestamp;
 }
 
