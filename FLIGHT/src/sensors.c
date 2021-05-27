@@ -13,6 +13,7 @@
 #include "axis.h"
 #include "spl06.h"
 #include "atkp.h"
+#include "bat.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -90,6 +91,12 @@ static Axis3i16 magRaw;
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 static lpf2pData BaroLpf;
+
+#define BAT_LPF_CUTOFF_FREQ 10
+static lpf2pData BatLpf;
+static float VoltageSeparateCoeff = 0.001201f;
+static float VoltageBiasCoeff = -0.0525f;
+static float BatteryVoltage = 0.0f;
 
 static bool isMPUPresent = false;
 static bool isMagPresent = false;
@@ -244,6 +251,9 @@ void sensorsDeviceInit(void)
 		lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
 	}
 	lpf2pInit(&BaroLpf, 1000, BARO_LPF_CUTOFF_FREQ);
+
+	lpf2pInit(&BatLpf, 1000, BAT_LPF_CUTOFF_FREQ);
+	
 
 #ifdef SENSORS_ENABLE_MAG_AK8963
 	ak8963Init(I2C3_DEV); //ak8963磁力计初始化
@@ -698,6 +708,14 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 	// gyroBff.z = gyroTmp.z;
 }
 
+void processBatteryVoltage(){
+	BatteryVoltage = lpf2pApply(&BatLpf, batteryVoltageRaw * VoltageSeparateCoeff + VoltageBiasCoeff);
+}
+
+float getBatteryVoltage(){
+	return BatteryVoltage;
+}
+
 /*传感器任务*/
 void sensorsTask(void *param)
 {
@@ -729,6 +747,7 @@ void sensorsTask(void *param)
 				//				bmp3_get_sensor_data(BMP3_ALL, &BMP_buffer_comp , BMP388_DEV);
 				processBarometerMeasurements(&(buffer[isMagPresent ? SENSORS_MPU6500_BUFF_LEN + SENSORS_MAG_BUFF_LEN : SENSORS_MPU6500_BUFF_LEN]));
 			}
+			processBatteryVoltage();
 
 			vTaskSuspendAll(); /*确保同一时刻把数据放入队列中*/
 			xQueueSend(accelerometerDataQueue, &sensors.acc, 0);

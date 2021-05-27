@@ -34,6 +34,7 @@
 #include "uart_syslink.h"
 #include "vl53lxx.h"
 #include "optical_flow.h"
+#include "bat.h"
 
 // /*À©Õ¹Ä£¿éÇý¶¯*/
 // #include "module_detect.h"

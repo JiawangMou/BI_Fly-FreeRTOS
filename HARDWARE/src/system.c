@@ -29,6 +29,7 @@ void systemInit(void)
     atkpInit();
     usblinkInit();
     //  pmInit();
+    batVoltInit();
     //	ledseqInit();		/*led灯序列初始化*/
     //
     commInit();			/*通信初始化  STM32 & NRF51822 */

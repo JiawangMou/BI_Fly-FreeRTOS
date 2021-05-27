@@ -33,16 +33,27 @@ void motorsInit(void) /*电机初始化*/
         ENABLE);                                                               //使能PORTA PORTB PORTC PORTD时钟
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4, ENABLE); // TIM3和TIM4时钟使能
 
+    // TIM8 时钟
+#ifdef PC7_OUT_ENABLE
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
+#endif
+    TIM_DeInit(TIM8);
+
+
     TIM_DeInit(TIM4); //重新初始化TIM4为默认状态
     TIM_DeInit(TIM3); //重新初始化TIM3为默认状态
 
+    // Servos AF
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM3);  // PC8 复用为TIM3 CH3	PWM_LEFT
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);  // PA6 复用为TIM3 CH1	PWM_RIght
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);  // PB1 复用为TIM3 CH4	PWM_MIDDLE
-    GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM3);  // PC7 复用为TIM3 CH2	PWMR
+
+    // Motors AF
+    GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM8);  // PC7 复用为TIM8 CH2	PWMR
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_TIM4); // PD12复用为TIM4 CH1	PWMF1
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource13, GPIO_AF_TIM4); // PD13复用为TIM4 CH2	PWMF2
 
+    // GPIO Inits
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7 | GPIO_Pin_8; // PC7 8
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;            //复用功能
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;       //速度100MHz
@@ -59,47 +70,73 @@ void motorsInit(void) /*电机初始化*/
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13; // PD12 13
     GPIO_Init(GPIOD, &GPIO_InitStructure);                   //初始化PD12 13
 
+    // TIM Base Inits
     TIM_TimeBaseStructure.TIM_Period            = MOTORS_PWM_PERIOD;   //自动重装载值
     TIM_TimeBaseStructure.TIM_Prescaler         = MOTORS_PWM_PRESCALE; //定时器分频
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;  //向上计数模式
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0;                   //时钟分频
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;                   //重复计数次数
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);                    //初始化TIM4
+    TIM_TimeBaseInit(TIM_MOTOR, &TIM_TimeBaseStructure);                //初始化TIM_MOTOR (TIM4)
 
-    TIM_TimeBaseStructure.TIM_Period    = SERVOS_PWM_PERIOD;   //自动重装载值
-    TIM_TimeBaseStructure.TIM_Prescaler = SERVOS_PWM_PRESCALE; //定时器分频
-    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);            //初始化TIM3
+    TIM_TimeBaseStructure.TIM_Prescaler         = MOTORS_2_PWM_PRESCALE; //定时器分频
+    TIM_TimeBaseInit(TIM_MOTOR_2, &TIM_TimeBaseStructure);              //初始化TIM_MOTOR_2 (TIM8)
 
+    TIM_TimeBaseStructure.TIM_Period    = SERVOS_PWM_PERIOD;        //自动重装载值
+    TIM_TimeBaseStructure.TIM_Prescaler = SERVOS_PWM_PRESCALE;      //定时器分频
+    TIM_TimeBaseInit(TIM_SERVO, &TIM_TimeBaseStructure);            //初始化TIM_SERVO (TIM3)
+
+    // TIM OC Inits
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM1;        // PWM模式1
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //使能输出
+    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;   
     TIM_OCInitStructure.TIM_Pulse       = 0;                      // CCRx
     TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_High;    //高电平有效
+    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
     TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;    //空闲高电平
+    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Set;
 
-    TIM_OC1Init(TIM4, &TIM_OCInitStructure); //初始化TIM4 CH1输出比较
-    TIM_OC2Init(TIM4, &TIM_OCInitStructure); //初始化TIM4 CH2输出比较
-    TIM_OC2Init(TIM3, &TIM_OCInitStructure); //初始化TIM3 CH2输出比较
+    TIM_OC1Init(TIM_MOTOR, &TIM_OCInitStructure); //初始化TIM4 CH1输出比较
+    TIM_OC2Init(TIM_MOTOR, &TIM_OCInitStructure); //初始化TIM4 CH2输出比较
+    TIM_OC2Init(TIM_MOTOR_2, &TIM_OCInitStructure); //初始化TIM8 CH2输出比较
+
+    /* Automatic Output enable, Break, dead time and lock configuration*/
+    TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
+    TIM_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;
+    TIM_BDTRInitStructure.TIM_OSSIState = TIM_OSSIState_Enable;
+    TIM_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_1; 
+    TIM_BDTRInitStructure.TIM_DeadTime = DEADTIME;
+    TIM_BDTRInitStructure.TIM_Break = TIM_Break_Disable;
+    TIM_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_High;
+    TIM_BDTRInitStructure.TIM_AutomaticOutput = TIM_AutomaticOutput_Disable;
+    TIM_BDTRConfig(TIM_MOTOR_2, &TIM_BDTRInitStructure);
 
     TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_LEFT);   //舵机中位值
-    TIM_OC3Init(TIM3, &TIM_OCInitStructure);                                 //初始化TIM3 CH3输出比较	PWM_LEFT
+    TIM_OC3Init(TIM_SERVO, &TIM_OCInitStructure);                                 //初始化TIM3 CH3输出比较	PWM_LEFT
     TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_RIGHT);  //舵机中位值
-    TIM_OC1Init(TIM3, &TIM_OCInitStructure);                                 //初始化TIM3 CH1输出比较	PWM_RIGHT
+    TIM_OC1Init(TIM_SERVO, &TIM_OCInitStructure);                                 //初始化TIM3 CH1输出比较	PWM_RIGHT
     TIM_OCInitStructure.TIM_Pulse = getservoinitpos_configParam(PWM_MIDDLE); //舵机中位值
-    TIM_OC4Init(TIM3, &TIM_OCInitStructure);                                 //初始化TIM3 CH4输出比较	PWM_MIDDLE
+    TIM_OC4Init(TIM_SERVO, &TIM_OCInitStructure);                                 //初始化TIM3 CH4输出比较	PWM_MIDDLE
 
-    TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR2上的预装载寄存器
-    TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
+    // TIM Preload Enable
+    TIM_OC2PreloadConfig(TIM_MOTOR, TIM_OCPreload_Enable); //使能TIM4在CCR2上的预装载寄存器
+    TIM_OC1PreloadConfig(TIM_MOTOR, TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
+    TIM_OC2PreloadConfig(TIM_MOTOR_2, TIM_OCPreload_Enable); //使能TIM8在CCR2上的预装载寄存器
 
-    TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable); //使能TIM3在CCR1上的预装载寄存器
-    TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable); //使能TIM3在CCR2上的预装载寄存器
-    TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable); //使能TIM3在CCR3上的预装载寄存器
-    TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable); //使能TIM3在CCR4上的预装载寄存器
+    TIM_OC1PreloadConfig(TIM_SERVO, TIM_OCPreload_Enable); //使能TIM3在CCR1上的预装载寄存器
+    TIM_OC3PreloadConfig(TIM_SERVO, TIM_OCPreload_Enable); //使能TIM3在CCR3上的预装载寄存器
+    TIM_OC4PreloadConfig(TIM_SERVO, TIM_OCPreload_Enable); //使能TIM3在CCR4上的预装载寄存器
 
-    TIM_ARRPreloadConfig(TIM4, ENABLE); // TIM4	ARPE使能
-    TIM_ARRPreloadConfig(TIM3, ENABLE); // TIM3	ARPE使能
+    TIM_ARRPreloadConfig(TIM_MOTOR, ENABLE); // TIM4	ARPE使能
+    TIM_ARRPreloadConfig(TIM_SERVO, ENABLE); // TIM3	ARPE使能
+    TIM_ARRPreloadConfig(TIM_MOTOR_2, ENABLE); // TIM8	ARPE使能
 
-    TIM_Cmd(TIM4, ENABLE); //使能TIM4
-    TIM_Cmd(TIM3, ENABLE); //使能TIM3
+    TIM_Cmd(TIM_MOTOR, ENABLE); //使能TIM4
+    TIM_Cmd(TIM_SERVO, ENABLE); //使能TIM3
+
+#ifdef PC7_OUT_ENABLE
+    TIM_Cmd(TIM_MOTOR_2, ENABLE); //使能TIM8
+    TIM_CtrlPWMOutputs(TIM_MOTOR_2, ENABLE);
+#endif
 
     isInit = true;
 }
@@ -142,11 +179,11 @@ void motorsSetRatio(u32 id, u16 ithrust)
         }
 #endif
         switch (id) {
-        case 0: /*PWMF1*/
-            TIM_SetCompare2(TIM4, ratioToCCRx(ratio));
+        case PWMPD12:
+            TIM_SetCompare1(TIM_MOTOR, ratioToCCRx(ratio));
             break;
-        case 1: /*PWMF2*/
-            TIM_SetCompare1(TIM4, ratioToCCRx(ratio));
+        case PWMPD13:
+            TIM_SetCompare2(TIM_MOTOR, ratioToCCRx(ratio));
             break;
             // case 2: /*PWM_LEFT*/
             // 	TIM_SetCompare3(TIM3, ratioToCCRx(ratio));
@@ -157,8 +194,8 @@ void motorsSetRatio(u32 id, u16 ithrust)
             // case 4: /*PWM_MIDDLE
             // 	TIM_SetCompare4(TIM3, ratioToCCRx(ratio));
             // 	break;
-        case 5: /*PWMR*/
-            TIM_SetCompare2(TIM3, ratioToCCRx(ratio));
+        case PWMPC7:
+            TIM_SetCompare2(TIM_MOTOR_2, ratioToCCRx(ratio));
             break;
         default:
             break;

@@ -61,4 +61,6 @@ Axis3f getaccBias(void);
 /*获取accScale的值*/
 Axis3f getaccScale(void);
 void resetaccBias_accScale(void);
+
+float getBatteryVoltage(void);
 #endif //__SENSORS_H

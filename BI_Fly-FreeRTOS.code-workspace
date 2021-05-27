@@ -6,7 +6,10 @@
     ],
     "settings": {
         "files.associations": {
-            ".eideignore": "ignore"
+            ".eideignore": "ignore",
+            "stabilizer.h": "c",
+            "sensors.h": "c",
+            "system.h": "c"
         },
         "C_Cpp.default.intelliSenseMode": "msvc-x86",
         "files.autoGuessEncoding": true,

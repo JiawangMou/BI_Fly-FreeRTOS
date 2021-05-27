@@ -24,21 +24,32 @@
 #define MOTORS_PWM_BITS 8
 #define MOTORS_PWM_PERIOD ((1 << MOTORS_PWM_BITS) - 1)
 #define MOTORS_PWM_PRESCALE 0
+#define MOTORS_2_PWM_PRESCALE 1     // TIM8 在APB2 Timer Clock 180M 需要1分频
+#define TIM_MOTOR TIM4
+#define TIM_MOTOR_2 TIM8
 
-#define SERVOS_PWM_PRESCALE 90
+#define SERVOS_PWM_PRESCALE (90 - 1)
 #define SERVOS_PWM_PERIOD 3333
-
+#define TIM_SERVO TIM3
 
 //#define ENABLE_THRUST_BAT_COMPENSATED /*使能电池油门补偿*/
 
+// Pin Defines
+#define PWMPD12 0
+#define PWMPD13 1
+#define PWMPC7 5
 
+// Motor ID
 #define NBR_OF_MOTORS 7
-#define PWMF1 0
-#define PWMF2 1
+#define PWMF1 PWMPD12
+#define PWMF2 PWMPC7
 #define PWM_LEFT 2
 #define PWM_RIGHT 3
 #define PWM_MIDDLE 4
-#define PWMR 5
+#define PWMR PWMPD13
+
+// PC7_OUT_ENABLE
+#define PC7_OUT_ENABLE
 
 #define MOTORS_TEST_RATIO (u16)(0.2 * (1 << 16)) //20%
 #define MOTORS_TEST_ON_TIME_MS 50

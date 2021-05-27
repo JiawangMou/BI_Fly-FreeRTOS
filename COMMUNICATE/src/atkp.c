@@ -539,14 +539,14 @@ static void atkpSendPeriod(void)
 
         getStateData(&acc, &vel, &pos);
         sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
-        sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
+        sendUserData(2, (u16)(getBatteryVoltage() * 100), opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
             getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
     }
     if (!(count_ms % PERIOD_RCDATA)) {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
     }
     if (!(count_ms % PERIOD_POWER)) {
-        float bat = pmGetBatteryVoltage();
+        float bat = getBatteryVoltage();
         sendPower(bat * 100, 500);
     }
     if (!(count_ms % PERIOD_MOTOR)) {
