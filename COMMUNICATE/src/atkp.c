@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "bat.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -548,7 +549,7 @@ static void atkpSendPeriod(void)
         getStateData(&acc, &vel, &pos);
         sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
         sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
-                     vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+                     pidRatePitch.outP, pidRatePitch.outD, thrustBase);
     }
     if (!(count_ms % PERIOD_RCDATA)) {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
@@ -576,22 +577,22 @@ static void atkpSendPeriod(void)
     //     sendSenser2(baro, 0);
     // }
 
-    if (!(count_ms % PERIOD_PIDOUT)) {
-        Axis3f acc, vel, pos;
-        mode_e z_mode;
-        u8 commander;
-        sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
-        pidAnglePitch.outI,pidAnglePitch.outD);
-        sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
-            pidRateRoll.outD);
-        sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
-            pidRateYaw.outD);
-        getStateData(&acc, &vel, &pos);
-        z_mode = getZmode();
-        commander = getCommanderBits();
-        u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
-        sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
-    }
+    // if (!(count_ms % PERIOD_PIDOUT)) {
+    //     Axis3f acc, vel, pos;
+    //     mode_e z_mode;
+    //     u8 commander;
+    //     sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
+    //     pidAnglePitch.outI,pidAnglePitch.outD);
+    //     sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
+    //         pidRateRoll.outD);
+    //     sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
+    //         pidRateYaw.outD);
+    //     getStateData(&acc, &vel, &pos);
+    //     z_mode = getZmode();
+    //     commander = getCommanderBits();
+    //     u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
+    //     sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
+    // }
     
     if (++count_ms >= 65535)
         count_ms = 1;

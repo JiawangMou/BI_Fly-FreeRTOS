@@ -559,6 +559,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\gettaskstatus.c</FilePath>
             </File>
+            <File>
+              <FileName>bat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\bat.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

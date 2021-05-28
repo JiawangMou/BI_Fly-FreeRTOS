@@ -92,7 +92,7 @@ static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 static lpf2pData BaroLpf;
 
-#define BAT_LPF_CUTOFF_FREQ 10
+#define BAT_LPF_CUTOFF_FREQ 20
 static lpf2pData BatLpf;
 static float VoltageSeparateCoeff = 0.001201f;
 static float VoltageBiasCoeff = -0.0525f;
@@ -709,7 +709,7 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 }
 
 void processBatteryVoltage(){
-	BatteryVoltage = lpf2pApply(&BatLpf, batteryVoltageRaw * VoltageSeparateCoeff + VoltageBiasCoeff);
+	BatteryVoltage = lpf2pApply(&BatLpf, (u32)batteryVoltageRaw[0] * vRefIntCal / batteryVoltageRaw[1] * VoltageSeparateCoeff + VoltageBiasCoeff);
 }
 
 float getBatteryVoltage(){
