@@ -92,6 +92,9 @@ static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 static lpf2pData BaroLpf;
 
+static smoothFilter_t gyroPitchSF;
+static smoothFilter_t gyroRollSF;
+
 #define BAT_LPF_CUTOFF_FREQ 20
 static lpf2pData BatLpf;
 static float VoltageSeparateCoeff = 0.001201f;
@@ -136,7 +139,7 @@ bool sensorsReadGyro(Axis3f *gyro)
 	while (xQueueReceive(gyroDataQueue, &gyrobff, 0))
 	{
 		gyro->x += gyrobff.x;
-		gyro->y += gyrobff.y;
+		gyro->y = gyrobff.y;
 		gyro->z += gyrobff.z;
 		i++;
 	}
@@ -146,7 +149,7 @@ bool sensorsReadGyro(Axis3f *gyro)
 	}
 
 	gyro->x = gyro->x / i;
-	gyro->y = gyro->y / i;
+	// gyro->y = gyro->y / i;
 	gyro->z = gyro->z / i;
 	return true;
 }
@@ -250,6 +253,12 @@ void sensorsDeviceInit(void)
 		lpf2pInit(&gyroLpf[i], 1000, GYRO_LPF_CUTOFF_FREQ);
 		lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
 	}
+
+	// Add Smooth Filter for Pitch & Roll
+	// (You may choose either smooth or butterworth after)
+	smoothFilterInit(&gyroPitchSF, 50);
+	smoothFilterInit(&gyroRollSF, 50);
+
 	lpf2pInit(&BaroLpf, 1000, BARO_LPF_CUTOFF_FREQ);
 
 	lpf2pInit(&BatLpf, 1000, BAT_LPF_CUTOFF_FREQ);
@@ -683,7 +692,12 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 	sensors.gyro.x = -(gx - gyroBias.x) * SENSORS_DEG_PER_LSB_CFG; /*单位 °/s */
 	sensors.gyro.y =  (gy - gyroBias.y) * SENSORS_DEG_PER_LSB_CFG;
 	sensors.gyro.z =  (gz - gyroBias.z) * SENSORS_DEG_PER_LSB_CFG;
-	applyAxis3fLpf(gyroLpf, &sensors.gyro);
+
+	// applyAxis3fLpf(gyroLpf, &sensors.gyro);
+	// To use butterworth lpf in roll & yaw, use smooth in pitch
+	sensors.gyro.axis[0] = lpf2pApply(&gyroLpf[0], sensors.gyro.axis[0]);
+	sensors.gyro.axis[1] = smoothFilterApply(&gyroPitchSF, sensors.gyro.axis[1]);
+	sensors.gyro.axis[2] = lpf2pApply(&gyroLpf[2], sensors.gyro.axis[2]);
 
 	// sensors.acc.x = -(ax)*SENSORS_G_PER_LSB_CFG / accScale.x; /*单位 g(9.8m/s^2)*/
 	// sensors.acc.y =  (ay)*SENSORS_G_PER_LSB_CFG / accScale.y;	/*重力加速度缩放因子accScale 根据样本计算得出*/
@@ -772,6 +786,12 @@ void sensorsAcquire(sensorData_t *sensors, const u32 tick)
 	sensorsReadAcc(&sensors->acc);
 	sensorsReadMag(&sensors->mag);
 	sensorsReadBaro(&sensors->baro);
+}
+
+// 获取陀螺仪数据
+void gyroAcquire(Axis3f *gyro)
+{
+	sensorsReadGyro(gyro);
 }
 
 void __attribute__((used)) EXTI11_Callback(void)

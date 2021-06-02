@@ -29,6 +29,7 @@ void pidInit(PidObject* pid, const float desired, const pidInit_t pidParam, cons
 	pid->iLimit = DEFAULT_PID_INTEGRATION_LIMIT;
 	pid->outputLimit = pidParam.outputLimit;
 	pid->dt = dt;
+	pid->dtermFilter = 0;
 }
 
 float pidUpdate(PidObject* pid, const float error)
@@ -55,6 +56,8 @@ float pidUpdate(PidObject* pid, const float error)
 	pid->outP = pid->kp * pid->error;
 	pid->outI = pid->ki * pid->integ;
 	pid->outD = pid->kd * pid->deriv;
+
+	if(pid->dtermFilter) pid->outD = lpf2pApply(pid->dtermFilter, pid->outD);
 
 	output = pid->outP + pid->outI + pid->outD;
 	
@@ -137,6 +140,10 @@ void pidReset(PidObject* pid)
     pid->outP      = 0;
     pid->outI      = 0;
     pid->outD      = 0;
+
+	if(pid->dtermFilter){
+		lpf2pReset(pid->dtermFilter, 0);
+	}
 }
 void pidReset_test(PidObject* pid)
 {

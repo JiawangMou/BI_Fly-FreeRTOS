@@ -2,6 +2,7 @@
 #include "pid.h"
 #include "sensors.h"
 #include "attitude_pid.h"
+#include "filter.h"
 
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -36,6 +37,9 @@ PidObject pidRateRoll;
 PidObject pidRatePitch;
 PidObject pidRateYaw;
 
+static lpf2pData pidRatePitchDTermFilter;
+static lpf2pData pidRateRollDTermFilter;
+
 static inline int16_t pidOutLimit(float in)
 {
 	if (in > INT16_MAX)
@@ -61,6 +65,12 @@ void attitudeControlInit(float ratePidDt, float anglePidDt)
 	pidSetIntegralLimit(&pidRateRoll, PID_RATE_ROLL_INTEGRATION_LIMIT);	  /*roll  角速度积分限幅设置*/
 	pidSetIntegralLimit(&pidRatePitch, PID_RATE_PITCH_INTEGRATION_LIMIT); /*pitch 角速度积分限幅设置*/
 	pidSetIntegralLimit(&pidRateYaw, PID_RATE_YAW_INTEGRATION_LIMIT);	  /*yaw   角速度积分限幅设置*/
+
+	// 初始化dtermFilter（按需）
+	lpf2pInit(&pidRatePitchDTermFilter, 500, 90);
+	pidRatePitch.dtermFilter = &pidRatePitchDTermFilter;
+	lpf2pInit(&pidRateRollDTermFilter, 500, 90);
+	pidRateRoll.dtermFilter = &pidRateRollDTermFilter;
 }
 
 bool attitudeControlTest()

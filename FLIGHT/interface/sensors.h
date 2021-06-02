@@ -37,6 +37,7 @@ void sensorsInit(void);			/*传感器初始化*/
 bool sensorsTest(void);			/*传感器测试*/
 bool sensorsAreCalibrated(void);	/*传感器数据校准*/
 void sensorsAcquire(sensorData_t *sensors, const u32 tick);/*获取传感器数据*/
+void gyroAcquire(Axis3f *gyro);
 void getSensorRawData(Axis3i16* acc, Axis3i16* gyro, Axis3i16* mag);
 bool getIsMPU9250Present(void);
 bool getIsBaroPresent(void);

@@ -87,6 +87,10 @@ void stateControl(control_t* control, sensorData_t* sensors, state_t* state, set
             rateDesired.pitch = setpoint->attitude.pitch;
             rateDesired.roll  = setpoint->attitude.roll;
         }
+
+        // 如果直接控制角速度，在此截断
+        // rateDesired.pitch = setpoint -> attitude.pitch * 4;
+        // rateDesired.roll = setpoint -> attitude.roll * 4;
         attitudeRatePID(&sensors->gyro, &rateDesired, control);
 
 // #ifdef BI_Fly_2
