@@ -98,63 +98,23 @@ static void atkpSendPacket(atkp_t* p)
 }
 /***************************发送至匿名上位机指令******************************/
 
-// // TEST:sendTestData
-// static void sendTestData(
-//     float roll, float pitch, float yaw, s32 alt, Axis3f acc, Acc_Send accRawData, float ZPredict, uint32_t timestamp)
-// {
+// TEST:sendTestData
+static void sendTestData(u8 data_id, u8 data_size, s16* data)
+{
 
-//     u8     _cnt = 0;
-//     atkp_t p;
-//     vs16   _temp;
-//     vs32   _temp2 = alt;
+    u8     _cnt = 0;
+    atkp_t p;
 
-//     p.msgID = 0x88;
+    p.msgID = data_id;
 
-//     _temp          = (int)(roll * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(pitch * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(yaw * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
+    for(u8 i = 0; i < data_size; ++ i){
+        p.data[_cnt ++] = data[i] >> 8;
+        p.data[_cnt ++] = data[i];
+    }
 
-//     _temp          = (int)(alt * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(acc.x * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(acc.y * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(acc.z * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(accRawData.acc_beforefusion.x * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(accRawData.acc_beforefusion.y * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(accRawData.acc_beforefusion.z * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(ZPredict * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     p.data[_cnt++] = BYTE3(timestamp);
-//     p.data[_cnt++] = BYTE2(timestamp);
-//     p.data[_cnt++] = BYTE1(timestamp);
-//     p.data[_cnt++] = BYTE0(timestamp);
-//     p.dataLen      = _cnt;
-//     atkpSendPacket(&p);
-// }
+    p.dataLen = _cnt;
+    atkpSendPacket(&p);
+}
 
 static void sendStatus(float roll, float pitch, float yaw, s32 alt, u8 fly_model, u8 armed, uint32_t timestamp)
 {
