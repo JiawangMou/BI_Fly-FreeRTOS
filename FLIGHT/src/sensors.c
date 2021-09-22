@@ -88,10 +88,11 @@ static Axis3i16 magRaw;
 #define GYRO_LPF_CUTOFF_FREQ 30
 #define ACCEL_LPF_CUTOFF_FREQ 10
 #define BARO_LPF_CUTOFF_FREQ 20
-static lpf2pData accLpf[3];
+// static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 static lpf2pData BaroLpf;
 
+static smoothFilter_t accSF[3];
 static smoothFilter_t gyroPitchSF;
 static smoothFilter_t gyroRollSF;
 
@@ -251,7 +252,8 @@ void sensorsDeviceInit(void)
 	for (u8 i = 0; i < 3; i++) // 初始化加速计和陀螺二阶低通滤波
 	{
 		lpf2pInit(&gyroLpf[i], 1000, GYRO_LPF_CUTOFF_FREQ);
-		lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
+		// lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
+		smoothFilterInit(&accSF[i], 55);
 	}
 
 	// Add Smooth Filter for Pitch & Roll
@@ -668,7 +670,16 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 	int16_t gx = (((int16_t)buffer[10]) << 8) | buffer[11];
 	int16_t gz = (((int16_t)buffer[12]) << 8) | buffer[13];
 #else
+#ifdef BOARD_VERTICAL2
+	int16_t ay = - ((((int16_t)buffer[0]) << 8) | buffer[1]);
+	int16_t az = ((((int16_t)buffer[2]) << 8) | buffer[3]);
+	int16_t ax = ((((int16_t)buffer[4]) << 8) | buffer[5]);
+	int16_t gy = - ((((int16_t)buffer[8]) << 8) | buffer[9]);
+	int16_t gz = ((((int16_t)buffer[10]) << 8) | buffer[11]);
+	int16_t gx = ((((int16_t)buffer[12]) << 8) | buffer[13]);
+#else
 	#error "Board alignment is not defined. Define BOARD_VERTICAL or BOARD_HORIZONTAL in config.h."
+#endif
 #endif
 #endif
 
@@ -702,24 +713,15 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 	// sensors.acc.x = -(ax)*SENSORS_G_PER_LSB_CFG / accScale.x; /*单位 g(9.8m/s^2)*/
 	// sensors.acc.y =  (ay)*SENSORS_G_PER_LSB_CFG / accScale.y;	/*重力加速度缩放因子accScale 根据样本计算得出*/
 	// sensors.acc.z =  (az)*SENSORS_G_PER_LSB_CFG / accScale.z;
-	sensors.acc.x = -(accRaw.x) / accScale.x;		/*单位 g(9.8m/s^2)*/
-	sensors.acc.y =   accRaw.y	/ accScale.y;		/*单位 g(9.8m/s^2)*/
-	sensors.acc.z =   accRaw.z	/ accScale.z;		/*单位 g(9.8m/s^2)*/
+	
+	sensors.acc.x = smoothFilterApply(&accSF[0], -accRaw.x);
+	sensors.acc.y = smoothFilterApply(&accSF[1], accRaw.y);
+	sensors.acc.z = smoothFilterApply(&accSF[2], accRaw.z);
+	sensors.acc.x = sensors.acc.x / accScale.x;		/*单位 g(9.8m/s^2)*/
+	sensors.acc.y = sensors.acc.y / accScale.y;		/*单位 g(9.8m/s^2)*/
+	sensors.acc.z = sensors.acc.z / accScale.z;		/*单位 g(9.8m/s^2)*/
 
-	applyAxis3fLpf(accLpf, &sensors.acc);
-
-	// Axis3f gyroTmp;
-	// gyroTmp.x = sensors.gyro.x;
-	// gyroTmp.y = sensors.gyro.y;
-	// gyroTmp.z = sensors.gyro.z;
-
-	// sensors.gyro.x = (sensors.gyro.x + gyroBff.x) * 0.5f;
-	// sensors.gyro.y = (sensors.gyro.y + gyroBff.y) * 0.5f;
-	// sensors.gyro.z = (sensors.gyro.z + gyroBff.z) * 0.5f;
-
-	// gyroBff.x = gyroTmp.x;
-	// gyroBff.y = gyroTmp.y;
-	// gyroBff.z = gyroTmp.z;
+	// applyAxis3fLpf(accLpf, &sensors.acc);
 }
 
 void processBatteryVoltage(){
