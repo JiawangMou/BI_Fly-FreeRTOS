@@ -248,3 +248,8 @@ void getAcc_SendData(Acc_Send *acc)
 {
 	*acc = acc_send;
 }
+
+float * getbodyZ(void)
+{
+	return rMat[2];
+}
