@@ -463,74 +463,103 @@ static void atkpSendPeriod(void)
     static u16 count_ms = 1;
     //// TEST: 300HZ 发送数据
 
-    // if (!(count_ms % 3)) {
-    //     attitude_t attitude;
-    //     Axis3f     acc, vel, pos;
-    //     Acc_Send   accRawData;
-
-    //     getAttitudeData(&attitude);
-    //     getStateData(&acc, &vel, &pos);
-    //     getAcc_SendData(&accRawData);
-
-    //     float zPredict = getPosZPredictData();
-
-    //     u32 timestamp = getSysTickCnt();
-    //     sendTestData(attitude.roll, attitude.pitch, attitude.yaw, pos.z, acc, accRawData, zPredict, timestamp);
-    // }
-    if (!(count_ms % PERIOD_STATUS)) {
-        attitude_t attitude;
-        Axis3f     acc, vel, pos;
-        getAttitudeData(&attitude);
-        getStateData(&acc, &vel, &pos);
-        sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
-    }
-    if (!(count_ms % PERIOD_SENSOR)) {
-        Axis3i16 acc;
-        Axis3i16 gyro;
-        Axis3i16 mag;
-        Acc_Send acc_send;
-        getSensorRawData(&acc, &gyro, &mag);
-        getAcc_SendData(&acc_send);
-        sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
-            gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
-    }
-    if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
-    {
-        Axis3f acc, vel, pos;
-        float  thrustBase = 0.1f * configParam.thrustBase;
-
-        attitude_t rateDesired, angleDesired, attitude;
+    if (!(count_ms % 10)) {
+        
         sensorData_t sensor;
         getSensorData(&sensor);
-        getRateDesired(&rateDesired);
-        getAngleDesired(&angleDesired);
+
+        attitude_t attitude;
         getAttitudeData(&attitude);
 
-        getStateData(&acc, &vel, &pos);
-        sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
-        sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
-                     pidRatePitch.outP, pidRatePitch.outD, thrustBase);
-    }
-    if (!(count_ms % PERIOD_RCDATA)) {
-        sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
-    }
-    if (!(count_ms % PERIOD_POWER)) {
-        float bat = getBatteryVoltage();
-        sendPower(bat * 100, 500);
-    }
-    if (!(count_ms % PERIOD_MOTOR)) {
-        u16        f1, f2, s1, s2, s3, r1;
-        motorPWM_t motorPWM;
-        getMotorPWM(&motorPWM);
-        f1 = (float)motorPWM.f1 / 65535 * 1000;
-        f2 = (float)motorPWM.f2 / 65535 * 1000;
-        s1 = (float)motorPWM.s_left;
-        s2 = (float)motorPWM.s_rgith;
-        s3 = (float)motorPWM.s_middle;
-        r1 = (float)motorPWM.r1 / 65535 * 1000;
+        int16_t laserRaw; float laserComp;
+        getLaserData(&laserRaw, &laserComp);
 
-        sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+        float baro = getBaroData();
+
+        Axis3f acc, vel, pos;
+        getStateData(&acc, &vel, &pos);
+
+        int16_t deltaX, deltaY;
+        getopFlowRawData(&deltaX, &deltaY);
+
+        u32 timestamp = getSysTickCnt();
+
+        s16 send_data[15];
+        send_data[0] = attitude.roll * 10;
+        send_data[1] = attitude.pitch * 10;
+        send_data[2] = attitude.yaw * 10;
+        send_data[3] = laserRaw;
+        send_data[4] = laserComp*10;
+        send_data[5] = baro;
+        send_data[6] = deltaX;
+        send_data[7] = deltaY;
+        send_data[8] = opFlow.posSum[0];
+        send_data[9] = opFlow.posSum[1];
+        send_data[10] = pos.x;
+        send_data[11] = pos.y;
+        send_data[12] = pos.z;
+        send_data[13] = timestamp;
+
+        sendTestData(0xF2, 14, send_data);
     }
+
+    // if (!(count_ms % PERIOD_STATUS)) {
+    //     attitude_t attitude;
+    //     Axis3f     acc, vel, pos;
+    //     getAttitudeData(&attitude);
+    //     getStateData(&acc, &vel, &pos);
+    //     sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
+    // }
+    // if (!(count_ms % PERIOD_SENSOR)) {
+    //     Axis3i16 acc;
+    //     Axis3i16 gyro;
+    //     Axis3i16 mag;
+    //     Acc_Send acc_send;
+    //     getSensorRawData(&acc, &gyro, &mag);
+    //     getAcc_SendData(&acc_send);
+    //     sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
+    //         gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
+    // }
+    // if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
+    // {
+    //     Axis3f acc, vel, pos;
+    //     float  thrustBase = 0.1f * configParam.thrustBase;
+
+    //     attitude_t rateDesired, angleDesired, attitude;
+    //     sensorData_t sensor;
+    //     Axis3i16 accRaw, gyroRaw, magRaw;
+    //     getSensorRawData(&accRaw, &gyroRaw, &magRaw);
+    //     getSensorData(&sensor);
+    //     getRateDesired(&rateDesired);
+    //     getAngleDesired(&angleDesired);
+    //     getAttitudeData(&attitude);
+
+    //     getStateData(&acc, &vel, &pos);
+    //     sendUserData(1, sensor.acc.x*2000, sensor.acc.y*2000, sensor.acc.z*2000, -accRaw.x, accRaw.y, accRaw.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
+    //     sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
+    //                  pidRateRoll.outP, pidRateRoll.outD, thrustBase);
+    // }
+    // if (!(count_ms % PERIOD_RCDATA)) {
+    //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
+    // }
+    // if (!(count_ms % PERIOD_POWER)) {
+    //     float bat = getBatteryVoltage();
+    //     sendPower(bat * 100, 500);
+    // }
+    // if (!(count_ms % PERIOD_MOTOR)) {
+    //     u16        f1, f2, s1, s2, s3, r1;
+    //     motorPWM_t motorPWM;
+    //     getMotorPWM(&motorPWM);
+    //     f1 = (float)motorPWM.f1 / 65535 * 1000;
+    //     f2 = (float)motorPWM.f2 / 65535 * 1000;
+    //     s1 = (float)motorPWM.s_left;
+    //     s2 = (float)motorPWM.s_rgith;
+    //     s3 = (float)motorPWM.s_middle;
+    //     r1 = (float)motorPWM.r1 / 65535 * 1000;
+
+    //     sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+    // }
+
     // if (!(count_ms % PERIOD_SENSOR2))
     // {
     //     int baro = getBaroData() * 100.f;
