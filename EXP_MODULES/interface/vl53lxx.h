@@ -32,6 +32,7 @@ void setVl53lxxState(u8 enable);
 void vl53l1xTask(void* arg);
 bool getVl53l1xstate(void);
 u16 getVl53l1xxrangecompensated(void);
+void getLaserData(int16_t* laserRaw, float* laserComp);
 
 #endif /* __VL53LXX_H */
 

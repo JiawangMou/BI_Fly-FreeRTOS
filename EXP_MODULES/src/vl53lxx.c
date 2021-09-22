@@ -137,13 +137,14 @@ void vl53l0xTask(void *arg)
 	}
 }
 
+static VL53L1_RangingMeasurementData_t rangingData;
+
 void vl53l1xTask(void *arg)
 {
 	int status;
 	attitude_t attitude_now; /*存放四轴姿态的变量*/
 	u8 isDataReady = 0;
 	TickType_t xLastWakeTime = xTaskGetTickCount();
-	static VL53L1_RangingMeasurementData_t rangingData;
 	vl53lxxInit();
 	vl53l1xSetParam(); /*设置vl53l1x 参数*/
 
@@ -199,6 +200,11 @@ void vl53l1xTask(void *arg)
 		vTaskDelayUntil(&xLastWakeTime, 50);
 		// }
 	}
+}
+
+void getLaserData(int16_t* laserRaw, float* laserComp){
+	*laserRaw = rangingData.RangeMilliMeter;
+	*laserComp = range_last;
 }
 
 bool vl53lxxReadRange(zRange_t *zrange)
