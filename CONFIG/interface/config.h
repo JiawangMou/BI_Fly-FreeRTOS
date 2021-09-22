@@ -33,7 +33,26 @@
 
 #define BI_Fly_1
 
-#define BOARD_VERTICAL
+/**
+ * VERTICAL2
+ *  ________
+ * |    z  _|
+ * |  x | |
+ * |y__\| |
+ * |______|
+ * 
+ **/
+/**
+ * VERTICAL
+ *    ______
+ *   |    z |
+ *   |  x | |
+ *  _|y__\| |
+ * |________|
+ * 
+ **/
+// #define BOARD_VERTICAL
+#define BOARD_VERTICAL2
 // #define BOARD_HORIZONTAL
 //#define ENABLE_GET_TASK_STATUS
 

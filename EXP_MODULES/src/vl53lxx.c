@@ -35,7 +35,7 @@ static u8 validCnt = 0;
 static u8 inValidCnt = 0;
 static bool isVl53l1xOk = false;
 
-static u16 range_last = 0;
+static float range_last = 0;
 static u16 range_compensated = 0;
 float quality = 1.0f;
 
@@ -50,7 +50,7 @@ void vl53lxxInit(void)
 	delay_ms(10);
 
 	/*vl53l0x ≥ı ºªØ*/
-	vl53lxxId = vl53l0xGetModelID();
+	// vl53lxxId = vl53l0xGetModelID();
 	// if(vl53lxxId == VL53L0X_ID)
 	// {
 	// 	if (isInitvl53l0x)
