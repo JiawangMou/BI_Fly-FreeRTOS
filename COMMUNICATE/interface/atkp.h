@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "sys.h"
+
+// DEBUG
+#include "FreeRTOS.h"
+#include "semphr.h"
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
  * ALIENTEK MiniFly
@@ -121,6 +125,18 @@ typedef enum
 	DOWN_REMOTER = 0x50,
 	SERVO_INITPOS_CHANGED = 0x51,
 } downmsgID_e;
+
+// DEBUG
+extern SemaphoreHandle_t debugSendSem;
+typedef struct{
+	float fusedHeightLpf;
+	float accx, accy, accz;
+	float posz;
+	float velz;
+	float q0,q1,q2,q3;
+	float pitch, roll;
+} debugData_t;
+extern debugData_t debugData;
 
 void atkpTxTask(void *param);
 void atkpRxAnlTask(void *param);

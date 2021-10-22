@@ -474,3 +474,8 @@ bool getOpDataState(void) { return opFlow.isDataValid; }
 
 /*获取光流数据状态*/
 bool getopFlowState(void) { return opFlow.isOpFlowOk; }
+
+void getopFlowRawData(int16_t *deltaX, int16_t *deltaY) {
+    *deltaX = currentMotion.deltaX;
+    *deltaY = currentMotion.deltaY;
+}

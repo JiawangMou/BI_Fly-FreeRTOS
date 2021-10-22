@@ -23,7 +23,7 @@
         速率环输出设置0.15系数，从而增加PID的可调性。
 ********************************************************************************/
 
-#define THRUST_BASE (40000) /*基础油门值*/
+#define THRUST_BASE (37000) /*基础油门值*/
 
 #define PIDVX_OUTPUT_LIMIT 120.0f  // ROLL限幅	(单位°带0.15的系数)
 #define PIDVY_OUTPUT_LIMIT 120.0f  // PITCH限幅	(单位°带0.15的系数)
@@ -73,31 +73,23 @@ static void velocityController(float* thrust, attitude_t* attitude, setpoint_t* 
     attitude->roll  = 0.15f * pidUpdate(&pidVY, setpoint->velocity.y - state->velocity.y);
 
     // Thrust
-    //TEST:定高油门修改，进入速率模式之后，在定高油门上叠加加速油门
-    float thrustRaw = 0.f;
-    if (setpoint->mode.z == modeVelocity) {
-        thrustRaw        = pidUpdate(&pidVZ, setpoint->velocity.z) + thrustHover;
-        enterVelModeFlag = true;
-    } else {
-        thrustRaw   = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
-        thrustHover = thrustRaw;
-    }
+    float thrustRaw = pidUpdate(&pidVZ, setpoint->velocity.z - state->velocity.z);
 
     *thrust = constrainf(thrustRaw + THRUST_BASE, 1000, 65500); /*油门限幅*/
 
     //防止PID计算油门降得太快，让飞行器停机，影响定高效果，所以对低于基础油门的油门进行小变化范围处理，无论如何使油门不低于35000
-    if (*thrust < THRUST_BASE)
-        *thrust = *thrust / 8 + 35000;
+    // if (*thrust < THRUST_BASE)
+    //     *thrust = *thrust / 8 + 35000;
 
     thrustLpf += (*thrust - thrustLpf) * 0.003f;
 
     if (getCommanderKeyFlight()) /*定高飞行状态*/
     {
         //TEST: 推出速率模式的时候更新基础油门
-        if (enterVelModeFlag && (setpoint->mode.z != modeVelocity)) {
-            enterVelModeFlag       = false;
-            configParam.thrustBase = thrustLpf;
-        }
+        // if (enterVelModeFlag && (setpoint->mode.z != modeVelocity)) {
+        //     enterVelModeFlag       = false;
+        //     configParam.thrustBase = thrustLpf;
+        // }
         if (fabs(state->acc.z) < 35.f) {
             altholdCount++;
             if (altholdCount > 1000) {
@@ -122,7 +114,7 @@ void positionController(float* thrust, attitude_t* attitude, setpoint_t* setpoin
     }
 
     if (setpoint->mode.z == modeAbs) {
-        // setpoint->velocity.z = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
+        setpoint->velocity.z = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
     }
 
     velocityController(thrust, attitude, setpoint, state);

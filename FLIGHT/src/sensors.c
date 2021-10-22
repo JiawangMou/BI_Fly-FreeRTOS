@@ -132,53 +132,12 @@ static void sensorsAddBiasValue(BiasObj *bias, int16_t x, int16_t y, int16_t z);
 /*从队列读取陀螺数据*/
 bool sensorsReadGyro(Axis3f *gyro)
 {
-	Axis3f gyrobff;
-	gyro->x = 0.0;
-	gyro->y = 0.0;
-	gyro->z = 0.0;
-	int i = 0;
-	while (xQueueReceive(gyroDataQueue, &gyrobff, 0))
-	{
-		gyro->x += gyrobff.x;
-		gyro->y = gyrobff.y;
-		gyro->z += gyrobff.z;
-		i++;
-	}
-	if (i == 0)
-	{
-		return false;
-	}
-
-	gyro->x = gyro->x / i;
-	// gyro->y = gyro->y / i;
-	gyro->z = gyro->z / i;
-	return true;
+	return (pdTRUE == xQueueReceive(gyroDataQueue, gyro, 0));
 }
 /*从队列读取加速计数据*/
 bool sensorsReadAcc(Axis3f *acc)
 {
-	Axis3f accbff;
-	acc->x = 0.0;
-	acc->y = 0.0;
-	acc->z = 0.0;
-
-	int i = 0;
-	while (xQueueReceive(accelerometerDataQueue, &accbff, 0))
-	{
-		acc->x += accbff.x;
-		acc->y += accbff.y;
-		acc->z += accbff.z;
-		i++;
-	}
-	if (i == 0)
-	{
-		return false;
-	}
-
-	acc->x = acc->x / i;
-	acc->y = acc->y / i;
-	acc->z = acc->z / i;
-	return true;
+	return (pdTRUE == xQueueReceive(accelerometerDataQueue, acc, 0));
 }
 /*从队列读取磁力计数据*/
 bool sensorsReadMag(Axis3f *mag)
@@ -253,7 +212,7 @@ void sensorsDeviceInit(void)
 	{
 		lpf2pInit(&gyroLpf[i], 1000, GYRO_LPF_CUTOFF_FREQ);
 		// lpf2pInit(&accLpf[i], 1000, ACCEL_LPF_CUTOFF_FREQ);
-		smoothFilterInit(&accSF[i], 55);
+		smoothFilterInit(&accSF[i], 53);
 	}
 
 	// Add Smooth Filter for Pitch & Roll
@@ -301,8 +260,8 @@ void sensorsDeviceInit(void)
 	}
 
 	/*创建传感器数据队列*/
-	accelerometerDataQueue = xQueueCreate(10, sizeof(Axis3f));
-	gyroDataQueue = xQueueCreate(10, sizeof(Axis3f));
+	accelerometerDataQueue = xQueueCreate(1, sizeof(Axis3f));
+	gyroDataQueue = xQueueCreate(1, sizeof(Axis3f));
 	magnetometerDataQueue = xQueueCreate(1, sizeof(Axis3f));
 	barometerDataQueue = xQueueCreate(1, sizeof(baro_t));
 }
@@ -766,8 +725,8 @@ void sensorsTask(void *param)
 			processBatteryVoltage();
 
 			vTaskSuspendAll(); /*确保同一时刻把数据放入队列中*/
-			xQueueSend(accelerometerDataQueue, &sensors.acc, 0);
-			xQueueSend(gyroDataQueue, &sensors.gyro, 0);
+			xQueueOverwrite(accelerometerDataQueue, &sensors.acc);
+			xQueueOverwrite(gyroDataQueue, &sensors.gyro);
 			if (isBaroPresent)
 			{
 				xQueueOverwrite(barometerDataQueue, &sensors.baro);

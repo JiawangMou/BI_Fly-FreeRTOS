@@ -25,6 +25,6 @@ bool getIsCalibrated(void);
 void imuTransformVectorBodyToEarth(Axis3f * v);	/*机体到地球*/
 void imuTransformVectorEarthToBody(Axis3f * v);	/*地球到机体*/
 void getAcc_SendData(Acc_Send *acc);            /*发送融合之前加速度的数据*/
-
+void getStateQuanternion(float *q0_, float *q1_, float *q2_, float *q3_);
 #endif
 
