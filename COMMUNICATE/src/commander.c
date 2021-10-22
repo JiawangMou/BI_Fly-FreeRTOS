@@ -206,6 +206,12 @@ void flyerAutoLand(setpoint_t* setpoint, const state_t* state)
         commander.keyFlight = false;
         estRstAll(); /*复位估测*/
     }
+
+    if(state->position.z < 4.0f){   // 高度很小，落地
+        commander.keyLand   = false;
+        commander.keyFlight = false;
+        estRstAll(); /*复位估测*/
+    }
 }
 
 static bool  initHigh         = false;
