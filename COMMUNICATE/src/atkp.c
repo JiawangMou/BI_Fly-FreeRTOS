@@ -31,6 +31,9 @@
 #include "sensors.h"
 #include "task.h"
 
+//Paparazzi Control
+#include "stabilization_attitude.h"
+
 /********************************************************************************
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
  * ALIENTEK MiniFly
@@ -463,74 +466,106 @@ static void atkpSendPeriod(void)
     static u16 count_ms = 1;
     //// TEST: 300HZ 发送数据
 
-    // if (!(count_ms % 3)) {
+    if (!(count_ms % 10)) {
+        
+        // sensorData_t sensor;
+        // getSensorData(&sensor);
+
+        // attitude_t attitude;
+        // getAttitudeData(&attitude);
+
+        // int16_t laserRaw; float laserComp;
+        // getLaserData(&laserRaw, &laserComp);
+
+        // float baro = getBaroData();
+
+        // Axis3f acc, vel, pos;
+        // getStateData(&acc, &vel, &pos);
+
+        // int16_t deltaX, deltaY;
+        // getopFlowRawData(&deltaX, &deltaY);
+
+
+        // control_t control = getControlData();
+
+        // u32 timestamp = getSysTickCnt();
+
+        s16 send_data[15];
+        send_data[0] = quat_control_debug.roll * 1800 / M_PI;
+        send_data[1] = quat_control_debug.pitch * 1800 / M_PI;
+        send_data[2] = quat_control_debug.yaw * 1800 / M_PI;
+        send_data[3] = quat_control_debug.err_angle[0] * 1800 / M_PI;
+        send_data[4] = quat_control_debug.err_angle[1] * 1800 / M_PI;
+        send_data[5] = quat_control_debug.err_angle[2] * 1800 / M_PI;
+        send_data[6] = quat_control_debug.err_rate[0] * 1800 / M_PI;
+        send_data[7] = quat_control_debug.err_rate[1] * 1800 / M_PI;
+        send_data[8] = quat_control_debug.err_rate[2] * 1800 / M_PI;
+        send_data[9] = quat_control_debug.u[0];
+        send_data[10] = quat_control_debug.u[1];
+        send_data[11] = quat_control_debug.u[2];
+        // send_data[12] = pos.z;
+        // send_data[13] = timestamp;
+
+        sendTestData(0xF2, 12, send_data);
+    }
+
+    // if (!(count_ms % PERIOD_STATUS)) {
     //     attitude_t attitude;
     //     Axis3f     acc, vel, pos;
-    //     Acc_Send   accRawData;
-
     //     getAttitudeData(&attitude);
     //     getStateData(&acc, &vel, &pos);
-    //     getAcc_SendData(&accRawData);
-
-    //     float zPredict = getPosZPredictData();
-
-    //     u32 timestamp = getSysTickCnt();
-    //     sendTestData(attitude.roll, attitude.pitch, attitude.yaw, pos.z, acc, accRawData, zPredict, timestamp);
+    //     sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
     // }
-    if (!(count_ms % PERIOD_STATUS)) {
-        attitude_t attitude;
-        Axis3f     acc, vel, pos;
-        getAttitudeData(&attitude);
-        getStateData(&acc, &vel, &pos);
-        sendStatus(attitude.roll, attitude.pitch, attitude.yaw, pos.z, 0, flyable, attitude.timestamp);
-    }
-    if (!(count_ms % PERIOD_SENSOR)) {
-        Axis3i16 acc;
-        Axis3i16 gyro;
-        Axis3i16 mag;
-        Acc_Send acc_send;
-        getSensorRawData(&acc, &gyro, &mag);
-        getAcc_SendData(&acc_send);
-        sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
-            gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
-    }
-    if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
-    {
-        Axis3f acc, vel, pos;
-        float  thrustBase = 0.1f * configParam.thrustBase;
+    // if (!(count_ms % PERIOD_SENSOR)) {
+    //     Axis3i16 acc;
+    //     Axis3i16 gyro;
+    //     Axis3i16 mag;
+    //     Acc_Send acc_send;
+    //     getSensorRawData(&acc, &gyro, &mag);
+    //     getAcc_SendData(&acc_send);
+    //     sendSenser(acc_send.acc_beforefusion.x, acc_send.acc_beforefusion.y, acc_send.acc_beforefusion.z, gyro.x,
+    //         gyro.y, gyro.z, mag.x, mag.y, mag.z, acc_send.useAcc);
+    // }
+    // if (!(count_ms % PERIOD_USERDATA)) /*用户数据*/
+    // {
+    //     Axis3f acc, vel, pos;
+    //     float  thrustBase = 0.1f * configParam.thrustBase;
 
-        attitude_t rateDesired, angleDesired, attitude;
-        sensorData_t sensor;
-        getSensorData(&sensor);
-        getRateDesired(&rateDesired);
-        getAngleDesired(&angleDesired);
-        getAttitudeData(&attitude);
+    //     attitude_t rateDesired, angleDesired, attitude;
+    //     sensorData_t sensor;
+    //     Axis3i16 accRaw, gyroRaw, magRaw;
+    //     getSensorRawData(&accRaw, &gyroRaw, &magRaw);
+    //     getSensorData(&sensor);
+    //     getRateDesired(&rateDesired);
+    //     getAngleDesired(&angleDesired);
+    //     getAttitudeData(&attitude);
 
-        getStateData(&acc, &vel, &pos);
-        sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
-        sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
-                     pidRatePitch.outP, pidRatePitch.outD, thrustBase);
-    }
-    if (!(count_ms % PERIOD_RCDATA)) {
-        sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
-    }
-    if (!(count_ms % PERIOD_POWER)) {
-        float bat = getBatteryVoltage();
-        sendPower(bat * 100, 500);
-    }
-    if (!(count_ms % PERIOD_MOTOR)) {
-        u16        f1, f2, s1, s2, s3, r1;
-        motorPWM_t motorPWM;
-        getMotorPWM(&motorPWM);
-        f1 = (float)motorPWM.f1 / 65535 * 1000;
-        f2 = (float)motorPWM.f2 / 65535 * 1000;
-        s1 = (float)motorPWM.s_left;
-        s2 = (float)motorPWM.s_rgith;
-        s3 = (float)motorPWM.s_middle;
-        r1 = (float)motorPWM.r1 / 65535 * 1000;
+    //     getStateData(&acc, &vel, &pos);
+    //     sendUserData(1, sensor.acc.x*2000, sensor.acc.y*2000, sensor.acc.z*2000, -accRaw.x, accRaw.y, accRaw.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
+    //     sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
+    //                  pidRateRoll.outP, pidRateRoll.outD, thrustBase);
+    // }
+    // if (!(count_ms % PERIOD_RCDATA)) {
+    //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
+    // }
+    // if (!(count_ms % PERIOD_POWER)) {
+    //     float bat = getBatteryVoltage();
+    //     sendPower(bat * 100, 500);
+    // }
+    // if (!(count_ms % PERIOD_MOTOR)) {
+    //     u16        f1, f2, s1, s2, s3, r1;
+    //     motorPWM_t motorPWM;
+    //     getMotorPWM(&motorPWM);
+    //     f1 = (float)motorPWM.f1 / 65535 * 1000;
+    //     f2 = (float)motorPWM.f2 / 65535 * 1000;
+    //     s1 = (float)motorPWM.s_left;
+    //     s2 = (float)motorPWM.s_rgith;
+    //     s3 = (float)motorPWM.s_middle;
+    //     r1 = (float)motorPWM.r1 / 65535 * 1000;
 
-        sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
-    }
+    //     sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+    // }
+
     // if (!(count_ms % PERIOD_SENSOR2))
     // {
     //     int baro = getBaroData() * 100.f;
@@ -626,16 +661,22 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
     } else if (anlPacket->msgID == DOWN_ACK) {
         if (anlPacket->data[0] == D_ACK_READ_PID) /*读取PID参数*/
         {
-            sendPid(1, pidRateRoll.kp, pidRateRoll.ki, pidRateRoll.kd, pidRatePitch.kp, pidRatePitch.ki,
-                pidRatePitch.kd, pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd, pidRateRoll.outputLimit,
-                pidRatePitch.outputLimit, pidRateYaw.outputLimit);
-            sendPid(2, pidAngleRoll.kp, pidAngleRoll.ki, pidAngleRoll.kd, pidAnglePitch.kp, pidAnglePitch.ki,
-                pidAnglePitch.kd, pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd, pidAngleRoll.outputLimit,
-                pidAnglePitch.outputLimit, pidAngleYaw.outputLimit);
-            sendPid(3, pidVX.kp, pidVX.ki, pidVX.kd, pidVY.kp, pidVY.ki, pidVY.kd, pidVZ.kp, pidVZ.ki, pidVZ.kd,
-                pidVX.outputLimit, pidVY.outputLimit, pidVZ.outputLimit);
-            sendPid(4, pidX.kp, pidX.ki, pidX.kd, pidY.kp, pidY.ki, pidY.kd, pidZ.kp, pidZ.ki, pidZ.kd,
-                pidX.outputLimit, pidY.outputLimit, pidZ.outputLimit);
+            sendPid(1, configParam.pidRate.roll.kp, configParam.pidRate.roll.ki, configParam.pidRate.roll.kd,
+                       configParam.pidRate.pitch.kp, configParam.pidRate.pitch.ki, configParam.pidRate.pitch.kd,
+                       configParam.pidRate.yaw.kp, configParam.pidRate.yaw.ki, configParam.pidRate.yaw.kd,
+                       configParam.pidRate.roll.outputLimit, configParam.pidRate.pitch.outputLimit, configParam.pidRate.yaw.outputLimit);
+            sendPid(2, configParam.pidAngle.roll.kp, configParam.pidAngle.roll.ki, configParam.pidAngle.roll.kd,
+                       configParam.pidAngle.pitch.kp, configParam.pidAngle.pitch.ki, configParam.pidAngle.pitch.kd,
+                       configParam.pidAngle.yaw.kp, configParam.pidAngle.yaw.ki, configParam.pidAngle.yaw.kd,
+                       configParam.pidAngle.roll.outputLimit, configParam.pidAngle.pitch.outputLimit, configParam.pidAngle.yaw.outputLimit);
+            sendPid(3, configParam.pidPos.vx.kp, configParam.pidPos.vx.ki, configParam.pidPos.vx.kd,
+                       configParam.pidPos.vy.kp, configParam.pidPos.vy.ki, configParam.pidPos.vy.kd,
+                       configParam.pidPos.vz.kp, configParam.pidPos.vz.ki, configParam.pidPos.vz.kd,
+                       configParam.pidPos.vx.outputLimit, configParam.pidPos.vy.outputLimit, configParam.pidPos.vz.outputLimit);
+            sendPid(4, configParam.pidPos.x.kp, configParam.pidPos.x.ki, configParam.pidPos.x.kd,
+                       configParam.pidPos.y.kp, configParam.pidPos.y.ki, configParam.pidPos.y.kd,
+                       configParam.pidPos.z.kp, configParam.pidPos.z.ki, configParam.pidPos.z.kd,
+                       configParam.pidPos.x.outputLimit, configParam.pidPos.y.outputLimit, configParam.pidPos.z.outputLimit);
         }
         if (anlPacket->data[0] == D_ACK_RESET_PARAM) /*恢复默认参数*/
         {
@@ -644,12 +685,22 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
             attitudeControlInit(RATE_PID_DT, ANGEL_PID_DT);        /*初始化姿态PID*/
             positionControlInit(VELOCITY_PID_DT, POSITION_PID_DT); /*初始化位置PID*/
 
-            sendPid(1, pidRateRoll.kp, pidRateRoll.ki, pidRateRoll.kd, pidRatePitch.kp, pidRatePitch.ki,
-                pidRatePitch.kd, pidRateYaw.kp, pidRateYaw.ki, pidRateYaw.kd, 0, 0, 0);
-            sendPid(2, pidAngleRoll.kp, pidAngleRoll.ki, pidAngleRoll.kd, pidAnglePitch.kp, pidAnglePitch.ki,
-                pidAnglePitch.kd, pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd, 0, 0, 0);
-            sendPid(3, pidVZ.kp, pidVZ.ki, pidVZ.kd, pidZ.kp, pidZ.ki, pidZ.kd, pidVX.kp, pidVX.ki, pidVX.kd, 0, 0, 0);
-            sendPid(4, pidX.kp, pidX.ki, pidX.kd, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            sendPid(1, configParam.pidRate.roll.kp, configParam.pidRate.roll.ki, configParam.pidRate.roll.kd,
+                       configParam.pidRate.pitch.kp, configParam.pidRate.pitch.ki, configParam.pidRate.pitch.kd,
+                       configParam.pidRate.yaw.kp, configParam.pidRate.yaw.ki, configParam.pidRate.yaw.kd,
+                       0.0f, 0.0f, 0.0f);
+            sendPid(2, configParam.pidAngle.roll.kp, configParam.pidAngle.roll.ki, configParam.pidAngle.roll.kd,
+                       configParam.pidAngle.pitch.kp, configParam.pidAngle.pitch.ki, configParam.pidAngle.pitch.kd,
+                       configParam.pidAngle.yaw.kp, configParam.pidAngle.yaw.ki, configParam.pidAngle.yaw.kd,
+                       0.0f, 0.0f, 0.0f);
+            sendPid(3, configParam.pidPos.vx.kp, configParam.pidPos.vx.ki, configParam.pidPos.vx.kd,
+                       configParam.pidPos.vy.kp, configParam.pidPos.vy.ki, configParam.pidPos.vy.kd,
+                       configParam.pidPos.vz.kp, configParam.pidPos.vz.ki, configParam.pidPos.vz.kd,
+                       0.0f, 0.0f, 0.0f);
+            sendPid(4, configParam.pidPos.x.kp, configParam.pidPos.x.ki, configParam.pidPos.x.kd,
+                       configParam.pidPos.y.kp, configParam.pidPos.y.ki, configParam.pidPos.y.kd,
+                       configParam.pidPos.z.kp, configParam.pidPos.z.ki, configParam.pidPos.z.kd,
+                       0.0f, 0.0f, 0.0f);
         }
     } else if (anlPacket->msgID == DOWN_RCDATA) {
         rcdata = *((joystickFlyui16_t*)anlPacket->data);
@@ -660,36 +711,36 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
     {
         remoterCtrlProcess(anlPacket);
     } else if (anlPacket->msgID == DOWN_PID1) {
-        pidRateRoll.kp  = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
-        pidRateRoll.ki  = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
-        pidRateRoll.kd  = 0.01 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
-        pidRatePitch.kp = 0.1 * ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
-        pidRatePitch.ki = 0.1 * ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
-        pidRatePitch.kd = 0.01 * ((s16)(*(anlPacket->data + 10) << 8) | *(anlPacket->data + 11));
-        pidRateYaw.kp   = 0.1 * ((s16)(*(anlPacket->data + 12) << 8) | *(anlPacket->data + 13));
-        pidRateYaw.ki   = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
-        pidRateYaw.kd   = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
-        pidSetOutputLimit(&pidRateRoll, ((float)((*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19))));
-        pidSetOutputLimit(&pidRatePitch, ((float)((*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21))));
-        pidSetOutputLimit(&pidRateYaw, ((float)((*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23))));
-        attitudePIDwriteToConfigParam();
+        configParam.pidRate.roll.kp  = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
+        configParam.pidRate.roll.ki  = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
+        configParam.pidRate.roll.kd  = 0.01 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
+        configParam.pidRate.pitch.kp = 0.1 * ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
+        configParam.pidRate.pitch.ki = 0.1 * ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
+        configParam.pidRate.pitch.kd = 0.01 * ((s16)(*(anlPacket->data + 10) << 8) | *(anlPacket->data + 11));
+        configParam.pidRate.yaw.kp   = 0.1 * ((s16)(*(anlPacket->data + 12) << 8) | *(anlPacket->data + 13));
+        configParam.pidRate.yaw.ki   = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
+        configParam.pidRate.yaw.kd   = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
+        configParam.pidRate.roll.outputLimit = (float)((*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
+        configParam.pidRate.pitch.outputLimit = (float)((*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
+        configParam.pidRate.yaw.outputLimit = (float)((*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
+        paparazziUpdatePIDParams();
         configParamGiveSemaphore(); //将修改的configparamdefault写入flash
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
     } else if (anlPacket->msgID == DOWN_PID2) {
-        pidAngleRoll.kp  = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
-        pidAngleRoll.ki  = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
-        pidAngleRoll.kd  = 0.01 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
-        pidAnglePitch.kp = 0.1 * ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
-        pidAnglePitch.ki = 0.1 * ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
-        pidAnglePitch.kd = 0.01 * ((s16)(*(anlPacket->data + 10) << 8) | *(anlPacket->data + 11));
-        pidAngleYaw.kp   = 0.1 * ((s16)(*(anlPacket->data + 12) << 8) | *(anlPacket->data + 13));
-        pidAngleYaw.ki   = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
-        pidAngleYaw.kd   = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
-        pidSetOutputLimit(&pidAngleRoll, ((float)((*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19))));
-        pidSetOutputLimit(&pidAnglePitch, ((float)((*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21))));
-        pidSetOutputLimit(&pidAngleYaw, ((float)((*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23))));
-        attitudePIDwriteToConfigParam();
+        configParam.pidAngle.roll.kp  = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
+        configParam.pidAngle.roll.ki  = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
+        configParam.pidAngle.roll.kd  = 0.01 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
+        configParam.pidAngle.pitch.kp = 0.1 * ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
+        configParam.pidAngle.pitch.ki = 0.1 * ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
+        configParam.pidAngle.pitch.kd = 0.01 * ((s16)(*(anlPacket->data + 10) << 8) | *(anlPacket->data + 11));
+        configParam.pidAngle.yaw.kp   = 0.1 * ((s16)(*(anlPacket->data + 12) << 8) | *(anlPacket->data + 13));
+        configParam.pidAngle.yaw.ki   = 0.1 * ((s16)(*(anlPacket->data + 14) << 8) | *(anlPacket->data + 15));
+        configParam.pidAngle.yaw.kd   = 0.01 * ((s16)(*(anlPacket->data + 16) << 8) | *(anlPacket->data + 17));
+        configParam.pidAngle.roll.outputLimit = (float)((*(anlPacket->data + 18) << 8) | *(anlPacket->data + 19));
+        configParam.pidAngle.pitch.outputLimit = (float)((*(anlPacket->data + 20) << 8) | *(anlPacket->data + 21));
+        configParam.pidAngle.yaw.outputLimit = (float)((*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
+        paparazziUpdatePIDParams();
         configParamGiveSemaphore(); //将修改的configparamdefault写入flash
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);

@@ -10,11 +10,37 @@
             "stabilizer.h": "c",
             "sensors.h": "c",
             "system.h": "c",
-            "bat.h": "c"
+            "bat.h": "c",
+            "vl53lxx.h": "c",
+            "sys.h": "c",
+            "stm32f4xx.h": "c",
+            "vl53l1_api.h": "c",
+            "vl53l1_api_core.h": "c",
+            "limits": "c",
+            "optical_flow.h": "c",
+            "atkp.h": "c",
+            "freertos.h": "c",
+            "state_estimator.h": "c",
+            "sensfusion6.h": "c",
+            "stabilization_attitude_quat_transformations.h": "c",
+            "airframe.h": "c",
+            "stabilization_attitude.h": "c",
+            "stabilization_attitude_ref_defaults.h": "c"
         },
         "C_Cpp.default.intelliSenseMode": "msvc-x86",
         "files.autoGuessEncoding": true,
         "C_Cpp.default.cppStandard": "c++14",
         "C_Cpp.default.cStandard": "c99"
+    },
+    "extensions": {
+        "recommendations": [
+            "cl.eide",
+            "keroc.hex-fmt",
+            "hars.cppsnippets",
+            "zixuanwang.linkerscript",
+            "dan-c-underwood.arm",
+            "zixuanwang.linkerscript",
+            "marus25.cortex-debug"
+        ]
     }
 }

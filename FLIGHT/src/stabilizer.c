@@ -17,6 +17,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "stabilization_attitude.h"
+
 /********************************************************************************	 
  * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
  * ALIENTEK MiniFly
@@ -120,6 +122,10 @@ void stabilizerTask(void* param)
         vTaskDelayUntil(&lastWakeTime, MAIN_LOOP_DT);
     }
 
+    // Init Paparazzi Control
+    stabilization_attitude_init();
+    bool on_flight = false;
+
     while (1) {
         vTaskDelayUntil(&lastWakeTime, MAIN_LOOP_DT); /*1ms周期延时*/
 
@@ -164,8 +170,23 @@ void stabilizerTask(void* param)
         anomalDetec(&sensorData, &state, &control);
 
         /*PID控制*/
+        if (RATE_DO_EXECUTE(RATE_500_HZ, tick)){
 
-        stateControl(&control, &sensorData, &state, &setpoint, tick);
+            control.thrust = setpoint.thrust;
+            if(control.thrust > 5.f && !on_flight){
+                stabilization_attitude_enter(RadOfDeg(state.attitude.yaw));
+                on_flight = true;
+            }
+            if(control.thrust <= 5.f && on_flight){
+                stabilization_attitude_quit();
+                on_flight = false;
+            }
+            stabilization_attitude_run(&control, &sensorData, &state, &setpoint);
+            if(!on_flight){
+                control.roll = 0;
+            }
+        }
+        // stateControl(&control, &sensorData, &state, &setpoint, tick);
 
         //控制电机输出（500Hz）
         if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
