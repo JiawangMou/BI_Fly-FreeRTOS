@@ -769,13 +769,38 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
     }
 }
 
+// DEBUG
+SemaphoreHandle_t debugSendSem;
+debugData_t debugData;
+void debugSend(){
+        
+        s16 send_data[15];
+        send_data[0] = debugData.fusedHeightLpf * 10;
+        send_data[1] = debugData.accx * 10;
+        send_data[2] = debugData.accy * 10;
+        send_data[3] = debugData.accz * 10;
+        send_data[4] = debugData.velz * 10;
+        send_data[5] = debugData.posz * 10;
+        send_data[6] = debugData.q0 * 10000;
+        send_data[7] = debugData.q1 * 10000;
+        send_data[8] = debugData.q2 * 10000;
+        send_data[9] = debugData.q3 * 10000;
+        send_data[10] = debugData.pitch * 100;
+        send_data[11] = debugData.roll * 100;
+        send_data[12] = getSysTickCnt();
+
+        sendTestData(0xF2, 13, send_data);
+}
+
 void atkpTxTask(void* param)
 {
     u32 lastWakeTime = getSysTickCnt();
     sendMsgACK();
+    debugSendSem = xSemaphoreCreateBinary();
     while (1) {
+        // xSemaphoreTake(debugSendSem, portMAX_DELAY);
+        // debugSend();
         atkpSendPeriod();
-        // vTaskDelay(10);
         vTaskDelayUntil(&lastWakeTime, 1);
     }
 }

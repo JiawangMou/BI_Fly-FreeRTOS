@@ -48,5 +48,5 @@ void opticalFlowInit(void);		/*初始化光流模块*/
 bool getOpDataState(void);		/*光流数据状态*/
 bool getopFlowState(void);		/*光流模块状态*/
 void opticalFlowTask(void *param);
-
+void getopFlowRawData(int16_t *deltaX, int16_t *deltaY);
 #endif

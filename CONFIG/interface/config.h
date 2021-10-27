@@ -51,8 +51,8 @@
  * |________|
  * 
  **/
-// #define BOARD_VERTICAL
-#define BOARD_VERTICAL2
+#define BOARD_VERTICAL
+// #define BOARD_VERTICAL2
 // #define BOARD_HORIZONTAL
 //#define ENABLE_GET_TASK_STATUS
 

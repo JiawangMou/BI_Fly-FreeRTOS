@@ -134,7 +134,8 @@ void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互
 	acc_send.acc_beforefusion.y = acc.y;	
 	acc_send.acc_beforefusion.z = acc.z;
 	/*判断加速度计数据是否健康*/
-	acc_send.useAcc = imuIsAccelerometerHealthy(&acc);
+	// acc_send.useAcc = imuIsAccelerometerHealthy(&acc);
+	acc_send.useAcc = true;
 	/* 加速度计输出有效时,利用加速度计补偿陀螺仪*/
 	if(((acc.x != 0.0f) || (acc.y != 0.0f) || (acc.z != 0.0f)) && acc_send.useAcc)
 	{
@@ -191,6 +192,13 @@ void imuUpdate(Axis3f acc, Axis3f gyro, state_t *state , float dt)	/*数据融合 互
 		accBuf[2] = tempacc.x* rMat[2][0] + tempacc.y * rMat[2][1] + tempacc.z * rMat[2][2];	/*accz*/
 		calBaseAcc(accBuf);		/*计算静态加速度*/				
 	}
+}
+
+void getStateQuanternion(float *q0_, float *q1_, float *q2_, float *q3_){
+	*q0_ = q0;
+	*q1_ = q1;
+	*q2_ = q2;
+	*q3_ = q3;
 }
 
 /*机体到地球*/
