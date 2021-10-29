@@ -96,7 +96,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         vl53lxxReadRange(&sensorData->zrange); /*读取激光数据*/
         fusedHeight = sensorData->zrange.distance;
-        weight = sensorData->zrange.quality * 2;
+        weight = sensorData->zrange.quality * 3.5;
         // rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f; /*低通 单位cm*/
 
         // float quality = sensorData->zrange.quality;
