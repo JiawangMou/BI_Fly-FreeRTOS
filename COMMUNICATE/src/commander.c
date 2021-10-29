@@ -251,7 +251,7 @@ void commanderGetSetpoint(setpoint_t* setpoint, state_t* state)
                 errorPosY        = 0.f;
                 errorPosZ        = 0.f;
 
-                setFastAdjustPosParam(0, 1, 120.0f); /*一键起飞高度120cm*/
+                setFastAdjustPosParam(0, 1, 80.0f); /*一键起飞高度80cm*/
             }
 
             float climb = ((ctrlValLpf.thrust - 32767.f) / 32767.f);

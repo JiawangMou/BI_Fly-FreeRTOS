@@ -23,7 +23,7 @@
         速率环输出设置0.15系数，从而增加PID的可调性。
 ********************************************************************************/
 
-#define THRUST_BASE (37000) /*基础油门值*/
+#define THRUST_BASE (35000) /*基础油门值*/
 
 #define PIDVX_OUTPUT_LIMIT 120.0f  // ROLL限幅	(单位°带0.15的系数)
 #define PIDVY_OUTPUT_LIMIT 120.0f  // PITCH限幅	(单位°带0.15的系数)
@@ -31,9 +31,9 @@
 
 #define PIDX_OUTPUT_LIMIT 1200.0f // X轴速度限幅(单位cm/s 带0.1的系数)
 #define PIDY_OUTPUT_LIMIT 1200.0f // Y轴速度限幅(单位cm/s 带0.1的系数)
-//#define PIDZ_OUTPUT_LIMIT	120.0f	//Z轴速度限幅(单位cm/s)
+#define PIDZ_OUTPUT_LIMIT	100.0f	//Z轴速度限幅(单位cm/s)
 //临时版本，定高变为单环PID,输出限幅直接到油门输出
-#define PIDZ_OUTPUT_LIMIT 65500.0f // Z轴速度限幅(油门量)
+// #define PIDZ_OUTPUT_LIMIT 65500.0f // Z轴速度限幅(油门量)
 
 static float thrustLpf        = THRUST_BASE; /*油门低通*/
 static float thrustHover      = 0.f;
@@ -114,7 +114,7 @@ void positionController(float* thrust, attitude_t* attitude, setpoint_t* setpoin
     }
 
     if (setpoint->mode.z == modeAbs) {
-        setpoint->velocity.z = pidUpdate(&pidZ, setpoint->position.z - state->position.z);
+        setpoint->velocity.z = constrainf(0.1f * pidUpdate(&pidZ, setpoint->position.z - state->position.z), -PIDZ_OUTPUT_LIMIT, PIDZ_OUTPUT_LIMIT);
     }
 
     velocityController(thrust, attitude, setpoint, state);
