@@ -35,6 +35,7 @@
 #include "vl53lxx.h"
 #include "optical_flow.h"
 #include "bat.h"
+#include "hall.h"
 
 // /*À©Õ¹Ä£¿éÇý¶¯*/
 // #include "module_detect.h"

@@ -25,7 +25,9 @@
             "stabilization_attitude_quat_transformations.h": "c",
             "airframe.h": "c",
             "stabilization_attitude.h": "c",
-            "stabilization_attitude_ref_defaults.h": "c"
+            "stabilization_attitude_ref_defaults.h": "c",
+            "spi.h": "c",
+            "hall.h": "c"
         },
         "C_Cpp.default.intelliSenseMode": "msvc-x86",
         "files.autoGuessEncoding": true,

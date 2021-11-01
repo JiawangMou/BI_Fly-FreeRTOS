@@ -123,7 +123,7 @@ void spi2Init(void)
     /*!< SPI ²ÎÊýÅäÖÃ */
     SPI_I2S_DeInit(SPI);
     SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex;
-    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BAUDRATE_2MHZ;
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BAUDRATE_3MHZ;
     SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;
     SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;
     SPI_InitStructure.SPI_CPOL              = SPI_CPOL_High;
