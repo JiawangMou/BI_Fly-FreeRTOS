@@ -14,6 +14,7 @@
 #include "spl06.h"
 #include "atkp.h"
 #include "bat.h"
+#include "usblink.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -637,7 +638,16 @@ void processAccGyroMeasurements(const uint8_t *buffer)
 	int16_t gz = ((((int16_t)buffer[10]) << 8) | buffer[11]);
 	int16_t gx = ((((int16_t)buffer[12]) << 8) | buffer[13]);
 #else
+#ifdef BOARD_ORIGIN
+	int16_t ax = -( (((int16_t)buffer[0]) << 8) | buffer[1] );
+	int16_t ay = (((int16_t)buffer[2]) << 8) | buffer[3];
+	int16_t az = (((int16_t)buffer[4]) << 8) | buffer[5];
+	int16_t gx = -( (((int16_t)buffer[8]) << 8) | buffer[9] );
+	int16_t gy = (((int16_t)buffer[10]) << 8) | buffer[11];
+	int16_t gz = (((int16_t)buffer[12]) << 8) | buffer[13];
+#else
 	#error "Board alignment is not defined. Define BOARD_VERTICAL or BOARD_HORIZONTAL in config.h."
+#endif
 #endif
 #endif
 #endif
@@ -700,10 +710,25 @@ void sensorsTask(void *param)
 	//MPU9250设置为IIC主机模式
 	sensorsSetupSlaveRead(); /*设置传感器从模式读取*/
 
+	atkp_t send_debug;
+	send_debug.msgID = 0xF1;
+	send_debug.dataLen = 23;
+	send_debug.data[0] = 1;
+
+	u32 lastWakeTime = getSysTickCnt();
+
 	while (1)
 	{
-		if (xSemaphoreTake(sensorsDataReady, portMAX_DELAY) == pdTRUE)
-		{
+		// if (xSemaphoreTake(sensorsDataReady, portMAX_DELAY) == pdTRUE)
+		// {
+			vTaskDelayUntil(&lastWakeTime, 1); /*1ms周期延时*/
+			
+			u32 timestamp = getCurrentUs();
+			send_debug.data[1] = timestamp >> 24;
+			send_debug.data[2] = timestamp >> 16;
+			send_debug.data[3] = timestamp >> 8;
+			send_debug.data[4] = timestamp;
+
 			/*确定数据长度*/
 			u8 dataLen = (u8)(SENSORS_MPU6500_BUFF_LEN +
 							  (isMagPresent ? SENSORS_MAG_BUFF_LEN : 0) +
@@ -711,7 +736,35 @@ void sensorsTask(void *param)
 			//读MPU9250 陀螺仪+加速度计+磁力计+气压计的数据
 			i2cdevRead(I2C3_DEV, MPU6500_ADDRESS_AD0_HIGH, MPU6500_RA_ACCEL_XOUT_H, dataLen, buffer);
 
-			/*处理原始数据，并放入数据队列中*/
+			// timestamp = getCurrentUs();
+			// send_debug.data[5] = timestamp >> 24;
+			// send_debug.data[6] = timestamp >> 16;
+			// send_debug.data[7] = timestamp >> 8;
+			// send_debug.data[8] = timestamp;
+
+			send_debug.data[5] = buffer[0];
+			send_debug.data[6] = buffer[1];
+			send_debug.data[7] = buffer[2];
+			send_debug.data[8] = buffer[3];
+			send_debug.data[9] = buffer[4];
+			send_debug.data[10] = buffer[5];
+			send_debug.data[11] = buffer[8];
+			send_debug.data[12] = buffer[9];
+			send_debug.data[13] = buffer[10];
+			send_debug.data[14] = buffer[11];
+			send_debug.data[15] = buffer[12];
+			send_debug.data[16] = buffer[13];
+			// MAG
+			send_debug.data[17] = buffer[16];
+			send_debug.data[18] = buffer[15];
+			send_debug.data[19] = buffer[18];
+			send_debug.data[20] = buffer[17];
+			send_debug.data[21] = buffer[20];
+			send_debug.data[22] = buffer[19];
+			
+			usblinkSendPacket(&send_debug);
+
+			// /*处理原始数据，并放入数据队列中*/
 			processAccGyroMeasurements(&(buffer[0]));
 			if (isMagPresent)
 			{
@@ -736,8 +789,15 @@ void sensorsTask(void *param)
 				xQueueOverwrite(magnetometerDataQueue, &sensors.mag);
 			}
 
+			// timestamp = getCurrentUs();
+			// send_debug.data[9] = timestamp >> 24;
+			// send_debug.data[10] = timestamp >> 16;
+			// send_debug.data[11] = timestamp >> 8;
+			// send_debug.data[12] = timestamp;
+
 			xTaskResumeAll();
-		}
+		// }
+
 	}
 }
 /*获取传感器数据*/

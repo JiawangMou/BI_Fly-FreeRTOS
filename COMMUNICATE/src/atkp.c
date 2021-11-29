@@ -466,48 +466,48 @@ static void atkpSendPeriod(void)
     static u16 count_ms = 1;
     //// TEST: 300HZ 发送数据
 
-    if (!(count_ms % 10)) {
+    // if (!(count_ms % 10)) {
         
-        // sensorData_t sensor;
-        // getSensorData(&sensor);
+    //     // sensorData_t sensor;
+    //     // getSensorData(&sensor);
 
-        // attitude_t attitude;
-        // getAttitudeData(&attitude);
+    //     // attitude_t attitude;
+    //     // getAttitudeData(&attitude);
 
-        // int16_t laserRaw; float laserComp;
-        // getLaserData(&laserRaw, &laserComp);
+    //     // int16_t laserRaw; float laserComp;
+    //     // getLaserData(&laserRaw, &laserComp);
 
-        // float baro = getBaroData();
+    //     // float baro = getBaroData();
 
-        // Axis3f acc, vel, pos;
-        // getStateData(&acc, &vel, &pos);
+    //     // Axis3f acc, vel, pos;
+    //     // getStateData(&acc, &vel, &pos);
 
-        // int16_t deltaX, deltaY;
-        // getopFlowRawData(&deltaX, &deltaY);
+    //     // int16_t deltaX, deltaY;
+    //     // getopFlowRawData(&deltaX, &deltaY);
 
 
-        // control_t control = getControlData();
+    //     // control_t control = getControlData();
 
-        // u32 timestamp = getSysTickCnt();
+    //     // u32 timestamp = getSysTickCnt();
 
-        s16 send_data[15];
-        send_data[0] = quat_control_debug.roll * 1800 / M_PI;
-        send_data[1] = quat_control_debug.pitch * 1800 / M_PI;
-        send_data[2] = quat_control_debug.yaw * 1800 / M_PI;
-        send_data[3] = quat_control_debug.err_angle[0] * 1800 / M_PI;
-        send_data[4] = quat_control_debug.err_angle[1] * 1800 / M_PI;
-        send_data[5] = quat_control_debug.err_angle[2] * 1800 / M_PI;
-        send_data[6] = quat_control_debug.err_rate[0] * 1800 / M_PI;
-        send_data[7] = quat_control_debug.err_rate[1] * 1800 / M_PI;
-        send_data[8] = quat_control_debug.err_rate[2] * 1800 / M_PI;
-        send_data[9] = quat_control_debug.u[0];
-        send_data[10] = quat_control_debug.u[1];
-        send_data[11] = quat_control_debug.u[2];
-        // send_data[12] = pos.z;
-        // send_data[13] = timestamp;
+    //     s16 send_data[15];
+    //     send_data[0] = quat_control_debug.roll * 1800 / M_PI;
+    //     send_data[1] = quat_control_debug.pitch * 1800 / M_PI;
+    //     send_data[2] = quat_control_debug.yaw * 1800 / M_PI;
+    //     send_data[3] = quat_control_debug.err_angle[0] * 1800 / M_PI;
+    //     send_data[4] = quat_control_debug.err_angle[1] * 1800 / M_PI;
+    //     send_data[5] = quat_control_debug.err_angle[2] * 1800 / M_PI;
+    //     send_data[6] = quat_control_debug.err_rate[0] * 1800 / M_PI;
+    //     send_data[7] = quat_control_debug.err_rate[1] * 1800 / M_PI;
+    //     send_data[8] = quat_control_debug.err_rate[2] * 1800 / M_PI;
+    //     send_data[9] = quat_control_debug.u[0];
+    //     send_data[10] = quat_control_debug.u[1];
+    //     send_data[11] = quat_control_debug.u[2];
+    //     // send_data[12] = pos.z;
+    //     // send_data[13] = timestamp;
 
-        sendTestData(0xF2, 12, send_data);
-    }
+    //     sendTestData(0xF2, 12, send_data);
+    // }
 
     // if (!(count_ms % PERIOD_STATUS)) {
     //     attitude_t attitude;

@@ -61,6 +61,14 @@ u32 getSysTickCnt(void)
 		return sysTickCnt;
 }
 
+uint32_t getCurrentUs(void)	// Max 71 Minutes
+{
+	if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) /*系统已经运行*/
+		return xTaskGetTickCount() * 1000 + (179999 - SysTick->VAL) / 180;
+	else
+		return sysTickCnt * 1000 + (179999 - SysTick->VAL) / 180;
+}
+
 /**
   * @brief  This function handles SVCall exception.
   */

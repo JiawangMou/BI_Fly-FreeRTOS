@@ -122,6 +122,8 @@ void stabilizerTask(void* param)
         vTaskDelayUntil(&lastWakeTime, MAIN_LOOP_DT);
     }
 
+    atkp_t send_debug;
+
     // Init Paparazzi Control
     stabilization_attitude_init();
     bool on_flight = false;
@@ -140,58 +142,95 @@ void stabilizerTask(void* param)
         if (RATE_DO_EXECUTE(ATTITUDE_ESTIMAT_RATE, tick)) {
             // sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
             imuUpdate(sensorData.acc, sensorData.gyro, &state, ATTITUDE_ESTIMAT_DT);
+            send_debug.msgID = 0xF1;
+            send_debug.dataLen = 11;
+            send_debug.data[0] = 4;
+
+            u32 timestamp = getCurrentUs();
+            send_debug.data[1] = timestamp >> 24;
+            send_debug.data[2] = timestamp >> 16;
+            send_debug.data[3] = timestamp >> 8;
+            send_debug.data[4] = timestamp;
+
+            s16 tmp = state.attitude.roll * 10;
+            send_debug.data[5] = tmp >> 8;
+            send_debug.data[6] = tmp;
+            tmp = state.attitude.pitch * 10;
+            send_debug.data[7] = tmp >> 8;
+            send_debug.data[8] = tmp;
+            tmp = state.attitude.yaw * 10;
+            send_debug.data[9] = tmp >> 8;
+            send_debug.data[10] = tmp;
+            usblinkSendPacket(&send_debug);
         }
 
         //位置预估计算（250Hz）
         if (RATE_DO_EXECUTE(POSITION_ESTIMAT_RATE, tick)) {
             positionEstimate(&sensorData, &state, POSITION_ESTIMAT_DT);
+            send_debug.msgID = 0xF1;
+            send_debug.dataLen = 9;
+            send_debug.data[0] = 5;
+
+            u32 timestamp = getCurrentUs();
+            send_debug.data[1] = timestamp >> 24;
+            send_debug.data[2] = timestamp >> 16;
+            send_debug.data[3] = timestamp >> 8;
+            send_debug.data[4] = timestamp;
+
+            s16 tmp = state.position.z * 10;
+            send_debug.data[5] = tmp >> 8;
+            send_debug.data[6] = tmp;
+            tmp = state.velocity.z * 10;
+            send_debug.data[7] = tmp >> 8;
+            send_debug.data[8] = tmp;
+            usblinkSendPacket(&send_debug);
         }
 
         //目标姿态和飞行模式设定（100Hz）
-        if (RATE_DO_EXECUTE(RATE_100_HZ, tick) && getIsCalibrated() == true) {
-            commanderGetSetpoint(&setpoint, &state); /*目标数据和飞行模式设定*/
-        }
+        // if (RATE_DO_EXECUTE(RATE_100_HZ, tick) && getIsCalibrated() == true) {
+        //     commanderGetSetpoint(&setpoint, &state); /*目标数据和飞行模式设定*/
+        // }
 
-        if (RATE_DO_EXECUTE(RATE_250_HZ, tick)) {
-            fastAdjustPosZ(); /*快速调整高度*/
-        }
-        //
-        /*读取光流数据(100Hz)*/
-        if (RATE_DO_EXECUTE(RATE_100_HZ, tick)) {
-            getOpFlowData(&state, 0.01f);
-        }
+        // if (RATE_DO_EXECUTE(RATE_250_HZ, tick)) {
+        //     fastAdjustPosZ(); /*快速调整高度*/
+        // }
+        // //
+        // /*读取光流数据(100Hz)*/
+        // if (RATE_DO_EXECUTE(RATE_100_HZ, tick)) {
+        //     getOpFlowData(&state, 0.01f);
+        // }
 
-        /*翻滚检测(500Hz) 非定点模式*/
-        if (RATE_DO_EXECUTE(RATE_500_HZ, tick) && (getCommanderCtrlMode() != 0x03)) {
-            flyerFlipCheck(&setpoint, &control, &state);
-        }
+        // /*翻滚检测(500Hz) 非定点模式*/
+        // if (RATE_DO_EXECUTE(RATE_500_HZ, tick) && (getCommanderCtrlMode() != 0x03)) {
+        //     flyerFlipCheck(&setpoint, &control, &state);
+        // }
 
-        /*异常检测*/
-        anomalDetec(&sensorData, &state, &control);
+        // /*异常检测*/
+        // anomalDetec(&sensorData, &state, &control);
 
-        /*PID控制*/
-        if (RATE_DO_EXECUTE(RATE_500_HZ, tick)){
+        // /*PID控制*/
+        // if (RATE_DO_EXECUTE(RATE_500_HZ, tick)){
 
-            control.thrust = setpoint.thrust;
-            if(control.thrust > 5.f && !on_flight){
-                stabilization_attitude_enter(RadOfDeg(state.attitude.yaw));
-                on_flight = true;
-            }
-            if(control.thrust <= 5.f && on_flight){
-                stabilization_attitude_quit();
-                on_flight = false;
-            }
-            stabilization_attitude_run(&control, &sensorData, &state, &setpoint);
-            if(!on_flight){
-                control.roll = 0;
-            }
-        }
-        // stateControl(&control, &sensorData, &state, &setpoint, tick);
+        //     control.thrust = setpoint.thrust;
+        //     if(control.thrust > 5.f && !on_flight){
+        //         stabilization_attitude_enter(RadOfDeg(state.attitude.yaw));
+        //         on_flight = true;
+        //     }
+        //     if(control.thrust <= 5.f && on_flight){
+        //         stabilization_attitude_quit();
+        //         on_flight = false;
+        //     }
+        //     stabilization_attitude_run(&control, &sensorData, &state, &setpoint);
+        //     if(!on_flight){
+        //         control.roll = 0;
+        //     }
+        // }
+        // // stateControl(&control, &sensorData, &state, &setpoint, tick);
 
-        //控制电机输出（500Hz）
-        if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
-            motorControl(&control);
-        }
+        // //控制电机输出（500Hz）
+        // if (RATE_DO_EXECUTE(RATE_500_HZ, tick)) {
+        //     motorControl(&control);
+        // }
 
         tick++;
     }

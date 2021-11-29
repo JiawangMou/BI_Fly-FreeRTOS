@@ -148,6 +148,11 @@ void vl53l1xTask(void *arg)
 	vl53lxxInit();
 	vl53l1xSetParam(); /*设置vl53l1x 参数*/
 
+	atkp_t send_debug;
+	send_debug.msgID = 0xF1;
+	send_debug.dataLen = 7;
+	send_debug.data[0] = 3;
+
 	while (1)
 	{
 		// if(reInitvl53l1x == true)
@@ -165,6 +170,16 @@ void vl53l1xTask(void *arg)
 			status = VL53L1_GetRangingMeasurementData(&dev, &rangingData);
 			if (status == 0)
 			{
+				u32 timestamp = getCurrentUs();;
+				send_debug.data[1] = timestamp >> 24;
+				send_debug.data[2] = timestamp >> 16;
+				send_debug.data[3] = timestamp >> 8;
+				send_debug.data[4] = timestamp;
+				send_debug.data[5] = rangingData.RangeMilliMeter >> 8;
+				send_debug.data[6] = rangingData.RangeMilliMeter;
+
+				usblinkSendPacket(&send_debug);
+
 				range_last = rangingData.RangeMilliMeter * 0.1f; /*单位cm*/
 				
 				if (range_last < VL53L1X_MAX_RANGE)
