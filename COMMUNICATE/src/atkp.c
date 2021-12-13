@@ -13,6 +13,7 @@
 #include "remoter_ctrl.h"
 #include "sensfusion6.h"
 #include "sensors.h"
+#include "state_control.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
 #include "uart_3.h"
@@ -21,6 +22,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "bat.h"
+#include "ina226.h"
 
 /*FreeRTOS相关头文件*/
 #include "FreeRTOS.h"
@@ -96,63 +99,23 @@ static void atkpSendPacket(atkp_t* p)
 }
 /***************************发送至匿名上位机指令******************************/
 
-// // TEST:sendTestData
-// static void sendTestData(
-//     float roll, float pitch, float yaw, s32 alt, Axis3f acc, Acc_Send accRawData, float ZPredict, uint32_t timestamp)
-// {
+// TEST:sendTestData
+static void sendTestData(u8 data_id, u8 data_size, s16* data)
+{
 
-//     u8     _cnt = 0;
-//     atkp_t p;
-//     vs16   _temp;
-//     vs32   _temp2 = alt;
+    u8     _cnt = 0;
+    atkp_t p;
 
-//     p.msgID = 0x88;
+    p.msgID = data_id;
 
-//     _temp          = (int)(roll * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(pitch * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(yaw * 100);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
+    for(u8 i = 0; i < data_size; ++ i){
+        p.data[_cnt ++] = data[i] >> 8;
+        p.data[_cnt ++] = data[i];
+    }
 
-//     _temp          = (int)(alt * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(acc.x * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(acc.y * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(acc.z * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(accRawData.acc_beforefusion.x * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(accRawData.acc_beforefusion.y * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-//     _temp          = (int)(accRawData.acc_beforefusion.z * 1000);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     _temp          = (int)(ZPredict * 10);
-//     p.data[_cnt++] = BYTE1(_temp);
-//     p.data[_cnt++] = BYTE0(_temp);
-
-//     p.data[_cnt++] = BYTE3(timestamp);
-//     p.data[_cnt++] = BYTE2(timestamp);
-//     p.data[_cnt++] = BYTE1(timestamp);
-//     p.data[_cnt++] = BYTE0(timestamp);
-//     p.dataLen      = _cnt;
-//     atkpSendPacket(&p);
-// }
+    p.dataLen = _cnt;
+    atkpSendPacket(&p);
+}
 
 static void sendStatus(float roll, float pitch, float yaw, s32 alt, u8 fly_model, u8 armed, uint32_t timestamp)
 {
@@ -536,17 +499,26 @@ static void atkpSendPeriod(void)
     {
         Axis3f acc, vel, pos;
         float  thrustBase = 0.1f * configParam.thrustBase;
+        float SOCest = 0.f, current = 0.f;
+        attitude_t rateDesired, angleDesired, attitude;
+        sensorData_t sensor;
+        getSensorData(&sensor);
+        getRateDesired(&rateDesired);
+        getAngleDesired(&angleDesired);
+        getAttitudeData(&attitude);
 
         getStateData(&acc, &vel, &pos);
-        sendUserData(1, acc.x, acc.y, acc.z, vel.x, vel.y, vel.z, pos.x, pos.y, pos.z);
-        sendUserData(2, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],
-            getVl53l1xxrangecompensated(), getFusedHeight(), vl53lxx.distance, 100.f * vl53lxx.quality, thrustBase);
+        getSOC(&SOCest);
+        getcurrent(&current);
+        sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
+        sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw,vl53lxx.distance, vl53lxx.quality, vl53lxx.timestamp,
+                     SOCest, current, thrustBase);
     }
     if (!(count_ms % PERIOD_RCDATA)) {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
     }
     if (!(count_ms % PERIOD_POWER)) {
-        float bat = pmGetBatteryVoltage();
+        float bat = getBatteryVoltage();
         sendPower(bat * 100, 500);
     }
     if (!(count_ms % PERIOD_MOTOR)) {
@@ -567,22 +539,24 @@ static void atkpSendPeriod(void)
     //     int baro = getBaroData() * 100.f;
     //     sendSenser2(baro, 0);
     // }
-    if (!(count_ms % PERIOD_PIDOUT)) {
-        Axis3f acc, vel, pos;
-        mode_e z_mode;
-        u8 commander;
-        sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
-        pidAnglePitch.outI,pidAnglePitch.outD);
-        sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
-            pidRateRoll.outD);
-        sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
-            pidRateYaw.outD);
-        getStateData(&acc, &vel, &pos);
-        z_mode = getZmode();
-        commander = getCommanderBits();
-        u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
-        sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
-    }
+
+    // if (!(count_ms % PERIOD_PIDOUT)) {
+    //     Axis3f acc, vel, pos;
+    //     mode_e z_mode;
+    //     u8 commander;
+    //     sendPIDOUT(0, pidAngleRoll.outP, pidAngleRoll.outI, pidAngleRoll.outD, pidAnglePitch.outP,
+    //     pidAnglePitch.outI,pidAnglePitch.outD);
+    //     sendPIDOUT(1, pidAngleYaw.outP, pidAngleYaw.outI, pidAngleYaw.outD, pidRateRoll.outP, pidRateRoll.outI,
+    //         pidRateRoll.outD);
+    //     sendPIDOUT(2, pidRatePitch.outP, pidRatePitch.outI, pidRatePitch.outD, pidRateYaw.outP, pidRateYaw.outI,
+    //         pidRateYaw.outD);
+    //     getStateData(&acc, &vel, &pos);
+    //     z_mode = getZmode();
+    //     commander = getCommanderBits();
+    //     u32 modeCommander =((((u32)z_mode&0xff) << 8) | ((u32)commander&0xff));
+    //     sendPIDOUT(3, pidZ.out, pidVZ.out, getControlData().thrust, vel.z, *(float*)(&modeCommander), 0);
+    // }
+    
     if (++count_ms >= 65535)
         count_ms = 1;
 }
@@ -798,13 +772,38 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
     }
 }
 
+// DEBUG
+SemaphoreHandle_t debugSendSem;
+debugData_t debugData;
+void debugSend(){
+        
+        s16 send_data[15];
+        send_data[0] = debugData.fusedHeightLpf * 10;
+        send_data[1] = debugData.accx * 10;
+        send_data[2] = debugData.accy * 10;
+        send_data[3] = debugData.accz * 10;
+        send_data[4] = debugData.velz * 10;
+        send_data[5] = debugData.posz * 10;
+        send_data[6] = debugData.q0 * 10000;
+        send_data[7] = debugData.q1 * 10000;
+        send_data[8] = debugData.q2 * 10000;
+        send_data[9] = debugData.q3 * 10000;
+        send_data[10] = debugData.pitch * 100;
+        send_data[11] = debugData.roll * 100;
+        send_data[12] = getSysTickCnt();
+
+        sendTestData(0xF2, 13, send_data);
+}
+
 void atkpTxTask(void* param)
 {
     u32 lastWakeTime = getSysTickCnt();
     sendMsgACK();
+    debugSendSem = xSemaphoreCreateBinary();
     while (1) {
+        // xSemaphoreTake(debugSendSem, portMAX_DELAY);
+        // debugSend();
         atkpSendPeriod();
-        // vTaskDelay(10);
         vTaskDelayUntil(&lastWakeTime, 1);
     }
 }
