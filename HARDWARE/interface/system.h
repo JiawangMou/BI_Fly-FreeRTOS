@@ -33,7 +33,10 @@
 #include "pm.h"
 #include "uart_syslink.h"
 #include "vl53lxx.h"
+#include "ina226.h"
 #include "optical_flow.h"
+#include "bat.h"
+#include "vl53lxx_i2c_hw.h"
 
 // /*À©Õ¹Ä£¿éÇý¶¯*/
 // #include "module_detect.h"

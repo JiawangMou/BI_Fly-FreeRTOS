@@ -29,6 +29,7 @@ void systemInit(void)
     atkpInit();
     usblinkInit();
     //  pmInit();
+    batVoltInit();
     //	ledseqInit();		/*led灯序列初始化*/
     //
     commInit();			/*通信初始化  STM32 & NRF51822 */
@@ -39,6 +40,7 @@ void systemInit(void)
     configParamInit();	/*初始化配置参数*/
     //	pmInit();			/*电源管理初始化*/
     stabilizerInit();	/*电机 传感器 PID初始化*/
+    vl53_HWIIC_Init();  /*p7 p8 I2C初始化*/
     //	expModuleDriverInit();/*扩展模块驱动初始化*/
 
     //	if(systemTest() == true)

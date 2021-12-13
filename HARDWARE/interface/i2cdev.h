@@ -22,6 +22,8 @@
 
 typedef I2cDrv    I2C_Dev;
 #define I2C3_DEV  &sensorsBus
+
+#define I2C1_DEV  &i2c1Bus
 //#define I2C3_DEV  &deckBus
 
 /**
