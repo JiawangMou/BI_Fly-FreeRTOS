@@ -143,7 +143,7 @@ void stabilizerTask(void* param)
             // sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
             imuUpdate(sensorData.acc, sensorData.gyro, &state, ATTITUDE_ESTIMAT_DT);
             send_debug.msgID = 0xF1;
-            send_debug.dataLen = 11;
+            send_debug.dataLen = 13;
             send_debug.data[0] = 4;
 
             u32 timestamp = getCurrentUs();
@@ -152,15 +152,20 @@ void stabilizerTask(void* param)
             send_debug.data[3] = timestamp >> 8;
             send_debug.data[4] = timestamp;
 
-            s16 tmp = state.attitude.roll * 10;
+            float q0, q1, q2, q3;
+            getStateQuanternion(&q0, &q1, &q2, &q3);
+            s16 tmp = q0 * 10000;
             send_debug.data[5] = tmp >> 8;
             send_debug.data[6] = tmp;
-            tmp = state.attitude.pitch * 10;
+            tmp = q1 * 10000;;
             send_debug.data[7] = tmp >> 8;
             send_debug.data[8] = tmp;
-            tmp = state.attitude.yaw * 10;
+            tmp = q2 * 10000;
             send_debug.data[9] = tmp >> 8;
             send_debug.data[10] = tmp;
+            tmp = q3 * 10000;
+            send_debug.data[11] = tmp >> 8;
+            send_debug.data[12] = tmp;
             usblinkSendPacket(&send_debug);
         }
 

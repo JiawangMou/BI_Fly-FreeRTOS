@@ -38,7 +38,7 @@
 static float wBaro    = 0.65f; /*气压校正权重*/
 static float wOpflowP = 1.0f;  /*光流位置校正权重*/
 static float wOpflowV = 2.0f;  /*光流速度校正权重*/
-static float wAccBias = 0.15f;  /*加速度校正权重*/
+static float wAccBias = 0.1f;  /*加速度校正权重*/
 
 static bool isRstHeight = false; /*复位高度*/
 static bool isRstAll    = true;  /*复位估测*/
@@ -96,7 +96,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         vl53lxxReadRange(&sensorData->zrange); /*读取激光数据*/
         fusedHeight = sensorData->zrange.distance;
-        weight = sensorData->zrange.quality * 3.5;
+        weight = sensorData->zrange.quality * 2;
         // rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f; /*低通 单位cm*/
 
         // float quality = sensorData->zrange.quality;
