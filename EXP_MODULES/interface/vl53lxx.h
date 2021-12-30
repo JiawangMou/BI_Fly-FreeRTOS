@@ -34,8 +34,6 @@ bool getVl53l1xstate(void);
 u16 getVl53l1xxrangecompensated(void);
 void getLaserData(int16_t* laserRaw, float* laserComp);
 
-void getvoltage(float* v);
-void getcurrent(float* c);
 
 #endif /* __VL53LXX_H */
 

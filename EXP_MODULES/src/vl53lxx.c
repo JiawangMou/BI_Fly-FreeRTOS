@@ -153,6 +153,9 @@ void vl53l1xTask(void *arg)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	vl53lxxInit();
 	INA226_Init();
+	Matrix_Init();
+	PreSet(&xLastWakeTime);
+	INA226_Init();
 	vl53l1xSetParam(); /*…Ë÷√vl53l1x ≤Œ ˝*/
 
 	while (1)
@@ -174,15 +177,12 @@ void vl53l1xTask(void *arg)
 				ID_vl = INA226_Get_ID(INA226_ADDR1);
 				calibrated_vl = INA226_GET_CAL_REG(INA226_ADDR1);
 				configuration_vl = INA226_Get_CFG_REG(INA226_ADDR1);
-				i2cdevWrite(I2C1_DEV, INA226_ADDR1, CAL_REG, 2, &ina226config[2]);
-				GetPower();
-				s_cur_vl = INA226_data.Shunt_Current;
-				voltage_vl = INA226_data.voltageVal;
-				if (s_cur_vl == 0)
-				{
-					SOC_vl = findSOC(voltage_vl);
-				}
-				SOC_vl = SOC_vl - 0.01f * s_cur_vl * dt / (3600 * Q_est_vl);
+				ina226loop();
+				// i2cdevWrite(I2C1_DEV, INA226_ADDR1, CAL_REG, 2, &ina226config[2]);
+				// GetPower();
+				// s_cur_vl = INA226_data.Shunt_Current;
+				// voltage_vl = INA226_data.voltageVal;
+				// SOC_vl = SOC_vl - 0.001f * s_cur_vl * dt / (3600 * Q_est_vl);
 			}
 			if (RATE_DO_EXECUTE(RATE_20_HZ, ticki2c))
 			{
@@ -280,11 +280,3 @@ u16 getVl53l1xxrangecompensated(void)
 	return range_compensated;
 }
 
-void getvoltage(float *v)
-{
-	*v = voltage_vl;
-}
-void getcurrent(float *c)
-{
-	*c = s_cur_vl;
-}
