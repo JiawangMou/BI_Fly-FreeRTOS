@@ -1,5 +1,5 @@
 #include "system.h"
-#include "vl53lxx_i2c.h"
+#include "vl53lxx_i2c_hw.h"
 #include "vl53l1x.h"
 #include "vl53l1_api.h"
 
@@ -56,7 +56,7 @@ VL53L1_Error VL53L1_WriteMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, u
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 	
-	vl53l1Write(VL53L1X_ADDR, index, count, pdata);	
+	vl53l1Write(VL53L1X_DEFAULT_ADDRESS, index, count, pdata);	
     
 	VL53L1_GetI2cBus();
 	VL53L1_PutI2cBus();
@@ -69,7 +69,7 @@ VL53L1_Error VL53L1_ReadMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, ui
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 
-	vl53l1Read(VL53L1X_ADDR, index, count, pdata);	
+	vl53l1Read(VL53L1X_DEFAULT_ADDRESS, index, count, pdata);	
     
 	VL53L1_GetI2cBus();	
 	VL53L1_PutI2cBus();
@@ -81,7 +81,7 @@ VL53L1_Error VL53L1_WrByte(VL53L1_DEV Dev, uint16_t index, uint8_t data)
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 	
-	vl53l1Write(VL53L1X_ADDR, index, 1, &data);
+	vl53l1Write(VL53L1X_DEFAULT_ADDRESS, index, 1, &data);
     
 	VL53L1_GetI2cBus();	
 	VL53L1_PutI2cBus();
@@ -96,7 +96,7 @@ VL53L1_Error VL53L1_WrWord(VL53L1_DEV Dev, uint16_t index, uint16_t data)
     _I2CBuffer[0] = data >> 8;
     _I2CBuffer[1] = data & 0x00FF;
 
-	vl53l1Write(VL53L1X_ADDR, index, 2, _I2CBuffer);
+	vl53l1Write(VL53L1X_DEFAULT_ADDRESS, index, 2, _I2CBuffer);
 
 	VL53L1_GetI2cBus();	
 	VL53L1_PutI2cBus();
@@ -113,7 +113,7 @@ VL53L1_Error VL53L1_WrDWord(VL53L1_DEV Dev, uint16_t index, uint32_t data)
     _I2CBuffer[2] = (data >> 8)  & 0xFF;
     _I2CBuffer[3] = (data >> 0 ) & 0xFF;
 	
-	vl53l1Write(VL53L1X_ADDR, index, 4, _I2CBuffer);
+	vl53l1Write(VL53L1X_DEFAULT_ADDRESS, index, 4, _I2CBuffer);
 
 	VL53L1_GetI2cBus();	
 	VL53L1_PutI2cBus();
@@ -126,7 +126,7 @@ VL53L1_Error VL53L1_RdByte(VL53L1_DEV Dev, uint16_t index, uint8_t *data)
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 	
-	vl53l1Read(VL53L1X_ADDR, index, 1, data);
+	vl53l1Read(VL53L1X_DEFAULT_ADDRESS, index, 1, data);
 
 	VL53L1_GetI2cBus();	
 	VL53L1_PutI2cBus();
@@ -138,7 +138,7 @@ VL53L1_Error VL53L1_RdWord(VL53L1_DEV Dev, uint16_t index, uint16_t *data)
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 	
-	vl53l1Read(VL53L1X_ADDR, index, 2, _I2CBuffer);
+	vl53l1Read(VL53L1X_DEFAULT_ADDRESS, index, 2, _I2CBuffer);
     *data = ((uint16_t)_I2CBuffer[0]<<8) + (uint16_t)_I2CBuffer[1];
 
 	VL53L1_GetI2cBus();	
@@ -151,7 +151,7 @@ VL53L1_Error VL53L1_RdDWord(VL53L1_DEV Dev, uint16_t index, uint32_t *data)
 {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
 
-	vl53l1Read(VL53L1X_ADDR, index, 4, _I2CBuffer);
+	vl53l1Read(VL53L1X_DEFAULT_ADDRESS, index, 4, _I2CBuffer);
     *data = ((uint32_t)_I2CBuffer[0]<<24) + ((uint32_t)_I2CBuffer[1]<<16) + ((uint32_t)_I2CBuffer[2]<<8) + (uint32_t)_I2CBuffer[3];
 
 	VL53L1_GetI2cBus();	
