@@ -58,6 +58,7 @@ typedef struct
 	uint32_t            i2cEVIRQn;
 	uint32_t            i2cERIRQn;
 	uint32_t            i2cClockSpeed;
+	uint8_t 			i2cIRQPreemptionPriority;
 	uint32_t            gpioSCLPerif;
 	GPIO_TypeDef*       gpioSCLPort;
 	uint32_t            gpioSCLPin;
@@ -73,6 +74,7 @@ typedef struct
 	uint32_t            dmaRxIRQ;
 	uint32_t            dmaRxTCFlag;
 	uint32_t            dmaRxTEFlag;
+	uint8_t 			dmaIRQPreemptionPriority;
 
 } I2cDef;
 typedef struct
@@ -113,6 +115,7 @@ typedef struct
 
 // Definitions of i2c busses found in c file.
 extern I2cDrv sensorsBus;
+extern I2cDrv i2c1Bus;
 extern I2cDrv deckBus;
 /**
  * Initialize i2c peripheral as defined by static I2cDef structs.

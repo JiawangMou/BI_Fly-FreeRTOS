@@ -25,8 +25,9 @@
 
 
 //传感器IIC总线速度
-#define I2C_SENSORS_CLOCK_SPEED	400000
-#define I2C_DECK_CLOCK_SPEED	400000
+#define I2C_SENSORS_CLOCK_SPEED 400000
+#define I2C1_SENSORS_CLOCK_SPEED 100000
+#define I2C_DECK_CLOCK_SPEED 400000
 
 // Misc constants.
 #define I2C_NO_BLOCK			0
@@ -98,27 +99,55 @@ static void i2cdrvDmaIsrHandler(I2cDrv* i2c);
  */
 static const I2cDef sensorsBusDef =
 {
-	.i2cPort            = I2C3,
-	.i2cPerif           = RCC_APB1Periph_I2C3,
-	.i2cEVIRQn          = I2C3_EV_IRQn,
-	.i2cERIRQn          = I2C3_ER_IRQn,
-	.i2cClockSpeed      = I2C_SENSORS_CLOCK_SPEED,
-	.gpioSCLPerif       = RCC_AHB1Periph_GPIOA,
-	.gpioSCLPort        = GPIOA,
-	.gpioSCLPin         = GPIO_Pin_8,
-	.gpioSCLPinSource   = GPIO_PinSource8,
-	.gpioSDAPerif       = RCC_AHB1Periph_GPIOC,
-	.gpioSDAPort        = GPIOC,
-	.gpioSDAPin         = GPIO_Pin_9,
-	.gpioSDAPinSource   = GPIO_PinSource9,
-	.gpioAF             = GPIO_AF_I2C3,
-	.dmaPerif           = RCC_AHB1Periph_DMA1,
-	.dmaChannel         = DMA_Channel_1,
-	.dmaRxStream        = DMA1_Stream1,
-	.dmaRxIRQ           = DMA1_Stream1_IRQn,
-	.dmaRxTCFlag        = DMA_FLAG_TCIF1,
-	.dmaRxTEFlag        = DMA_FLAG_TEIF1,
+	.i2cPort            		= I2C3,
+	.i2cPerif           		= RCC_APB1Periph_I2C3,
+	.i2cEVIRQn          		= I2C3_EV_IRQn,
+	.i2cERIRQn          		= I2C3_ER_IRQn,
+	.i2cClockSpeed      		= I2C_SENSORS_CLOCK_SPEED,
+	.i2cIRQPreemptionPriority 	= 7,
+	.gpioSCLPerif       		= RCC_AHB1Periph_GPIOA,
+	.gpioSCLPort        		= GPIOA,
+	.gpioSCLPin         		= GPIO_Pin_8,
+	.gpioSCLPinSource   		= GPIO_PinSource8,
+	.gpioSDAPerif       		= RCC_AHB1Periph_GPIOC,
+	.gpioSDAPort        		= GPIOC,
+	.gpioSDAPin        		 	= GPIO_Pin_9,
+	.gpioSDAPinSource   		= GPIO_PinSource9,
+	.gpioAF             		= GPIO_AF_I2C3,
+	.dmaPerif           		= RCC_AHB1Periph_DMA1,
+	.dmaChannel         		= DMA_Channel_1,
+	.dmaRxStream        		= DMA1_Stream1,
+	.dmaRxIRQ           		= DMA1_Stream1_IRQn,
+	.dmaRxTCFlag				= DMA_FLAG_TCIF1,
+	.dmaRxTEFlag        		= DMA_FLAG_TEIF1,
+	.dmaIRQPreemptionPriority 	= 6,
 };
+
+static const I2cDef i2c1BusDef =
+{
+	.i2cPort            		= I2C1,
+	.i2cPerif           		= RCC_APB1Periph_I2C1,
+	.i2cEVIRQn          		= I2C1_EV_IRQn,
+	.i2cERIRQn          		= I2C1_ER_IRQn,
+	.i2cClockSpeed      		= I2C1_SENSORS_CLOCK_SPEED,
+	.i2cIRQPreemptionPriority 	= 7,
+	.gpioSCLPerif       		= RCC_AHB1Periph_GPIOB,
+	.gpioSCLPort        		= GPIOB,
+	.gpioSCLPin         		= GPIO_Pin_8,
+	.gpioSCLPinSource   		= GPIO_PinSource8,
+	.gpioSDAPerif       		= RCC_AHB1Periph_GPIOB,
+	.gpioSDAPort        		= GPIOB,
+	.gpioSDAPin         		= GPIO_Pin_9,
+	.gpioSDAPinSource   		= GPIO_PinSource9,
+	.gpioAF             		= GPIO_AF_I2C1,
+	.dmaPerif           		= RCC_AHB1Periph_DMA1,
+	.dmaChannel         		= DMA_Channel_1,
+	.dmaRxStream        		= DMA1_Stream0,
+	.dmaRxIRQ           		= DMA1_Stream0_IRQn,
+	.dmaRxTCFlag        		= DMA_FLAG_TCIF0,
+	.dmaRxTEFlag        		= DMA_FLAG_TEIF0,
+	.dmaIRQPreemptionPriority 	= 6,
+};		
 
 /**
  * 传感器总线
@@ -127,6 +156,12 @@ I2cDrv sensorsBus =
 {
 	.def                = &sensorsBusDef,
 };
+
+I2cDrv i2c1Bus =
+{
+	.def                = &i2c1BusDef,
+};
+
 
 // static const I2cDef deckBusDef =
 // {
@@ -231,7 +266,7 @@ static void i2cdrvDmaSetupBus(I2cDrv* i2c)
 	i2c->DMAStruct.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
 	NVIC_InitStructure.NVIC_IRQChannel = i2c->def->dmaRxIRQ;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = i2c->def->dmaIRQPreemptionPriority;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -288,15 +323,15 @@ static void i2cdrvInitBus(I2cDrv* i2c)
 	I2C_ITConfig(i2c->def->i2cPort, I2C_IT_ERR, ENABLE);
 
 	NVIC_InitStructure.NVIC_IRQChannel = i2c->def->i2cEVIRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = i2c->def->i2cIRQPreemptionPriority;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	NVIC_InitStructure.NVIC_IRQChannel = i2c->def->i2cERIRQn;
 	NVIC_Init(&NVIC_InitStructure);
 
-	i2cdrvDmaSetupBus(i2c);
 
+	i2cdrvDmaSetupBus(i2c);
 	i2c->isBusFreeSemaphore = xSemaphoreCreateBinary();
 	i2c->isBusFreeMutex = xSemaphoreCreateMutex();
 }
@@ -634,6 +669,22 @@ void __attribute__((used)) DMA1_Stream1_IRQHandler(void)
 {
 	i2cdrvDmaIsrHandler(&sensorsBus);
 }
+
+
+void __attribute__((used)) I2C1_ER_IRQHandler(void)
+{
+	i2cdrvErrorIsrHandler(&i2c1Bus);
+}
+
+void __attribute__((used)) I2C1_EV_IRQHandler(void)
+{
+	i2cdrvEventIsrHandler(&i2c1Bus);
+}
+void __attribute__((used)) DMA1_Stream0_IRQHandler(void)
+{
+	i2cdrvDmaIsrHandler(&i2c1Bus);
+}
+
 
 //void __attribute__((used)) I2C3_ER_IRQHandler(void)
 //{
