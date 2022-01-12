@@ -49,7 +49,7 @@ static float startBaroAsl   = 0.f; /*起飞点海拔*/
 
 // // TEST:加速度漂移问题
 // static float posZPredict = 0.0f;
-static float fHLast = 0.0f;
+//static float fHLast = 0.0f;
 
 /*估测系统*/
 static estimator_t estimator = {
@@ -86,7 +86,7 @@ static void inavFilterCorrectVel(int axis, float dt, float e, float w) { estimat
 
 void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 {
-    static float rangeLpf  = 0.f;
+//    static float rangeLpf  = 0.f;
     static float accLpf[3] = { 0.f }; /*加速度低通*/
     float        weight    = wBaro;
 
@@ -96,7 +96,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         vl53lxxReadRange(&sensorData->zrange); /*读取激光数据*/
         fusedHeight = sensorData->zrange.distance;
-        weight = sensorData->zrange.quality * 3.5;
+        weight = sensorData->zrange.quality * 3.5f;
         // rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f; /*低通 单位cm*/
 
         // float quality = sensorData->zrange.quality;
@@ -112,7 +112,7 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
     {
         fusedHeight = relateHight; /*融合高度*/
     }
-    fHLast = fusedHeightLpf;
+//    fHLast = fusedHeightLpf;
     fusedHeightLpf += (fusedHeight - fusedHeightLpf) * 0.1f; /*融合高度 低通*/
 
     if (isRstHeight) {
