@@ -63,7 +63,7 @@
 #define PERIOD_MOTOR 40
 #define PERIOD_SENSOR2 40
 #define PERIOD_SPEED 50
-#define PERIOD_USERDATA 20
+#define PERIOD_USERDATA 10
 #define PERIOD_PIDOUT 20
 
 #define ATKP_RX_QUEUE_SIZE 10 /*ATKP包接收队列消息个数*/
@@ -511,7 +511,7 @@ static void atkpSendPeriod(void)
         setpoint_t setpoint = getSetpoint();
         // getStateData(&acc, &vel, &pos);
         sendUserData(1, state.position.z, 10*state.velocity.z, state.acc.z, 10*state.attitude.roll, 10*state.attitude.pitch, 10*state.attitude.yaw, motorPWM.f1, motorPWM.f2, (s16)(timestamp & 0x00ffff));
-        sendUserData(2, sensordata.zrange.distance, setpoint.position.z, setpoint.velocity.z, 0, 0, 0, 0, 0);
+        sendUserData(2, sensordata.zrange.distance, setpoint.position.z, setpoint.velocity.z, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y], 0,0);
     }
     // if (!(count_ms % PERIOD_RCDATA)) {
     //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);

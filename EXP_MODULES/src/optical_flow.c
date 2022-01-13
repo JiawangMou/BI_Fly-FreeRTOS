@@ -288,8 +288,8 @@ void opticalFlowTask(void* param)
                 opFlow.isOpFlowOk = true; /*光流正确*/
             }
             /*连续2帧之间的像素变化，根据实际安装方向调整 (pitch:x)  (roll:y)*/
-            int16_t pixelDx = -currentMotion.deltaY;
-            int16_t pixelDy = -currentMotion.deltaX;
+            int16_t pixelDx = -currentMotion.deltaX;
+            int16_t pixelDy = currentMotion.deltaY;
 
             if (ABS(pixelDx) < OULIER_LIMIT && ABS(pixelDy) < OULIER_LIMIT) {
                 opFlow.pixSum[X] += pixelDx;

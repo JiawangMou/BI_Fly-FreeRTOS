@@ -10,7 +10,8 @@
             "stabilizer.h": "c",
             "sensors.h": "c",
             "system.h": "c",
-            "bat.h": "c"
+            "bat.h": "c",
+            "optical_flow.h": "c"
         },
         "C_Cpp.default.intelliSenseMode": "msvc-x86",
         "files.autoGuessEncoding": true,
