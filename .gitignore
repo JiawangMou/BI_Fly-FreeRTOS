@@ -82,3 +82,4 @@ JLinkSettings.ini
 /.vscode/c_cpp_properties.json
 /.vscode/settings.json
 /BI_Fly-FreeRTOS.si4project/
+BI_Fly-FreeRTOS.code-workspace
