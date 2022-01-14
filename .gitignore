@@ -64,6 +64,7 @@ dkms.conf
 /RTE/
 /OBJ/
 /USER/DebugConfig/
+/.edie/
 
 *.uvgui.*
 *.uvguix.*
@@ -80,6 +81,4 @@ JLinkSettings.ini
 /.vscode/.cortex-debug.registers.state.json
 /.vscode/c_cpp_properties.json
 /.vscode/settings.json
-/.eide/arm_builder.log
-/.eide/log
 /BI_Fly-FreeRTOS.si4project/

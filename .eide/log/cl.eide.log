@@ -1,0 +1,65 @@
+[2022/1/14 17:17:54 GMT+0800] : launched
+
+
+
+[2022/1/14 17:18:25 GMT+0800] : launched
+[Error] : The project version is '2.16', but eide is '2.6'. Please update eide to the latest version !
+Error: The project version is '2.16', but eide is '2.6'. Please update eide to the latest version !
+	at $.BeforeLoad (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:70103)
+	at $.BeforeLoad (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:77276)
+	at $.Load (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:59849)
+	at G._OpenProject (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:409811)
+	at EventEmitter.<anonymous> (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:400640)
+	at Object.onceWrapper (events.js:422:26)
+	at EventEmitter.emit (events.js:315:20)
+	at Function.emit (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:4711)
+	at EventEmitter.<anonymous> (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:238548)
+	at EventEmitter.emit (events.js:315:20)
+	at Function.emit (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:4711)
+	at G.LoadWorkspaceProject (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:400689)
+	at new G (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:399067)
+	at new t.ProjectExplorer (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:419277)
+	at c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:244174
+	at Generator.next (<anonymous>)
+	at s (c:\Users\13271\.vscode\extensions\cl.eide-2.14.0\dist\extension.js:1:235695)
+
+
+
+[2022/1/14 17:19:1 GMT+0800] : launched
+
+[2022/1/14 17:20:6 GMT+0800] : launched
+
+
+
+[2022/1/14 17:22:53 GMT+0800] : launched
+
+
+
+[2022/1/14 17:30:3 GMT+0800] : launched
+
+
+
+[2022/1/14 17:34:44 GMT+0800] : launched
+
+
+
+[2022/1/14 17:37:56 GMT+0800] : launched
+
+
+
+[2022/1/14 17:41:26 GMT+0800] : launched
+
+
+
+[2022/1/14 17:48:38 GMT+0800] : launched
+
+
+[2022/1/14 17:50:2 GMT+0800] : launched
+
+
+[2022/1/14 17:51:10 GMT+0800] : launched
+
+
+[2022/1/14 17:51:17 GMT+0800] : launched
+
+

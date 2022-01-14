@@ -1,0 +1,15 @@
+[2022-01-14 17:19:24]	[done]
+	build successfully !
+
+[2022-01-14 17:19:49]	[done]
+	build successfully !
+
+[2022-01-14 17:54:36]	link failed !, exit code: 1
+  at unify_builder.Program.Main (System.String[] args) [0x019f5] in <a005e7fdc108491b9a1a2798634168c4>:0 
+---
+Fatal error: L6031U: Could not open scatter description file c:/Users/13271/Desktop/BI_Fly-FreeRTOS/undefined: No such file or directory
+Not enough information to list image symbols.
+Not enough information to list the image map.
+Finished: 2 information, 0 warning, 0 error and 1 fatal error messages.
+
+
