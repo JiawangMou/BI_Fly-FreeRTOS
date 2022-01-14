@@ -509,9 +509,13 @@ static void atkpSendPeriod(void)
         u32 timestamp = getSysTickCnt();
         getMotorPWM(&motorPWM);
         setpoint_t setpoint = getSetpoint();
+        attitude_t attitudeDesired;
+        estimator_t estimator;
+        getAngleDesired(&attitudeDesired);
+        getEstimator(&estimator);
         // getStateData(&acc, &vel, &pos);
-        sendUserData(1, state.position.z, 10*state.velocity.z, state.acc.z, 10*state.attitude.roll, 10*state.attitude.pitch, 10*state.attitude.yaw, motorPWM.f1, motorPWM.f2, (s16)(timestamp & 0x00ffff));
-        sendUserData(2, sensordata.zrange.distance, setpoint.position.z, setpoint.velocity.z, opFlow.velLpf[X], opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y], 0,0);
+        sendUserData(1, attitudeDesired.roll,state.attitude.roll,attitudeDesired.pitch, state.attitude.pitch, opFlow.velLpf[X],opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],state.position.z);
+        sendUserData(2, setpoint.velocity.x,setpoint.velocity.y, setpoint.position.x,setpoint.position.y,estimator.accBias[X],estimator.acc[X],estimator.vel[X],opFlow.deltaVelComp[X],opFlow.deltaVelComp[Y]);
     }
     // if (!(count_ms % PERIOD_RCDATA)) {
     //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);

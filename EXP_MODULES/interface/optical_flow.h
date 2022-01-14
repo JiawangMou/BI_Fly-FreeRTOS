@@ -27,6 +27,9 @@ typedef struct opFlow_s
 {
 	float pixSum[2];		/*累积像素*/
 	float pixComp[2];		/*像素补偿*/
+	float pixCompLast[2];	/*上一次像素补偿*/
+	float deltaVelComp[2];  /*两次之间补偿的速度 单位：cm/s*/
+
 	float pixValid[2];		/*有效像素*/
 	float pixValidLast[2];	/*上一次有效像素*/
 	
@@ -34,7 +37,7 @@ typedef struct opFlow_s
 	float deltaVel[2];		/*速度 单位cm/s*/
 	float posSum[2];		/*累积位移 单位cm*/
 	float velLpf[2];		/*速度低通 单位cm/s*/
-	
+
 	bool isOpFlowOk;		/*光流状态*/
 	bool isDataValid;		/*数据有效*/
 

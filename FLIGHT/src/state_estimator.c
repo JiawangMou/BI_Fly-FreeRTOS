@@ -242,20 +242,28 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
     if (isKeyFlightLand == true) /*定高飞或者降落状态*/
     {
-        state->velocity.x = constrainf(estimator.vel[X], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
-        state->velocity.y = constrainf(estimator.vel[Y], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
+        // state->velocity.x = constrainf(estimator.vel[X], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
+        // state->velocity.y = constrainf(estimator.vel[Y], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
+        state->velocity.x = constrainf(opFlow.velLpf[X], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
+        state->velocity.y = constrainf(opFlow.velLpf[Y], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
         state->velocity.z = constrainf(estimator.vel[Z], -VELOCITY_LIMIT, VELOCITY_LIMIT); /*速度限幅 VELOCITY_LIMIT*/
     } else {
+        // state->velocity.x
+        //     = constrainf(estimator.vel[X], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
+        // state->velocity.y
+        //     = constrainf(estimator.vel[Y], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
         state->velocity.x
-            = constrainf(estimator.vel[X], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
+            = constrainf(opFlow.velLpf[X], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
         state->velocity.y
-            = constrainf(estimator.vel[Y], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
+            = constrainf(opFlow.velLpf[Y], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
         state->velocity.z
             = constrainf(estimator.vel[Z], -VELOCITY_LIMIT_MAX, VELOCITY_LIMIT_MAX); /*最大速度限幅 VELOCITY_LIMIT_MAX*/
     }
 
-    state->position.x = estimator.pos[X];
-    state->position.y = estimator.pos[Y];
+    // state->position.x = estimator.pos[X];
+    // state->position.y = estimator.pos[Y];
+    state->position.x = opFlow.posSum[X];
+    state->position.y = opFlow.posSum[Y];
     // state->position.z = fusedHeightLpf;
     // state->velocity.z = (fusedHeightLpf - fHLast) / dt;
     state->position.z = estimator.pos[Z];
@@ -274,5 +282,9 @@ void estRstHeight(void) { isRstHeight = true; }
 
 /*复位所有估测*/
 void estRstAll(void) { isRstAll = true; }
+void getEstimator(estimator_t *get)
+{
+    *get = estimator;
+}
 
 // float getPosZPredictData() { return posZPredict; }
