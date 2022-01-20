@@ -56,6 +56,7 @@ dkms.conf
 *.uvopt
 *.uvoptx
 *.uvproj
+*.uvprojx
 /List/
 **/Listing/
 **/Listings/
@@ -64,7 +65,7 @@ dkms.conf
 /RTE/
 /OBJ/
 /USER/DebugConfig/
-/.edie/
+/.eide/
 
 *.uvgui.*
 *.uvguix.*
