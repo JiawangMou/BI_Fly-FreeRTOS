@@ -63,7 +63,7 @@
 #define PERIOD_MOTOR 40
 #define PERIOD_SENSOR2 40
 #define PERIOD_SPEED 50
-#define PERIOD_USERDATA 2
+#define PERIOD_USERDATA 10
 #define PERIOD_PIDOUT 20
 
 #define ATKP_RX_QUEUE_SIZE 10 /*ATKP包接收队列消息个数*/
@@ -521,8 +521,8 @@ static void atkpSendPeriod(void)
         // getStateData(&acc, &vel, &pos);
         // sendUserData(1, attitudeDesired.roll,state.attitude.roll,attitudeDesired.pitch, state.attitude.pitch, opFlow.velLpf[X],opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],state.position.z);
         // sendUserData(2, setpoint.velocity.x,setpoint.velocity.y, setpoint.position.x,setpoint.position.y,estimator.accBias[X],estimator.acc[X],estimator.vel[X],opFlow.deltaVelComp[X],opFlow.deltaVelComp[Y]);
-        sendUserData(1, 10*attitudeDesired.roll,10*state.attitude.roll,10*attitudeDesired.pitch, 10*state.attitude.pitch,opFlow.velLpf[X],opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],sensordata.zrange.distance);
-        sendUserData(2, acc.x,acc.y,acc.z, gyro.x,gyro.y,gyro.z,0,opFlow.deltaVelComp[X],opFlow.deltaVelComp[Y]);
+        sendUserData(1, 10*state.attitude.yaw,10*state.attitude.pitch,10*state.attitude.roll,state.position.z, opFlow.velLpf[X],opFlow.velLpf[Y], opFlow.posSum[X], opFlow.posSum[Y],sensordata.zrange.distance);
+        sendUserData(2, acc.x,acc.y,acc.z, gyro.x,gyro.y,gyro.z,opFlow.deltaVelComp[X],opFlow.deltaVelComp[Y],(s16)(opFlow.timestamp & 0x00ffff));
     }
     // if (!(count_ms % PERIOD_RCDATA)) {
     //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);

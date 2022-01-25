@@ -28,7 +28,7 @@
  * All rights reserved
 ********************************************************************************/
 
-#define VERSION 23 /*13 表示V1.3*/
+#define VERSION 33 /*13 表示V1.3*/
 
 configParam_t configParam;
 
@@ -55,7 +55,7 @@ static configParam_t configParamDefault =
 				},
 			.yaw =
 				{
-					.kp = 100.0,
+					.kp = 10.0,
 					.ki = 0.0,
 					.kd = 0.0,
 					.outputLimit = 0,
@@ -134,9 +134,9 @@ static configParam_t configParamDefault =
 
 		.servo_initpos =
 			{
-				.s_left = 1520,
-				.s_right = 1520,
-				.s_middle = 1520,
+				.s_left = 1500,
+				.s_right = 1500,
+				.s_middle = 1500,
 			},
 		.accBias = 
 		{

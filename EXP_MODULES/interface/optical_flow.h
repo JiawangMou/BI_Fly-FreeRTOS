@@ -40,6 +40,7 @@ typedef struct opFlow_s
 
 	bool isOpFlowOk;		/*光流状态*/
 	bool isDataValid;		/*数据有效*/
+	uint32_t timestamp;		//时间戳
 
 } opFlow_t;
 

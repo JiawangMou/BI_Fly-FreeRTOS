@@ -294,6 +294,7 @@ void opticalFlowTask(void* param)
             if (ABS(pixelDx) < OULIER_LIMIT && ABS(pixelDy) < OULIER_LIMIT) {
                 opFlow.pixSum[X] += pixelDx;
                 opFlow.pixSum[Y] += pixelDy;
+                opFlow.timestamp = getSysTickCnt();
             } else {
                 outlierCount++;
             }
@@ -336,7 +337,7 @@ bool getOpFlowData(state_t* state, float dt)
 {
     static u8 cnt    = 0;
     float  height = 0.01f * getFusedHeight(); /*读取高度信息 单位m*/
-
+    
     if (opFlow.isOpFlowOk && height < 4.0f) /*4m范围内，光流可用*/
     {
         cnt                = 0;
@@ -400,6 +401,7 @@ bool getOpFlowData(state_t* state, float dt)
 
         opFlow.posSum[X] += opFlow.deltaPos[X]; /*累积位移 cm*/
         opFlow.posSum[Y] += opFlow.deltaPos[Y]; /*累积位移 cm*/
+        
     } else if (opFlow.isDataValid == true) {
         if (cnt++ > 100) /*超过定点高度，切换为定高模式*/
         {

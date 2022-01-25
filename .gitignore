@@ -65,7 +65,7 @@ dkms.conf
 /RTE/
 /OBJ/
 /USER/DebugConfig/
-/.eide/
+/.eide
 /build
 
 *.uvgui.*
@@ -78,6 +78,7 @@ JLinkLog.txt
 JLinkSettings.ini
 *.plg
 *.scvd
+
 /out
 /.vscode/.cortex-debug.peripherals.state.json
 /.vscode/.cortex-debug.registers.state.json
