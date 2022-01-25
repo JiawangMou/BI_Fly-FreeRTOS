@@ -66,6 +66,7 @@ dkms.conf
 /OBJ/
 /USER/DebugConfig/
 /.eide/
+/build
 
 *.uvgui.*
 *.uvguix.*
