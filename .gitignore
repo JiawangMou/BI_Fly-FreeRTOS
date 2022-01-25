@@ -56,7 +56,7 @@ dkms.conf
 *.uvopt
 *.uvoptx
 *.uvproj
-*.uvprojx
+
 /List/
 **/Listing/
 **/Listings/
