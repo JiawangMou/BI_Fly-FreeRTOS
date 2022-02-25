@@ -15,8 +15,8 @@
         <TargetCommonOption>
           <Device>STM32F446MEYx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.14.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x20000) IROM(0x08000000,0x80000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -530,16 +530,6 @@
               <FilePath>..\HARDWARE\src\spl06.c</FilePath>
             </File>
             <File>
-              <FileName>vl53lxx_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\src\vl53lxx_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\src\vl53l0x.c</FilePath>
-            </File>
-            <File>
               <FileName>vl53l1x.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\vl53l1x.c</FilePath>
@@ -563,6 +553,11 @@
               <FileName>bat.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\bat.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53lxx_i2c_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\vl53lxx_i2c_hw.c</FilePath>
             </File>
           </Files>
         </Group>

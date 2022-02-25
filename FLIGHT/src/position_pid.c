@@ -29,9 +29,9 @@
 #define PIDVY_OUTPUT_LIMIT 120.0f  // PITCH限幅	(单位°带0.15的系数)
 #define PIDVZ_OUTPUT_LIMIT (65500) /*PID VZ限幅*/
 
-#define PIDX_OUTPUT_LIMIT 1200.0f // X轴速度限幅(单位cm/s 带0.1的系数)
-#define PIDY_OUTPUT_LIMIT 1200.0f // Y轴速度限幅(单位cm/s 带0.1的系数)
-#define PIDZ_OUTPUT_LIMIT	100.0f	//Z轴速度限幅(单位cm/s)
+#define PIDX_OUTPUT_LIMIT 1200.0f   // X轴速度限幅(单位cm/s 带0.1的系数)
+#define PIDY_OUTPUT_LIMIT 1200.0f   // Y轴速度限幅(单位cm/s 带0.1的系数)
+#define PIDZ_OUTPUT_LIMIT  100.0f	//Z轴速度限幅(单位cm/s)
 //临时版本，定高变为单环PID,输出限幅直接到油门输出
 // #define PIDZ_OUTPUT_LIMIT 65500.0f // Z轴速度限幅(油门量)
 

@@ -523,16 +523,38 @@ static void atkpSendPeriod(void)
     if (!(count_ms % PERIOD_MOTOR)) {
         u16        f1, f2, s1, s2, s3, r1;
         motorPWM_t motorPWM;
+        getSensorData(&sensordata);
+        // getRateDesired(&rateDesired);
+        // getAngleDesired(&angleDesired);
+        // getAttitudeData(&attitude);
+        state_t state = getState();
+        u32 timestamp = getSysTickCnt();
         getMotorPWM(&motorPWM);
-        f1 = (float)motorPWM.f1 / 65535 * 1000;
-        f2 = (float)motorPWM.f2 / 65535 * 1000;
-        s1 = (float)motorPWM.s_left;
-        s2 = (float)motorPWM.s_rgith;
-        s3 = (float)motorPWM.s_middle;
-        r1 = (float)motorPWM.r1 / 65535 * 1000;
-
-        sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+        setpoint_t setpoint = getSetpoint();
+        // getStateData(&acc, &vel, &pos);
+        sendUserData(1, state.position.z, 10*state.velocity.z, state.acc.z, 10*state.attitude.roll, 10*state.attitude.pitch, 10*state.attitude.yaw, motorPWM.f1, motorPWM.f2, (s16)(timestamp & 0x00ffff));
+        sendUserData(2, sensordata.zrange.distance, setpoint.position.z, setpoint.velocity.z, 0, 0, 0, 0, 0,0);
     }
+    // if (!(count_ms % PERIOD_RCDATA)) {
+    //     sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
+    // }
+    // if (!(count_ms % PERIOD_POWER)) {
+    //     float bat = getBatteryVoltage();
+    //     sendPower(bat * 100, 500);
+    // }
+    // if (!(count_ms % PERIOD_MOTOR)) {
+    //     u16        f1, f2, s1, s2, s3, r1;
+    //     motorPWM_t motorPWM;
+    //     getMotorPWM(&motorPWM);
+    //     f1 = (float)motorPWM.f1 / 65535 * 1000;
+    //     f2 = (float)motorPWM.f2 / 65535 * 1000;
+    //     s1 = (float)motorPWM.s_left;
+    //     s2 = (float)motorPWM.s_rgith;
+    //     s3 = (float)motorPWM.s_middle;
+    //     r1 = (float)motorPWM.r1 / 65535 * 1000;
+
+    //     sendMotorPWM(f1, f2, s1, s2, s3, r1, 0, 0);
+    // }
     // if (!(count_ms % PERIOD_SENSOR2))
     // {
     //     int baro = getBaroData() * 100.f;

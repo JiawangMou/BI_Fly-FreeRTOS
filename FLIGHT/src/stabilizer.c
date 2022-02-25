@@ -128,8 +128,6 @@ void stabilizerTask(void* param)
             sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
         }
 
-
-
         //四元数和欧拉角计算（250Hz）
         if (RATE_DO_EXECUTE(ATTITUDE_ESTIMAT_RATE, tick)) {
             // sensorsAcquire(&sensorData, tick); /*获取6轴和气压数据*/
@@ -226,3 +224,11 @@ setpoint_t getSetpoint(void)
     return setpoint;
 }
 
+state_t getState(void)
+{
+    return state;
+}
+setpoint_t getSetpoint(void)
+{
+    return setpoint;
+}

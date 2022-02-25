@@ -28,7 +28,7 @@
  * All rights reserved
 ********************************************************************************/
 
-#define VERSION 13 /*13 表示V1.3*/
+#define VERSION 23 /*13 表示V1.3*/
 
 configParam_t configParam;
 
@@ -41,7 +41,7 @@ static configParam_t configParamDefault =
 		{
 			.roll =
 				{
-					.kp = 8.0,
+					.kp = 10.0,
 					.ki = 0.0,
 					.kd = 0.0,
 					.outputLimit = 0,
@@ -55,7 +55,7 @@ static configParam_t configParamDefault =
 				},
 			.yaw =
 				{
-					.kp = 0.0,
+					.kp = 100.0,
 					.ki = 0.0,
 					.kd = 0.0,
 					.outputLimit = 0,
@@ -65,21 +65,21 @@ static configParam_t configParamDefault =
 		{
 			.roll =
 				{
-					.kp = 80.0,
+					.kp = 50.0,
 					.ki = 0.0,
-					.kd = 6.5,
+					.kd = 1.0,
 					.outputLimit = 0,
 				},
 			.pitch =
 				{
-					.kp = 98.0,
+					.kp = 65.0,
 					.ki = 0.0,
-					.kd = 6.5,
+					.kd = 0.2,
 					.outputLimit = 0,
 				},
 			.yaw =
 				{
-					.kp = 70,
+					.kp = 15,
 					.ki = 8.0,
 					.kd = 0.0,
 					.outputLimit = 0,
@@ -103,9 +103,9 @@ static configParam_t configParamDefault =
 				},
 			.vz =
 				{
-					.kp = 80.0,
-					.ki = 130.0,
-					.kd = 10.0,
+					.kp = 240.0,
+					.ki = 100.0,
+					.kd = 15.0,
 					.outputLimit = 65500.0f,
 				},
 
@@ -125,9 +125,9 @@ static configParam_t configParamDefault =
 				},
 			.z =
 				{
-					.kp = 300.0,
-					.ki = 0.0,
-					.kd = 100.0,
+					.kp = 60.0,
+					.ki = 10.0,
+					.kd = 10.0,
 					.outputLimit = 65500.0f,
 				},
 		},
