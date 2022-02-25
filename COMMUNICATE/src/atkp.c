@@ -501,15 +501,17 @@ static void atkpSendPeriod(void)
 
         attitude_t rateDesired, angleDesired, attitude;
         sensorData_t sensor;
+        setpoint_t setpoint = getSetpoint();
+        state_t state = getState(); /*四轴姿态*/
+        control_t control = getControlData();
         getSensorData(&sensor);
         getRateDesired(&rateDesired);
         getAngleDesired(&angleDesired);
         getAttitudeData(&attitude);
 
-        getStateData(&acc, &vel, &pos);
-        sendUserData(1, acc.x, acc.y, acc.z, sensor.gyro.x, sensor.gyro.y, sensor.gyro.z, rateDesired.roll, rateDesired.pitch, rateDesired.yaw);
-        sendUserData(2, attitude.roll, attitude.pitch, attitude.yaw, angleDesired.roll, angleDesired.pitch, angleDesired.yaw,
-                     pidRatePitch.outP, pidRatePitch.outD, thrustBase);
+        // getStateData(&acc, &vel, &pos);
+        sendUserData(1, setpoint.position.z, state.position.z, setpoint.velocity.z, state.velocity.z, control.thrust, control.roll,  control.pitch , state.attitude.roll, state.attitude.pitch);
+        sendUserData(2, sensor.zrange.distance, state.velocity.x,state.velocity.y, setpoint.attitude.roll,  setpoint.attitude.pitch,  setpoint.attitude.yaw,state.attitude.yaw,0, 0);
     }
     if (!(count_ms % PERIOD_RCDATA)) {
         sendRCData(rcdata.thrust, rcdata.yaw, rcdata.roll, rcdata.pitch, 0, 0, 0, 0, 0, 0);
@@ -634,7 +636,7 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
                 pidAnglePitch.outputLimit, pidAngleYaw.outputLimit);
             sendPid(3, pidVX.kp, pidVX.ki, pidVX.kd, pidVY.kp, pidVY.ki, pidVY.kd, pidVZ.kp, pidVZ.ki, pidVZ.kd,
                 pidVX.outputLimit, pidVY.outputLimit, pidVZ.outputLimit);
-            sendPid(4, pidX.kp, pidX.ki, pidX.kd, pidY.kp, pidY.ki, pidY.kd, pidZ.kp, pidZ.ki, pidZ.kd,
+            sendPid(4, getservoinitpos_configParam(PWM_LEFT),getservoinitpos_configParam(PWM_RIGHT), getservoinitpos_configParam(PWM_MIDDLE)/10, pidY.kp, pidY.ki, pidY.kd, pidZ.kp, pidZ.ki, pidZ.kd,
                 pidX.outputLimit, pidY.outputLimit, pidZ.outputLimit);
         }
         if (anlPacket->data[0] == D_ACK_RESET_PARAM) /*恢复默认参数*/
@@ -649,7 +651,7 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
             sendPid(2, pidAngleRoll.kp, pidAngleRoll.ki, pidAngleRoll.kd, pidAnglePitch.kp, pidAnglePitch.ki,
                 pidAnglePitch.kd, pidAngleYaw.kp, pidAngleYaw.ki, pidAngleYaw.kd, 0, 0, 0);
             sendPid(3, pidVZ.kp, pidVZ.ki, pidVZ.kd, pidZ.kp, pidZ.ki, pidZ.kd, pidVX.kp, pidVX.ki, pidVX.kd, 0, 0, 0);
-            sendPid(4, pidX.kp, pidX.ki, pidX.kd, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            sendPid(4, getservoinitpos_configParam(PWM_LEFT),getservoinitpos_configParam(PWM_RIGHT), getservoinitpos_configParam(PWM_MIDDLE)/10, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
     } else if (anlPacket->msgID == DOWN_RCDATA) {
         rcdata = *((joystickFlyui16_t*)anlPacket->data);
@@ -714,9 +716,9 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);
     } else if (anlPacket->msgID == DOWN_PID4) {
-        pidX.kp = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
-        pidX.ki = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
-        pidX.kd = 0.01 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
+        u16 s_left_set    = 0.1 * ((s16)(*(anlPacket->data + 0) << 8) | *(anlPacket->data + 1));
+        u16 s_right_set   = 0.1 * ((s16)(*(anlPacket->data + 2) << 8) | *(anlPacket->data + 3));
+        u16 s_middle_set  = 0.1 * ((s16)(*(anlPacket->data + 4) << 8) | *(anlPacket->data + 5));
 
         pidY.kp = 0.1 * ((s16)(*(anlPacket->data + 6) << 8) | *(anlPacket->data + 7));
         pidY.ki = 0.1 * ((s16)(*(anlPacket->data + 8) << 8) | *(anlPacket->data + 9));
@@ -731,6 +733,10 @@ static void atkpReceiveAnl(atkp_t* anlPacket)
         pidZ.outputLimit = ((u16)(*(anlPacket->data + 22) << 8) | *(anlPacket->data + 23));
 
         positionPIDwriteToConfigParam();
+        changeServoinitpos_configParam(s_left_set, s_right_set, s_middle_set);
+        servoSetPWM(PWM_LEFT, s_left_set);
+        servoSetPWM(PWM_RIGHT, s_right_set);
+        servoSetPWM(PWM_MIDDLE, s_middle_set);
         configParamGiveSemaphore(); //将修改的configparamdefault写入flash
         u8 cksum = atkpCheckSum(anlPacket);
         sendCheck(anlPacket->msgID, cksum);

@@ -216,4 +216,13 @@ mode_e getZmode(void)
 {
     return setpoint.mode.z;
 }
+state_t getState(void)
+{
+    return state;
+}
+
+setpoint_t getSetpoint(void)
+{
+    return setpoint;
+}
 
